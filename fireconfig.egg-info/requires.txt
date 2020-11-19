@@ -1,0 +1,3 @@
+fire>=0.3
+jsonnet>=0.15
+skein>=0.8
