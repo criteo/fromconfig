@@ -1,0 +1,11 @@
+dataset:
+  type: mylib.get_dataset
+  path: path
+model:
+  type: mylib.Model
+  eval: "singleton"
+  learning_rate: "@params.learning_rate"
+main:
+  type: mylib.train_model
+  model: "@model"
+  dataset: "@dataset"

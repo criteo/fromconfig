@@ -1,0 +1,5 @@
+params:
+  type: CreatePathsMacro
+  eval: "singleton"
+  learning_rate: 0.1
+  batch_size: 512
