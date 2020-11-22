@@ -6,67 +6,50 @@ from enum import Enum
 from fireconfig.utils import child_map, import_from_string, flatten_dict
 
 
-class SpecialKey(Enum):
-    """Special Keys."""
+class Key(str, Enum):
+    """Key."""
 
-    PARSE = "parse"
     EVAL = "eval"
     TYPE = "type"
-    POSITIONAL = "*"
-
-    @classmethod
-    def is_in(cls, item):
-        return any(key.value in item for key in cls)
+    PARSE = "parse"
+    KWARGS = "**"
+    ARGS = "*"
 
 
-class ParseMode(Enum):
-    """Parse mode."""
+class Parse(str, Enum):
+    """Parse."""
 
     DICT = "dict"
-    INIT = "init"
-
-    def parse(self, item: Dict):
-        item = {key: value for key, value in item.items() if key != SpecialKey.PARSE.value}
-        if self is self.DICT:
-            return item
-        if self is self.INIT:
-            return evaluate(item)
-        raise ValueError(f"No evaluation defined for {self}")
+    EVAL = "eval"
 
 
-class EvalMode(Enum):
-    """Evaluation Types."""
+class Eval(str, Enum):
+    """Eval."""
 
     CALL = "call"
     PARTIAL = "partial"
     IMPORT = "import"
 
-    def evaluate(self, item: Dict):
-        """Evaluate item."""
-        member = import_from_string(item[SpecialKey.TYPE.value])
-        if self is self.IMPORT:
-            return member
-        args = item.get(SpecialKey.POSITIONAL.value, ())
-        kwargs = {key: value for key, value in item.items() if not SpecialKey.is_in([key])}
-        if self is self.PARTIAL:
-            return functools.partial(member, *args, **kwargs)
-        if self is self.CALL or self is self.SINGLETON:
-            return member(*args, **kwargs)
-        raise ValueError(f"No initialization defined for {self}")
-
-
-def evaluate(item):
-    if isinstance(item, dict) and SpecialKey.TYPE.value in item:
-        eval_mode = EvalMode(item.get(SpecialKey.EVAL.value, "call"))
-        return eval_mode.evaluate(item)
-    return item
-
-
-def parse(item):
-    if isinstance(item, dict):
-        parse_mode = ParseMode(item.get(SpecialKey.PARSE.value, "init"))
-        return parse_mode.parse(item)
-    return item
+    @classmethod
+    def evaluate(cls, config):
+        """Evaluate member."""
+        if isinstance(config, dict) and Key.TYPE in config:
+            mode = Eval(config.get(Key.EVAL, Eval.CALL))
+            member = import_from_string(config[Key.TYPE])
+            args = config.get(Key.ARGS, ())
+            kwargs = {param: value for param, value in config.items() if not any(key == param for key in Key)}
+            if mode == cls.CALL:
+                return member(*args, **kwargs)
+            if mode == cls.PARTIAL:
+                return functools.partial(member, *args, **kwargs)
+            if mode == cls.IMPORT:
+                if args:
+                    raise ValueError(f"Expected no args for {member} but got {args}")
+                if kwargs:
+                    raise ValueError(f"Expected no kwargs for {member} but got {kwargs}")
+                return member
+            raise ValueError(mode)
+        return config
 
 
 def reference(item):
@@ -75,13 +58,25 @@ def reference(item):
     return None
 
 
+_SINGLETONS = {}
+
+
+def singleton(key, constructor):
+    if key not in _SINGLETONS:
+        _SINGLETONS[key] = constructor()
+    return _SINGLETONS[key]
+
+
+def parse(item):
+    if isinstance(item, dict) and isinstance(item.get(Key.KWARGS), dict):
+        return {**item[Key.KWARGS], **{key: value for key, value in item.items() if key != Key.KWARGS}}
+    return item
+
+
 def from_config(config: Dict):
     """"Instantiate object from config."""
-    config = flatten_dict(config, lambda item: not SpecialKey.is_in(item))
-    for _ in range(len(config) - 1):
-        config = child_map(lambda item: config.get(reference(item), item), config)
-    return child_map(
-        parse,
-        config,
-        lambda item: isinstance(item, dict) and item.get(SpecialKey.PARSE.value) == ParseMode.DICT.value
-    )
+    config = child_map(parse, config)
+    references = flatten_dict(config, lambda item: not any(key in item for key in Key))
+    for _ in range(len(references) - 1):
+        config = child_map(lambda item: references.get(reference(item), item) if reference(item) else item, config)
+    return child_map(Eval.evaluate, config, lambda item: isinstance(item, dict) and item.get(Key.PARSE) == Parse.DICT)

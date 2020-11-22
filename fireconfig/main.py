@@ -26,12 +26,7 @@ def main():
     """Main entry point"""
     sys.path.append(os.getcwd())
     logging.basicConfig(level=logging.INFO)
-    fire.Fire(
-        {
-            "run": run,
-            "from_config": from_config,
-        }
-    )
+    fire.Fire({"run": run, "from_config": from_config})
 
 
 if __name__ == "__main__":
