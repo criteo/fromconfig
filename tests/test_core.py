@@ -1,42 +1,49 @@
 """Tests for core."""
 
+from typing import Dict
 import dataclasses
 from fireconfig import core
-from typing import Dict
 
 
 @dataclasses.dataclass
 class A:
     a: float
-
-
-@dataclasses.dataclass
-class B:
-    b: A
+    b: float
     c: Dict
 
+    def __repr__(self):
+        return f"A(a={self.a}, b={self.b}, c={self.c}, id={id(self)})"
 
-config = {
+
+class Macro(dict):
+    """Macro."""
+
+
+macros = {
+    "constants": {
+        "b": 0
+    },
     "params": {
-        "learning_rate": 0.1
-    },
-    "a": {
-        "type": "test_core.A",
-        "a": "@params.learning_rate"
-    },
+        "a": 1,
+        "**": {
+            "type": "test_core.Macro",
+            "b": "@constants.b"
+        }
+    }
+}
+config = {
     "main": {
-        "type": "test_core.B",
-        "b": "@a",
+        "type": "test_core.A",
+        "eval": "call",
+        "a": "@params.a",
+        "b": "@params.b",
         "c": {
+            "type": "some.module",
             "parse": "dict",
-            "e": {
-                "type": "test_core.A",
-                "a": "@params.learning_rate"
-            }
         }
     }
 }
 
 
 def test_from_config():
-    print(core.from_config(config)["main"])
+    print(core.from_config({**config, **core.from_config(macros)}))

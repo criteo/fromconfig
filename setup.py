@@ -19,11 +19,7 @@ if __name__ == "__main__":
         name="fireconfig",
         author=metadata["author"],
         version=metadata["version"],
-        install_requires=[
-            "fire>=0.3",
-            "jsonnet>=0.15",
-            "skein>=0.8",
-        ],
+        install_requires=["fire>=0.3", "jsonnet>=0.15", "skein>=0.8"],
         tests_require=["pytest"],
         dependency_links=[],
         entry_points={"console_scripts": ["fireconfig = fireconfig.main:main"]},
