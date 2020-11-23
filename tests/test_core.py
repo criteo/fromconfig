@@ -44,7 +44,7 @@ config = {
         "c": {
             "type": "fireconfig.core.Config",
             "config": {
-                "typea": "some.module"
+                "type": "some.module"
             }
         }
     }
@@ -52,4 +52,4 @@ config = {
 
 
 def test_from_config():
-    print(core.from_config({**config, **core.from_config(macros)}))
+    print(core.from_config(core.parse_config({**config, **core.from_config(core.parse_config(macros))})))
