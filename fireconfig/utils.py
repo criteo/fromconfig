@@ -17,8 +17,8 @@ def flatten_dict(item: Dict, cond_fn: Callable = None) -> Dict:
     return item
 
 
-def child_map(map_fn: Callable[[Any], Any], item: Any) -> Any:
-    """Map Function on item, recursively on children.
+def depth_map(map_fn: Callable[[Any], Any], item: Any) -> Any:
+    """Depth-first map implementation on dictionary, tuple and list.
 
     Parameters
     ----------
@@ -33,15 +33,15 @@ def child_map(map_fn: Callable[[Any], Any], item: Any) -> Any:
         The result of applying map_fn to item and its children.
     """
     if isinstance(item, dict):
-        return map_fn({key: child_map(map_fn, value) for key, value in item.items()})
+        return map_fn({key: depth_map(map_fn, value) for key, value in item.items()})
     if isinstance(item, list):
-        return map_fn([child_map(map_fn, it) for it in item])
+        return map_fn([depth_map(map_fn, it) for it in item])
     if isinstance(item, tuple):
-        return map_fn(tuple(child_map(map_fn, it) for it in item))
+        return map_fn(tuple(depth_map(map_fn, it) for it in item))
     return map_fn(item)
 
 
-def import_string(import_str: str) -> Any:
+def string_import(import_str: str) -> Any:
     """Import module attribute using import string.
 
     Parameters
