@@ -78,6 +78,7 @@ def replace_references(config: Dict):
         return item
 
     # If no cycle, no more than n - 1 edges to add
+    # TODO: more deterministic? (resolve order, check no cycle)
     for _ in range(len(references) - 1):
         config = utils.depth_map(_map_fn, config)
 
@@ -90,6 +91,7 @@ def assert_no_references(config: Dict):
 
     def _map_fn(item):
         if Reference.is_valid(item):
+            # TODO: @params.x if x not in params does not fail
             if Reference(item) in references:
                 raise ValueError(f"Found reference {item} (check for cycles).")
         return item
@@ -102,6 +104,7 @@ def parse_config(config: Dict):
     config = explode_kwargs(config)
     config = replace_references(config)
     assert_no_references(config)
+    # TODO: special case of @self @macro etc.?
     return config
 
 
