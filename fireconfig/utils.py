@@ -17,7 +17,7 @@ def flatten_dict(item: Dict, cond_fn: Callable = None) -> Dict:
     return item
 
 
-def child_map(map_fn: Callable[[Any], Any], item: Any, stop_fn: Callable[[Any], bool] = None) -> Any:
+def child_map(map_fn: Callable[[Any], Any], item: Any) -> Any:
     """Map Function on item, recursively on children.
 
     Parameters
@@ -26,32 +26,28 @@ def child_map(map_fn: Callable[[Any], Any], item: Any, stop_fn: Callable[[Any], 
         Map Function to apply to item and its children
     item : Any
         Any python object
-    stop_fn : Callable[[Any], bool], optional
-        When specified and stop_fn(item) is True, stop recursive call.
 
     Returns
     -------
     Any
         The result of applying map_fn to item and its children.
     """
-    if stop_fn and stop_fn(item):
-        return item
     if isinstance(item, dict):
-        return map_fn({key: child_map(map_fn, value, stop_fn) for key, value in item.items()})
+        return map_fn({key: child_map(map_fn, value) for key, value in item.items()})
     if isinstance(item, list):
-        return map_fn([child_map(map_fn, it, stop_fn) for it in item])
+        return map_fn([child_map(map_fn, it) for it in item])
     if isinstance(item, tuple):
-        return map_fn(tuple(child_map(map_fn, it, stop_fn) for it in item))
+        return map_fn(tuple(child_map(map_fn, it) for it in item))
     return map_fn(item)
 
 
-def import_from_string(import_str: str) -> Any:
-    """Import module member using import string.
+def import_string(import_str: str) -> Any:
+    """Import module attribute using import string.
 
     Parameters
     ----------
     import_str : str
-        Full import string of the module member
+        Full import string of the module attribute
 
     Returns
     -------
