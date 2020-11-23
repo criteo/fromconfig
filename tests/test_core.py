@@ -21,10 +21,14 @@ class Macro(dict):
 
 macros = {
     "constants": {
-        "b": 0
+        "a": 0,
+        "b": 1,
+        "**": {
+            "c": 2
+        }
     },
     "params": {
-        "a": 1,
+        "a": "@constants.a",
         "**": {
             "type": "test_core.Macro",
             "b": "@constants.b"
@@ -38,8 +42,10 @@ config = {
         "a": "@params.a",
         "b": "@params.b",
         "c": {
-            "type": "some.module",
-            "parse": "dict",
+            "type": "fireconfig.core.Config",
+            "config": {
+                "typea": "some.module"
+            }
         }
     }
 }
