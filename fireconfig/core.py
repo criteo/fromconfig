@@ -1,13 +1,11 @@
 """Core functionality."""
 
 from abc import ABC
+import collections
 import functools
 from typing import Dict
 from enum import Enum
 from fireconfig import utils
-
-
-REF = "@"
 
 
 class Key(str, Enum):
@@ -25,6 +23,21 @@ class Eval(str, Enum):
     CALL = "call"
     PARTIAL = "partial"
     IMPORT = "import"
+
+
+class Reference(collections.UserString):
+    """Normalize reference strings."""
+
+    PREFIX = "@"
+
+    def __init__(self, data):
+        if not data.startswith(self.PREFIX):
+            raise ValueError(f"{data} is not a proper reference (no prefix {self.PREFIX})")
+        super().__init__(data[len(self.PREFIX):])
+
+    @classmethod
+    def is_valid(cls, value) -> bool:
+        return isinstance(value, str) and value.startswith(cls.PREFIX)
 
 
 class FromConfig(ABC):
@@ -58,10 +71,9 @@ def replace_references(config: Dict):
     references = utils.flatten_dict(config, lambda item: not any(key in item for key in Key))
 
     def _map_fn(item):
-        if isinstance(item, str) and item.startswith(REF):
-            name = item[len(REF):]
-            if name in references:
-                return references[name]
+        if Reference.is_valid(item):
+            if Reference(item) in references:
+                return references[Reference(item)]
             return item
         return item
 
@@ -77,10 +89,9 @@ def assert_no_references(config: Dict):
     references = utils.flatten_dict(config, lambda item: not any(key in item for key in Key))
 
     def _map_fn(item):
-        if isinstance(item, str) and item.startswith(REF):
-            name = item[len(REF):]
-            if name in references:
-                raise ValueError(f"Found reference {name} (check for cycles).")
+        if Reference.is_valid(item):
+            if Reference(item) in references:
+                raise ValueError(f"Found reference {item} (check for cycles).")
         return item
 
     utils.depth_map(_map_fn, config)
@@ -102,18 +113,18 @@ def from_config(config):
             return attribute.from_config({key: value for key, value in config.items() if key != Key.TYPE})
         args = from_config(config.get(Key.ARGS, ()))
         kwargs = {param: from_config(value) for param, value in config.items() if not any(key == param for key in Key)}
-        init = Eval(config.get(Key.EVAL, Eval.CALL))
-        if init == Eval.CALL:
+        mode = Eval(config.get(Key.EVAL, Eval.CALL))
+        if mode == Eval.CALL:
             return attribute(*args, **kwargs)
-        if init == Eval.PARTIAL:
+        if mode == Eval.PARTIAL:
             return functools.partial(attribute, *args, **kwargs)
-        if init == Eval.IMPORT:
+        if mode == Eval.IMPORT:
             if args:
-                raise ValueError(f"Expected no args for {attribute} with {Key.EVAL} = {init}, but got {args}")
+                raise ValueError(f"Expected no args for {attribute} with {Key.EVAL} = {mode}, but got {args}")
             if kwargs:
-                raise ValueError(f"Expected no kwargs for {attribute} with {Key.EVAL} = {init}, but got {kwargs}")
+                raise ValueError(f"Expected no kwargs for {attribute} with {Key.EVAL} = {mode}, but got {kwargs}")
             return attribute
-        raise ValueError(f"{init} not supported")
+        raise ValueError(f"{mode} not supported")
 
     if isinstance(config, tuple):
         return tuple(from_config(it) for it in config)
