@@ -1,6 +1,7 @@
 """Base functionality."""
 
 from abc import ABC, abstractclassmethod
+import inspect
 import logging
 from typing import Any, Mapping
 
@@ -60,7 +61,7 @@ def fromconfig(config: Any, safe: bool = False):
     if is_mapping(config):
         # Resolve attribute, check if subclass of FromConfig
         attr = register.resolve(config[Keys.ATTR], safe=safe) if Keys.ATTR in config else None
-        if attr is not None and issubclass(attr, FromConfig):
+        if inspect.isclass(attr) and issubclass(attr, FromConfig):
             return attr.fromconfig({key: value for key, value in config.items() if key != Keys.ATTR})
 
         # Resolve and instantiate args and kwargs

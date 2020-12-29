@@ -4,16 +4,16 @@ from typing import Any, Mapping
 
 from fromconfig.core import Keys
 from fromconfig.utils import flatten_dict, depth_map
-from fromconfig.parsers.base import Parser
+from fromconfig.parser import base
 
 
-class ReferenceParser(Parser):
+class ReferenceParser(base.Parser):
     """Reference Parser.
 
     Examples
     --------
     >>> import fromconfig
-    >>> parser = fromconfig.parsers.ReferenceParser()
+    >>> parser = fromconfig.parser.ReferenceParser()
     >>> config = {"x": 1, "y": "@x"}
     >>> parsed = parser(config)
     >>> parsed["y"]
