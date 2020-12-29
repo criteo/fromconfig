@@ -23,13 +23,13 @@ def function():
 @pytest.mark.parametrize(
     "name,expected",
     [
-        ("dict", dict),
-        ("list", list),
-        ("tests.unit.utils.test_utils_libimport.Class", Class),
-        ("tests.unit.utils.test_utils_libimport.Class.method", Class.method),
-        ("tests.unit.utils.test_utils_libimport.Class.VARIABLE", Class.VARIABLE),
-        ("tests.unit.utils.test_utils_libimport.function", function),
-        ("functools.partial", functools.partial),
+        pytest.param("dict", dict, id="dict"),
+        pytest.param("list", list, id="list"),
+        pytest.param("tests.unit.utils.test_utils_libimport.Class", Class, id="Class"),
+        pytest.param("tests.unit.utils.test_utils_libimport.Class.method", Class.method, id="method"),
+        pytest.param("tests.unit.utils.test_utils_libimport.Class.VARIABLE", Class.VARIABLE, id="VARIABLE"),
+        pytest.param("tests.unit.utils.test_utils_libimport.function", function, id="function"),
+        pytest.param("functools.partial", functools.partial, id="functools"),
     ],
 )
 def test_utils_import_from_string(name, expected):

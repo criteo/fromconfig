@@ -17,8 +17,14 @@ def test_config():
 @pytest.mark.parametrize(
     "config, expected",
     [
-        ({"_attr_": "str", "_args_": "hello"}, fromconfig.Config(_attr_="str", _args_="hello")),
-        ({"config": {"_attr_": "str", "_args_": "hello"}}, fromconfig.Config(_attr_="str", _args_="hello")),
+        pytest.param(
+            {"_attr_": "str", "_args_": "hello"}, fromconfig.Config(_attr_="str", _args_="hello"), id="simple"
+        ),
+        pytest.param(
+            {"config": {"_attr_": "str", "_args_": "hello"}},
+            fromconfig.Config(_attr_="str", _args_="hello"),
+            id="config",
+        ),
     ],
 )
 def test_config_fromconfig_method(config, expected):
@@ -29,9 +35,10 @@ def test_config_fromconfig_method(config, expected):
 @pytest.mark.parametrize(
     "config, expected",
     [
-        (
+        pytest.param(
             {"_attr_": "Config", "config": {"_attr_": "str", "_args_": "hello"}},
             fromconfig.Config(_attr_="str", _args_="hello"),
+            id="config-with-attr",
         )
     ],
 )

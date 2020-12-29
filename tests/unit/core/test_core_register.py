@@ -21,7 +21,14 @@ def function():
     """function."""
 
 
-@pytest.mark.parametrize("name,expected", [("Class", Class), ("Class.method", Class.method), ("function", function)])
+@pytest.mark.parametrize(
+    "name,expected",
+    [
+        pytest.param("Class", Class, id="class"),
+        pytest.param("Class.method", Class.method, id="method"),
+        pytest.param("function", function, id="function"),
+    ],
+)
 @pytest.mark.parametrize("safe", [True, False])
 def test_core_register(name, expected, safe):
     """Test core.register."""
