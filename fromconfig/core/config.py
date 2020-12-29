@@ -1,4 +1,4 @@
-"""Base Config Class."""
+"""Config Class."""
 
 from collections import UserDict
 import json
@@ -22,20 +22,20 @@ except ImportError as e:
 
 @register("Config")
 class Config(FromConfig, UserDict):
-    """Convenient class to manipulate config mappings."""
+    """Help with serialization of dictionaries."""
 
     def dump(self, path: Union[str, Path]):
         suffix = Path(path).suffix
         if Path(path).suffix == ".yaml":
             with Path(path).open("w") as file:
-                yaml.dump(self._kwargs, file)
+                yaml.dump(self.data, file)
         if suffix in (".json", ".jsonnet"):
             with Path(path).open("w") as file:
-                json.dump(self._kwargs, file)
+                json.dump(self.data, file)
         raise ValueError(f"Unable to resolve method for path {path}")
 
     def dumps(self):
-        return yaml.dump(self._kwargs)
+        return yaml.dump(self.data)
 
     @classmethod
     def load(cls, path: Union[str, Path]):
@@ -47,22 +47,22 @@ class Config(FromConfig, UserDict):
             Path to file or yaml / json string
         """
         suffix = Path(path).suffix
-        if Path(path).suffix == ".yaml":
+        if suffix in (".yaml", ".yml"):
             with Path(path).open() as file:
-                return cls(**yaml.safe_load(file))
+                return cls(yaml.safe_load(file))
         if suffix == ".json":
             with Path(path).open() as file:
-                return cls(**json.load(file))
-        if Path(path).suffix == ".jsonnet":
+                return cls(json.load(file))
+        if suffix == ".jsonnet":
             if _jsonnet is None:
-                raise ImportError("Unable to import jsonnet.")
-            return cls(**json.loads(_jsonnet.evaluate_file(str(path))))
+                raise ImportError("Unable to import _jsonnet.")
+            return cls(json.loads(_jsonnet.evaluate_file(str(path))))
         raise ValueError(f"Unable to resolve method for path {path}")
 
     @classmethod
     def loads(cls, data: str):
-        return cls(**yaml.safe_load(data))
+        return cls(yaml.safe_load(data))
 
     @classmethod
     def fromconfig(cls, config):
-        return cls(**config.get("config", config))
+        return cls(config.get("config", config))

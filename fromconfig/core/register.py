@@ -15,7 +15,7 @@ class _Register(ImmutableDict):
 
         return _decorator if attr is None else _decorator(attr)
 
-    def resolve(self, name: str, safe: bool = False):
+    def resolve(self, name: str, safe: bool = True):
         """Resolve attribute from register or import string.
 
         Parameters
