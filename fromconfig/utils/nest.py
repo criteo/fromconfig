@@ -1,14 +1,16 @@
 """Nest Utilities."""
 
-from collections.abc import Mapping, Iterable
+from collections.abc import Mapping
 import logging
 from typing import Callable, Any, Dict
+
+from fromconfig.utils.containers import is_mapping, is_iterable, try_init
 
 
 LOGGER = logging.getLogger(__name__)
 
 
-def flatten_dict(item: Dict, cond_fn: Callable = None) -> Dict:
+def flatten_dict(item: Mapping, cond_fn: Callable = None) -> Dict:
     """Flatten dictionary.
 
     Examples
@@ -29,7 +31,7 @@ def flatten_dict(item: Dict, cond_fn: Callable = None) -> Dict:
     -------
     Dict
     """
-    if isinstance(item, Mapping) and (cond_fn is None or cond_fn(item)):
+    if is_mapping(item) and (cond_fn is None or cond_fn(item)):
         flattened = {}
         for key, value in item.items():
             if isinstance(value, Mapping) and (cond_fn is None or cond_fn(value)):
@@ -37,7 +39,7 @@ def flatten_dict(item: Dict, cond_fn: Callable = None) -> Dict:
                     flattened[f"{key}.{subkey}"] = subvalue
             else:
                 flattened[key] = value
-        return flattened
+        return try_init(type(item), dict, flattened)
     return item
 
 
@@ -67,16 +69,10 @@ def merge_dict(item1: Mapping, item2: Mapping, allow_override: bool = True) -> M
     Mapping
     """
 
-    # Check arguments types
-    if not isinstance(item1, Mapping):
-        raise TypeError(f"Expected type Mapping but got {type(item1)}")
-    if not isinstance(item2, Mapping):
-        raise TypeError(f"Expected type Mapping but got {type(item2)}")
-
     def _merge(it1: Any, it2: Any):
         """Recursive implementation."""
-        if isinstance(it1, Mapping):
-            if not isinstance(it2, Mapping):
+        if is_mapping(it1):
+            if not is_mapping(it2):
                 raise TypeError(f"Incompatible types, {type(it2)} and {type(it2)}")
 
             # Build merged dictionary
@@ -91,12 +87,7 @@ def merge_dict(item1: Mapping, item2: Mapping, allow_override: bool = True) -> M
                 if key not in it1 and key in it2:
                     merged[key] = it2[key]
 
-            # Try to construct new instance of same type as it1
-            try:
-                return type(it1)(**merged)
-            except Exception as e:  # pylint: disable=broad-except
-                LOGGER.warning(f"Error while merging {it1} and {it2} ({e})")
-                return merged
+            return try_init(type(it1), dict, merged)
 
         return it2
 
@@ -128,21 +119,13 @@ def depth_map(map_fn: Callable[[Any], Any], item: Any) -> Any:
         The result of applying map_fn to item and its children.
     """
     # If mapping, try to create new mapping with mapped kwargs
-    if isinstance(item, Mapping):
+    if is_mapping(item):
         kwargs = {key: depth_map(map_fn, value) for key, value in item.items()}
-        try:
-            return map_fn(type(item)(**kwargs))
-        except Exception as e:  # pylint: disable=broad-except
-            LOGGER.warning(f"Error while applying depth_map on {item} ({e})")
-            return map_fn(kwargs)
+        return map_fn(try_init(type(item), dict, kwargs))
 
     # If iterable, try to create new iterable with mapped args
-    if not isinstance(item, str) and isinstance(item, Iterable):
-        items = [depth_map(map_fn, it) for it in item]
-        try:
-            return map_fn(type(item)(*items))
-        except Exception as e:  # pylint: disable=broad-except
-            LOGGER.warning(f"Error while applying depth_map on {item} ({e})")
-            return map_fn(items)
+    if is_iterable(item):
+        args = [depth_map(map_fn, it) for it in item]
+        return map_fn(try_init(type(item), list, args))
 
     return map_fn(item)

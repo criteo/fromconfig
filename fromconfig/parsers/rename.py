@@ -1,4 +1,4 @@
-"""RenameKeys parser."""
+"""Rename parser."""
 
 from collections.abc import Mapping
 from typing import Dict
@@ -7,7 +7,7 @@ from fromconfig.utils import depth_map
 from fromconfig.parsers.base import Parser
 
 
-class RenameKeysParser(Parser):
+class RenameParser(Parser):
     """Rename Keys parser."""
 
     def __init__(self, renames: Dict[str, str]):

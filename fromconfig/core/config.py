@@ -1,6 +1,6 @@
 """Base Config Class."""
 
-from collections.abc import MutableMapping
+from collections import UserDict
 import json
 import yaml
 import logging
@@ -16,31 +16,13 @@ LOGGER = logging.getLogger(__name__)
 try:
     import _jsonnet
 except ImportError as e:
-    LOGGER.error(f"Unable to import jsonnet, {e}")
+    LOGGER.error(f"Unable to import _jsonnet, {e}")
     _jsonnet = None
 
 
 @register("Config")
-class Config(FromConfig, MutableMapping):
-    """Base Config class (custom dict)."""
-
-    def __init__(self, **kwargs):
-        self._kwargs = kwargs
-
-    def __getitem__(self, item):
-        return self._kwargs[item]
-
-    def __setitem__(self, key, value):
-        self._kwargs[key] = value
-
-    def __delitem__(self, key):
-        self._kwargs.__delitem__(key)
-
-    def __iter__(self):
-        yield from self._kwargs
-
-    def __len__(self):
-        return len(self._kwargs)
+class Config(FromConfig, UserDict):
+    """Convenient class to manipulate config mappings."""
 
     def dump(self, path: Union[str, Path]):
         suffix = Path(path).suffix
@@ -54,10 +36,6 @@ class Config(FromConfig, MutableMapping):
 
     def dumps(self):
         return yaml.dump(self._kwargs)
-
-    @classmethod
-    def fromconfig(cls, config: MutableMapping):
-        return cls(**config.get("config", config))
 
     @classmethod
     def load(cls, path: Union[str, Path]):
@@ -84,3 +62,7 @@ class Config(FromConfig, MutableMapping):
     @classmethod
     def loads(cls, data: str):
         return cls(**yaml.safe_load(data))
+
+    @classmethod
+    def fromconfig(cls, config):
+        return cls(**config.get("config", config))
