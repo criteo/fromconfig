@@ -2,9 +2,9 @@
 
 from typing import Mapping
 
-from fromconfig import Keys
-from fromconfig.utils import depth_map, is_mapping
+from fromconfig.core import Keys
 from fromconfig.parser import base
+from fromconfig.utils import depth_map, is_mapping
 
 
 class SingletonParser(base.Parser):
