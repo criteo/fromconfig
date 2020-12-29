@@ -17,19 +17,13 @@ class Update(fromconfig.parser.Parser):
 
 def test_parser_chain():
     """Test parser.Chain."""
-    parser = fromconfig.parser.Chain(
-        Update({1: 2}),
-        Update({3: 4}),
-    )
+    parser = fromconfig.parser.Chain(Update({1: 2}), Update({3: 4}))
     parsed = parser({})
     assert parsed == {1: 2, 3: 4}
 
 
 def test_parser_select():
     """Test parser.Select."""
-    parser = fromconfig.parser.Select(
-        key="x",
-        parser=Update({1: 2})
-    )
+    parser = fromconfig.parser.Select(key="x", parser=Update({1: 2}))
     parsed = parser({"x": {}, "y": {3: 4}})
     assert parsed == {"x": {1: 2}, "y": {3: 4}}
