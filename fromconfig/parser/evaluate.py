@@ -3,9 +3,9 @@
 import logging
 from typing import Mapping
 
-from fromconfig import Keys
-from fromconfig.utils import StrEnum, depth_map, is_mapping
+from fromconfig.core import Keys
 from fromconfig.parser import base
+from fromconfig.utils import StrEnum, depth_map, is_mapping
 
 
 LOGGER = logging.getLogger(__name__)

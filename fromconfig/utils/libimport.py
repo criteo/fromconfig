@@ -32,16 +32,16 @@ def import_from_string(name: str) -> Any:
     module, part = None, 0
     for idx in range(1, len(parts)):
         try:
-            name = ".".join(parts[:idx])
-            module = importlib.import_module(name)
+            module_name = ".".join(parts[:idx])
+            module = importlib.import_module(module_name)
             part = idx
         except Exception as e:  # pylint: disable=broad-except
-            LOGGER.info(f"Exception while loading module from {name}: {e}")
+            LOGGER.info(f"Exception while loading module from {module_name}: {e}")
             break
 
     # Resolve attribute
     attr = module if module is not None else builtins
-    for part in parts[part:]:
-        attr = getattr(attr, part)
+    for part_name in parts[part:]:
+        attr = getattr(attr, part_name)
 
     return attr

@@ -3,8 +3,8 @@
 from typing import Any, Mapping
 
 from fromconfig.core import Keys
-from fromconfig.utils import flatten_dict, depth_map
 from fromconfig.parser import base
+from fromconfig.utils import flatten_dict, depth_map
 
 
 class ReferenceParser(base.Parser):

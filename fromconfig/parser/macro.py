@@ -4,8 +4,8 @@ import logging
 from typing import Mapping
 
 from fromconfig.core import fromconfig
-from fromconfig.utils import merge_dict
 from fromconfig.parser import base
+from fromconfig.utils import merge_dict
 
 
 LOGGER = logging.getLogger(__name__)

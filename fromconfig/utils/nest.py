@@ -1,7 +1,7 @@
 """Nest Utilities."""
 
 import logging
-from typing import Callable, Any, Dict, Mapping
+from typing import Callable, Any, Mapping
 
 from fromconfig.utils.container import is_mapping, is_iterable, try_init
 
@@ -9,7 +9,7 @@ from fromconfig.utils.container import is_mapping, is_iterable, try_init
 LOGGER = logging.getLogger(__name__)
 
 
-def flatten_dict(item: Mapping, cond_fn: Callable = None) -> Dict:
+def flatten_dict(item: Mapping, cond_fn: Callable = None) -> Mapping:
     """Flatten dictionary.
 
     Examples

@@ -2,8 +2,8 @@
 
 from typing import Dict, Mapping
 
-from fromconfig.utils import depth_map, is_mapping
 from fromconfig.parser import base
+from fromconfig.utils import depth_map, is_mapping
 
 
 class RenameParser(base.Parser):
