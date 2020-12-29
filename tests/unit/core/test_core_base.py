@@ -20,7 +20,7 @@ class Custom(fromconfig.FromConfig):
         return cls(config["_x"])
 
 
-@pytest.mark.parametrize("config, expected", [({"_attr_": "Custom", "_x": 1}, Custom(1))])
+@pytest.mark.parametrize("config, expected", [pytest.param({"_attr_": "Custom", "_x": 1}, Custom(1), id="simple")])
 def test_core_fromconfig(config, expected):
     """Test core.fromconfig."""
     assert fromconfig.fromconfig(config) == expected
