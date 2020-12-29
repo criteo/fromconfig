@@ -13,7 +13,7 @@ def is_mapping(item) -> bool:
 
 
 def is_iterable(item) -> bool:
-    return item is not None and not isinstance(item, str) and isinstance(item, Iterable)
+    return item is not None and not isinstance(item, str) and isinstance(item, Iterable) and not is_mapping(item)
 
 
 def try_init(cls, default_cls, *args, **kwargs):

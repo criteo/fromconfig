@@ -3,7 +3,7 @@
 import logging
 from typing import Callable, Any, Dict, Mapping
 
-from fromconfig.utils.containers import is_mapping, is_iterable, try_init
+from fromconfig.utils.container import is_mapping, is_iterable, try_init
 
 
 LOGGER = logging.getLogger(__name__)
