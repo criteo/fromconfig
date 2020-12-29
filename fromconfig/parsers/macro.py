@@ -1,7 +1,7 @@
 """Macro Parser."""
 
-from collections.abc import Mapping
 import logging
+from typing import Mapping
 
 from fromconfig.core import fromconfig
 from fromconfig.utils import merge_dict
