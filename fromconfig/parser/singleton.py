@@ -4,10 +4,10 @@ from typing import Mapping
 
 from fromconfig import Keys
 from fromconfig.utils import depth_map, is_mapping
-from fromconfig.parsers.base import Parser
+from fromconfig.parser import base
 
 
-class SingletonParser(Parser):
+class SingletonParser(base.Parser):
     """Singleton parser."""
 
     KEY = "_singleton_"
@@ -17,12 +17,13 @@ class SingletonParser(Parser):
 
         def _map_fn(item):
             if is_mapping(item) and self.KEY in item:
-                key = item[self.Key]
-                name = item.get(Keys.ATTR)
+                key = item[self.KEY]
+                name = item[Keys.ATTR]
                 args = item.get(Keys.ARGS, [])
                 kwargs = {key: value for key, value in item.items() if key not in (self.KEY, Keys.ATTR, Keys.ARGS)}
-                constructor = {Keys.ATTR: "functools.partial", Keys.ARGS: [name, *args] if name else args, **kwargs}
-                return {Keys.ATTR: "fromconfig.singleton", "key": key, "constructor": constructor}
+                constructor = {Keys.ATTR: "fromconfig.utils.import_from_string", "name": name}
+                constructor = {Keys.ATTR: "functools.partial", Keys.ARGS: [constructor, *args], **kwargs}
+                return {Keys.ATTR: "singleton", "key": key, "constructor": constructor}
             return item
 
         return depth_map(_map_fn, config)

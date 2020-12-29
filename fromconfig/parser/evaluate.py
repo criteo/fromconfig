@@ -5,7 +5,7 @@ from typing import Mapping
 
 from fromconfig import Keys
 from fromconfig.utils import StrEnum, depth_map, is_mapping
-from fromconfig.parsers.base import Parser
+from fromconfig.parser import base
 
 
 LOGGER = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ class EvaluateMode(StrEnum):
     IMPORT = "import"
 
 
-class EvaluateParser(Parser):
+class EvaluateParser(base.Parser):
     """Evaluate parser."""
 
     KEY = "_eval_"
@@ -48,7 +48,7 @@ class EvaluateParser(Parser):
                 if evaluate == EvaluateMode.PARTIAL:
                     if name is None:
                         raise ValueError(f"No {Keys.ATTR} found in item {item} (evaluate = {evaluate})")
-                    fn = {Keys.ATTR: "fromconfig.utils.import_from_string", Keys.ARGS: name}
+                    fn = {Keys.ATTR: "fromconfig.utils.import_from_string", "name": name}
                     return {Keys.ATTR: "functools.partial", Keys.ARGS: [fn, *args], **kwargs}
 
                 # If CALL, nothing to do (default behavior)

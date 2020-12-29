@@ -5,19 +5,19 @@ from typing import Mapping
 
 from fromconfig.core import fromconfig
 from fromconfig.utils import merge_dict
-from fromconfig.parsers.base import Parser
+from fromconfig.parser import base
 
 
 LOGGER = logging.getLogger(__name__)
 
 
-class MacroParser(Parser):
+class MacroParser(base.Parser):
     """Macro Parser.
 
     Example
     -------
     >>> import fromconfig
-    >>> parser = fromconfig.parsers.MacroParser()
+    >>> parser = fromconfig.parser.MacroParser()
     >>> config = {"_macro_": {"x": 1}, "_config_": {"y": "@x"}}
     >>> parsed = parser(config)
     >>> parsed["x"]

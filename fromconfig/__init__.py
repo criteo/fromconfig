@@ -2,4 +2,4 @@
 
 from fromconfig.core import *
 from fromconfig import utils
-from fromconfig import parsers
+from fromconfig import parser

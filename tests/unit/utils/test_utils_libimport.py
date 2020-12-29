@@ -1,5 +1,7 @@
 """Tests for utils.libimport."""
 
+import functools
+
 import pytest
 
 import fromconfig
@@ -27,6 +29,7 @@ def function():
         ("tests.unit.utils.test_utils_libimport.Class.method", Class.method),
         ("tests.unit.utils.test_utils_libimport.Class.VARIABLE", Class.VARIABLE),
         ("tests.unit.utils.test_utils_libimport.function", function),
+        ("functools.partial", functools.partial)
     ],
 )
 def test_utils_import_from_string(name, expected):

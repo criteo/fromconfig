@@ -30,10 +30,11 @@ def import_from_string(name: str) -> Any:
 
     # Import modules
     module, part = None, 0
-    for part in range(1, len(parts) - 1):
+    for idx in range(1, len(parts)):
         try:
-            name = ".".join(parts[:part])
+            name = ".".join(parts[:idx])
             module = importlib.import_module(name)
+            part = idx
         except Exception as e:  # pylint: disable=broad-except
             LOGGER.info(f"Exception while loading module from {name}: {e}")
             break

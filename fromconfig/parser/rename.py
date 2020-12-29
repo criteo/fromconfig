@@ -3,10 +3,10 @@
 from typing import Dict, Mapping
 
 from fromconfig.utils import depth_map, is_mapping
-from fromconfig.parsers.base import Parser
+from fromconfig.parser import base
 
 
-class RenameParser(Parser):
+class RenameParser(base.Parser):
     """Rename Keys parser."""
 
     def __init__(self, renames: Dict[str, str]):

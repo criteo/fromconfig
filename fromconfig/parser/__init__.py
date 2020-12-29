@@ -2,12 +2,12 @@
 
 from typing import Callable
 
-from fromconfig.parsers.base import Parser, Chain, Select
-from fromconfig.parsers.evaluate import EvaluateMode, EvaluateParser
-from fromconfig.parsers.macro import MacroParser
-from fromconfig.parsers.reference import ReferenceParser
-from fromconfig.parsers.rename import RenameParser
-from fromconfig.parsers.singleton import SingletonParser
+from fromconfig.parser.base import Parser, Chain, Select
+from fromconfig.parser.evaluate import EvaluateMode, EvaluateParser
+from fromconfig.parser.macro import MacroParser
+from fromconfig.parser.reference import ReferenceParser
+from fromconfig.parser.rename import RenameParser
+from fromconfig.parser.singleton import SingletonParser
 
 
 _STANDARD = Chain(ReferenceParser(), EvaluateParser(), SingletonParser())
