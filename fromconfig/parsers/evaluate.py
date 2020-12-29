@@ -1,10 +1,10 @@
 """Evaluate parser."""
 
-from collections.abc import Mapping
 import logging
+from typing import Mapping
 
 from fromconfig import Keys
-from fromconfig.utils import StrEnum, depth_map
+from fromconfig.utils import StrEnum, depth_map, is_mapping
 from fromconfig.parsers.base import Parser
 
 
@@ -28,7 +28,7 @@ class EvaluateParser(Parser):
         """Parses configs with _eval_ key into valid config."""
 
         def _map_fn(item):
-            if isinstance(item, Mapping) and self.KEY in item:
+            if is_mapping(item) and self.KEY in item:
                 # Get mode, attribute name, args, and kwargs from item
                 evaluate = EvaluateMode(item[self.KEY])
                 name = item.get(Keys.ATTR)

@@ -1,6 +1,6 @@
 """Reference Parser."""
 
-from typing import Any
+from typing import Any, Mapping
 
 from fromconfig.core import Keys
 from fromconfig.utils import flatten_dict, depth_map
@@ -22,7 +22,7 @@ class ReferenceParser(Parser):
 
     PREFIX = "@"
 
-    def __call__(self, config):
+    def __call__(self, config: Mapping):
         references = flatten_dict(config, lambda cfg: not any(key in cfg for key in Keys))
 
         def _map_fn(item):

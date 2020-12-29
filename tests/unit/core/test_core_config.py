@@ -1,8 +1,5 @@
 """Tests for core.config."""
 
-import yaml
-import json
-
 import pytest
 
 import fromconfig
@@ -15,12 +12,6 @@ def test_config():
     assert list(config) == ["x"]
     config["x"] = 2
     assert config["x"] == 2
-
-
-@pytest.mark.parametrize("data, expected", [(yaml.dump({"x": 1}), {"x": 1}), (json.dumps({"x": 1}), {"x": 1})])
-def test_config_loads(data, expected):
-    """Test Config.loads."""
-    assert fromconfig.Config.loads(data) == expected
 
 
 @pytest.mark.parametrize(

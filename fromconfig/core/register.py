@@ -1,13 +1,24 @@
 """Register."""
 
-from fromconfig.utils import import_from_string, ImmutableDict
+from fromconfig.utils import import_from_string, WeakImmutableDict
 
 
-class _Register(ImmutableDict):
-    """Register."""
+class _Register(WeakImmutableDict):
+    """Register python classes and functions by name.
+
+    Examples
+    --------
+    >>> from fromconfig.core.register import _Register
+    >>> register = _Register()
+    >>> @register("my_function")
+    ... def my_function():
+    ...     print("Hello world!")
+    >>> register.resolve("my_function") == my_function
+    True
+    """
 
     def __call__(self, name: str, attr=None):
-        """Return decorator that register an attribute."""
+        """Register attr under name name or return decorator."""
 
         def _decorator(attr):
             self[name] = attr

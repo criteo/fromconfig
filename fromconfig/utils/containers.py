@@ -25,7 +25,7 @@ def try_init(cls, default_cls, *args, **kwargs):
         return default_cls(*args, **kwargs)
 
 
-class ImmutableDict(UserDict):
+class WeakImmutableDict(UserDict):
     """Cannot mutate keys already present in a dictionary."""
 
     def __setitem__(self, key, value):

@@ -2,9 +2,10 @@
 
 from abc import ABC, abstractclassmethod
 import logging
+from typing import Any, Mapping
 
-from fromconfig.utils import StrEnum, is_iterable, is_mapping, try_init
 from fromconfig.core.register import register
+from fromconfig.utils import StrEnum, is_iterable, is_mapping, try_init
 
 
 LOGGER = logging.getLogger(__name__)
@@ -21,12 +22,41 @@ class FromConfig(ABC):
     """Abstract class for custom from_config implementations."""
 
     @abstractclassmethod
-    def fromconfig(cls, config):
+    def fromconfig(cls, config: Mapping):
+        """Subclasses must override.
+
+        Parameters
+        ----------
+        config : Mapping
+            Config dictionary, non-instantiated.
+        """
         raise NotImplementedError()
 
 
-def fromconfig(config, safe: bool = False):
-    """From config implementation."""
+def fromconfig(config: Any, safe: bool = False):
+    """From config implementation.
+
+    Examples
+    --------
+    >>> import fromconfig
+    >>> @fromconfig.register("Model")
+    ... class Model:
+    ...     def __init__(self, dim):
+    ...         self.dim = dim
+    >>> config = {"_attr_": "Model", "dim": 100}
+    >>> model = fromconfig.fromconfig(config)
+    >>> isinstance(model, Model)
+    True
+    >>> model.dim
+    100
+
+    Parameters
+    ----------
+    config : Any
+        Typically a dictionary
+    safe : bool, optional
+        If True, don't use import string to resolve attributes.
+    """
     if is_mapping(config):
         # Resolve attribute, check if subclass of FromConfig
         attr = register.resolve(config[Keys.ATTR], safe=safe) if Keys.ATTR in config else None
@@ -38,7 +68,7 @@ def fromconfig(config, safe: bool = False):
         kwargs = {key: fromconfig(value, safe=safe) for key, value in config.items() if key not in Keys}
 
         # No attribute resolved, return args and kwargs
-        if not attr:
+        if attr is None:
             kwargs = {Keys.ARGS: args, **kwargs} if args else kwargs
             return try_init(type(config), dict, kwargs)
 

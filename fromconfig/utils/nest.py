@@ -1,8 +1,7 @@
 """Nest Utilities."""
 
-from collections.abc import Mapping
 import logging
-from typing import Callable, Any, Dict
+from typing import Callable, Any, Dict, Mapping
 
 from fromconfig.utils.containers import is_mapping, is_iterable, try_init
 
@@ -16,8 +15,8 @@ def flatten_dict(item: Mapping, cond_fn: Callable = None) -> Dict:
     Examples
     --------
     >>> import fromconfig
-    >>> flat = fromconfig.utils.flatten_dict({"x": {"y": 1}})
-    >>> flat["x.y"]
+    >>> flat = fromconfig.utils.flatten_dict({"x": {"y": {"z": 1}}})
+    >>> flat["x.y.z"]
     1
 
     Parameters
@@ -34,7 +33,8 @@ def flatten_dict(item: Mapping, cond_fn: Callable = None) -> Dict:
     if is_mapping(item) and (cond_fn is None or cond_fn(item)):
         flattened = {}
         for key, value in item.items():
-            if isinstance(value, Mapping) and (cond_fn is None or cond_fn(value)):
+            if is_mapping(value) and (cond_fn is None or cond_fn(value)):
+                value = flatten_dict(value, cond_fn)
                 for subkey, subvalue in value.items():
                     flattened[f"{key}.{subkey}"] = subvalue
             else:

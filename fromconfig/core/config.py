@@ -25,8 +25,15 @@ class Config(FromConfig, UserDict):
     """Help with serialization of dictionaries."""
 
     def dump(self, path: Union[str, Path]):
+        """Dump dictionary content to file in path.
+
+        Parameters
+        ----------
+        path : Union[str, Path]
+            Path to json or yaml file.
+        """
         suffix = Path(path).suffix
-        if Path(path).suffix == ".yaml":
+        if suffix in (".yaml", ".yml"):
             with Path(path).open("w") as file:
                 yaml.dump(self.data, file)
         if suffix in (".json", ".jsonnet"):
@@ -34,12 +41,9 @@ class Config(FromConfig, UserDict):
                 json.dump(self.data, file)
         raise ValueError(f"Unable to resolve method for path {path}")
 
-    def dumps(self):
-        return yaml.dump(self.data)
-
     @classmethod
     def load(cls, path: Union[str, Path]):
-        """Load config from path.
+        """Load dictionary from path.
 
         Parameters
         ----------
@@ -58,10 +62,6 @@ class Config(FromConfig, UserDict):
                 raise ImportError("Unable to import _jsonnet.")
             return cls(json.loads(_jsonnet.evaluate_file(str(path))))
         raise ValueError(f"Unable to resolve method for path {path}")
-
-    @classmethod
-    def loads(cls, data: str):
-        return cls(yaml.safe_load(data))
 
     @classmethod
     def fromconfig(cls, config):
