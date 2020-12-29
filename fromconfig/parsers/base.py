@@ -1,0 +1,37 @@
+"""Base functionality for parsers."""
+
+from abc import ABC
+from typing import Callable
+
+
+class Parser(ABC):
+    """Base parser class."""
+
+    def __call__(self, config):
+        raise NotImplementedError()
+
+
+class Chain(Parser):
+    """Chain parsers."""
+
+    def __init__(self, *parsers: Callable):
+        self.parsers = parsers
+
+    def __call__(self, config):
+        for parser in self.parsers:
+            config = parser(config)
+        return config
+
+
+class Select(Parser):
+    """Apply parser only on one key."""
+
+    def __init__(self, key: str, parser: Callable):
+        self.key = key
+        self.parser = parser
+
+    def __call__(self, config):
+        if self.key in config:
+            parsed = self.parser(config[self.key])
+            return {self.key: parsed, **{key: value for key, value in config.items() if key != self.key}}
+        return config
