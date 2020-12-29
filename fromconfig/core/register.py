@@ -1,32 +1,10 @@
 """Register."""
 
-from collections.abc import MutableMapping
-
-from fromconfig.utils import import_from_string
+from fromconfig.utils import import_from_string, ImmutableDict
 
 
-class _Register(MutableMapping):
+class _Register(ImmutableDict):
     """Register."""
-
-    def __init__(self):
-        self._register = {}
-
-    def __getitem__(self, item):
-        return self._register[item]
-
-    def __setitem__(self, key, value):
-        if key in self._register:
-            raise KeyError(f"Key {key} already in {self}. You must delete it first.")
-        self._register[key] = value
-
-    def __delitem__(self, key):
-        self._register.__delitem__(key)
-
-    def __iter__(self):
-        yield from self._register
-
-    def __len__(self):
-        return len(self._register)
 
     def __call__(self, name: str, attr=None):
         """Return decorator that register an attribute."""

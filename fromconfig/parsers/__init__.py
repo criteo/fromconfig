@@ -6,7 +6,7 @@ from fromconfig.parsers.base import Parser, Chain, Select
 from fromconfig.parsers.evaluate import EvaluateMode, EvaluateParser
 from fromconfig.parsers.macro import MacroParser
 from fromconfig.parsers.reference import ReferenceParser
-from fromconfig.parsers.rename import RenameKeysParser
+from fromconfig.parsers.rename import RenameParser
 from fromconfig.parsers.singleton import SingletonParser
 
 
