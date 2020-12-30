@@ -9,9 +9,7 @@ class StrEnumMeta(EnumMeta):
     # pylint: disable=unsupported-membership-test,not-an-iterable
 
     def __contains__(cls, member):
-        if isinstance(member, str):
-            return any(key == member for key in cls)
-        return member in cls
+        return any(key == member for key in cls)
 
 
 class StrEnum(str, Enum, metaclass=StrEnumMeta):

@@ -27,9 +27,14 @@ def function():
         pytest.param("Class", Class, id="class"),
         pytest.param("Class.method", Class.method, id="method"),
         pytest.param("function", function, id="function"),
+        pytest.param("missing_function", Exception, id="missing"),
     ],
 )
 @pytest.mark.parametrize("safe", [True, False])
 def test_core_register(name, expected, safe):
     """Test core.register."""
-    assert fromconfig.register.resolve(name, safe=safe) == expected
+    if expected is Exception:
+        with pytest.raises(Exception):
+            fromconfig.register.resolve(name, safe=safe)
+    else:
+        assert fromconfig.register.resolve(name, safe=safe) == expected

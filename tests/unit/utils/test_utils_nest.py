@@ -23,10 +23,25 @@ def test_utils_flatten_dict(item, cond_fn, expected):
     assert fromconfig.utils.flatten_dict(item, cond_fn) == expected
 
 
-@pytest.mark.parametrize("item1, item2, expected", [pytest.param({"x": 1}, {"y": 2}, {"x": 1, "y": 2}, id="simple")])
+@pytest.mark.parametrize(
+    "item1, item2, expected",
+    [
+        pytest.param({"x": 1}, {"y": 2}, {"x": 1, "y": 2}, id="simple"),
+        pytest.param({"x": 1}, {"x": 2}, {"x": 2}, id="override"),
+    ],
+)
 def test_utils_merge_dict(item1, item2, expected):
     """Test utils.merge_dict."""
-    assert fromconfig.utils.merge_dict(item1, item2) == expected
+    assert fromconfig.utils.merge_dict(item1, item2, allow_override=True) == expected
+
+
+@pytest.mark.parametrize(
+    "item1, item2, allow_override, error",
+    [pytest.param({"x": 1}, [1], True, TypeError), pytest.param({"x": 1}, {"x": 2}, False, ValueError)],
+)
+def test_utils_merge_dict_errors(item1, item2, allow_override, error):
+    with pytest.raises(error):
+        fromconfig.utils.merge_dict(item1, item2, allow_override=allow_override)
 
 
 def inc(item, value):

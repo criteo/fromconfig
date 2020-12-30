@@ -7,6 +7,14 @@ import pytest
 import fromconfig
 
 
+@pytest.mark.parametrize(
+    "name, expected", [pytest.param("functools", functools), pytest.param("package_that_does_not_exist", None)]
+)
+def test_try_import(name, expected):
+    """Test utils.try_import."""
+    assert fromconfig.utils.try_import(name) == expected
+
+
 class Class:
     """Class."""
 
@@ -23,6 +31,8 @@ def function():
 @pytest.mark.parametrize(
     "name,expected",
     [
+        pytest.param("", ImportError, id="empty"),
+        pytest.param(".", ImportError, id="no-parts"),
         pytest.param("dict", dict, id="dict"),
         pytest.param("list", list, id="list"),
         pytest.param("tests.unit.utils.test_utils_libimport.Class", Class, id="Class"),
@@ -34,4 +44,8 @@ def function():
 )
 def test_utils_import_from_string(name, expected):
     """Test utils.import_from_string."""
-    assert fromconfig.utils.import_from_string(name) == expected
+    if expected is ImportError:
+        with pytest.raises(ImportError):
+            fromconfig.utils.import_from_string(name)
+    else:
+        assert fromconfig.utils.import_from_string(name) == expected

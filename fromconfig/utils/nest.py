@@ -3,7 +3,7 @@
 import logging
 from typing import Callable, Any, Mapping
 
-from fromconfig.utils.container import is_mapping, is_iterable, try_init
+from fromconfig.utils.container import is_mapping, is_pure_iterable, try_init
 
 
 LOGGER = logging.getLogger(__name__)
@@ -124,7 +124,7 @@ def depth_map(map_fn: Callable[[Any], Any], item: Any) -> Any:
         return map_fn(try_init(type(item), dict, kwargs))
 
     # If iterable, try to create new iterable with mapped args
-    if is_iterable(item):
+    if is_pure_iterable(item):
         args = [depth_map(map_fn, it) for it in item]
         return map_fn(try_init(type(item), list, args))
 

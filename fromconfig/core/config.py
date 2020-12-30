@@ -9,15 +9,13 @@ from typing import Union
 
 from fromconfig.core.base import FromConfig
 from fromconfig.core.register import register
+from fromconfig.utils.libimport import try_import
+
+
+_jsonnet = try_import("_jsonnet")
 
 
 LOGGER = logging.getLogger(__name__)
-
-try:
-    import _jsonnet
-except ImportError as e:
-    LOGGER.error(f"Unable to import _jsonnet, {e}")
-    _jsonnet = None
 
 
 @register("Config")
@@ -36,10 +34,11 @@ class Config(FromConfig, UserDict):
         if suffix in (".yaml", ".yml"):
             with Path(path).open("w") as file:
                 yaml.dump(self.data, file)
-        if suffix in (".json", ".jsonnet"):
+        elif suffix in (".json", ".jsonnet"):
             with Path(path).open("w") as file:
                 json.dump(self.data, file)
-        raise ValueError(f"Unable to resolve method for path {path}")
+        else:
+            raise ValueError(f"Suffix {suffix} not recognized for path {path}")
 
     @classmethod
     def load(cls, path: Union[str, Path]):
