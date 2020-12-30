@@ -20,7 +20,7 @@ class MacroParser(base.Parser):
     >>> parser = fromconfig.parser.MacroParser()
     >>> config = {"_macro_": {"x": 1}, "_config_": {"y": "@x"}}
     >>> parsed = parser(config)
-    >>> parsed["x"]
+    >>> parsed["y"]
     1
 
     Attributes
