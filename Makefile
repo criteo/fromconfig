@@ -16,6 +16,7 @@ black: ## [Local development] Auto-format python code using black
 
 test: ## [Local development] Run unit tests, doctest and notebooks
 	python -m pytest -n 4 -v tests/unit
+	python -m pytest -n 4 -v --cov=fromconfig --cov-report term-missing --cov-fail-under 100 tests/unit
 	python -m pytest --doctest-modules -v fromconfig
 
 integration: ## [Local development] Run integration tests.
