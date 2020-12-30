@@ -31,7 +31,7 @@ class EvaluateParser(base.Parser):
             if is_mapping(item) and self.KEY in item:
                 # Get mode, attribute name, args, and kwargs from item
                 evaluate = EvaluateMode(item[self.KEY])
-                name = item.get(Keys.ATTR)
+                name = item[Keys.ATTR]
                 args = item.get(Keys.ARGS, [])
                 kwargs = {key: value for key, value in item.items() if key not in (self.KEY, Keys.ATTR, Keys.ARGS)}
 
@@ -40,14 +40,10 @@ class EvaluateParser(base.Parser):
                     if args or kwargs:
                         msg = f"Found {args} {kwargs} in item {item}, expected only {Keys.ATTR} (evaluate = {evaluate})"
                         raise ValueError(msg)
-                    if name is None:
-                        raise ValueError(f"No {Keys.ATTR} found in item {item} (evaluate = {evaluate})")
-                    return {Keys.ATTR: "fromconfig.utils.import_from_string", Keys.ARGS: name}
+                    return {Keys.ATTR: "fromconfig.utils.import_from_string", Keys.ARGS: [name]}
 
                 # If PARTIAL, wrap type (if present)
                 if evaluate == EvaluateMode.PARTIAL:
-                    if name is None:
-                        raise ValueError(f"No {Keys.ATTR} found in item {item} (evaluate = {evaluate})")
                     fn = {Keys.ATTR: "fromconfig.utils.import_from_string", "name": name}
                     return {Keys.ATTR: "functools.partial", Keys.ARGS: [fn, *args], **kwargs}
 

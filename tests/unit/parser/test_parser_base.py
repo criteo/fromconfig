@@ -2,7 +2,18 @@
 
 from typing import Mapping
 
+import pytest
+
 import fromconfig
+
+
+def test_parser_parser_class_is_abstract():
+    """Test that from config is abstract."""
+    with pytest.raises(Exception):
+        fromconfig.parser.Parser()  # pylint: disable=abstract-class-instantiated
+
+    with pytest.raises(NotImplementedError):
+        fromconfig.parser.Parser.__call__(None, {"x": 1})
 
 
 class Update(fromconfig.parser.Parser):
@@ -22,8 +33,15 @@ def test_parser_chain():
     assert parsed == {1: 2, 3: 4}
 
 
-def test_parser_select():
+@pytest.mark.parametrize(
+    "config, expected",
+    [
+        pytest.param({"x": {}, "y": {3: 4}}, {"x": {1: 2}, "y": {3: 4}}, id="simple"),
+        pytest.param({"y": {3: 4}}, {"y": {3: 4}}, id="missing"),
+    ],
+)
+def test_parser_select(config, expected):
     """Test parser.Select."""
     parser = fromconfig.parser.Select(key="x", parser=Update({1: 2}))
-    parsed = parser({"x": {}, "y": {3: 4}})
-    assert parsed == {"x": {1: 2}, "y": {3: 4}}
+    parsed = parser(config)
+    assert parsed == expected

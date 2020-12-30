@@ -29,9 +29,9 @@ def test_utils_is_mapping(obj, expected):
         pytest.param((), True, id="tuple"),
     ],
 )
-def test_utils_is_iterable(obj, expected):
-    """Test utils.is_iterable."""
-    assert fromconfig.utils.is_iterable(obj) == expected
+def test_utils_is_pure_iterable(obj, expected):
+    """Test utils.is_pure_iterable."""
+    assert fromconfig.utils.is_pure_iterable(obj) == expected
 
 
 @pytest.mark.parametrize(

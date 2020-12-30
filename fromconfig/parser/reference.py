@@ -1,6 +1,6 @@
 """Reference Parser."""
 
-from typing import Any, Mapping
+from typing import Any, Mapping, Iterable
 
 from fromconfig.core import Keys
 from fromconfig.parser import base
@@ -22,16 +22,32 @@ class ReferenceParser(base.Parser):
 
     PREFIX = "@"
 
+    def __init__(self, keys: Iterable[str] = None, allow_missing: bool = False):
+        self.keys = keys
+        self.allow_missing = allow_missing
+
     def __call__(self, config: Mapping):
-        references = flatten_dict(config, lambda cfg: not any(key in cfg for key in Keys))
+        # Extract references from config
+        def _cond_fn(cfg):
+            return not any(key in cfg for key in Keys)
+
+        if self.keys is not None:
+            references = flatten_dict({key: value for key, value in config.items() if key in self.keys}, _cond_fn)
+        else:
+            references = flatten_dict(config, _cond_fn)
 
         def _map_fn(item):
             if self.is_reference(item):
-                return references[self.get_reference(item)]
+                ref = self.get_reference(item)
+                if ref in references:
+                    return references[ref]
+                if self.allow_missing:
+                    return item
+                raise KeyError(f"Reference {ref} not found in references {references}")
             return item
 
         # TODO: more deterministic (check for cycles)
-        for _ in range(len(references) - 1):
+        for _ in range(len(references)):
             config = depth_map(_map_fn, config)
 
         return config

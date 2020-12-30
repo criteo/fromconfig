@@ -6,7 +6,7 @@ import logging
 from typing import Any, Mapping
 
 from fromconfig.core.register import register
-from fromconfig.utils import StrEnum, is_iterable, is_mapping, try_init
+from fromconfig.utils import StrEnum, is_pure_iterable, is_mapping, try_init
 
 
 LOGGER = logging.getLogger(__name__)
@@ -76,7 +76,7 @@ def fromconfig(config: Any, safe: bool = False):
         # If attribute resolved, call attribute with args and kwargs
         return attr(*args, **kwargs)
 
-    if is_iterable(config):
+    if is_pure_iterable(config):
         args = [fromconfig(item, safe=safe) for item in config]
         return try_init(type(config), list, args)
 
