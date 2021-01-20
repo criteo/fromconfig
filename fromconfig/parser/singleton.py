@@ -1,10 +1,11 @@
 """Singleton parser."""
 
 from typing import Mapping
+from functools import partial
 
 from fromconfig.core import Keys
 from fromconfig.parser import base
-from fromconfig.utils import depth_map, is_mapping
+from fromconfig.utils import depth_map, is_mapping, from_import_string, to_import_string
 
 
 class SingletonParser(base.Parser):
@@ -21,8 +22,8 @@ class SingletonParser(base.Parser):
                 name = item[Keys.ATTR]
                 args = item.get(Keys.ARGS, [])
                 kwargs = {key: value for key, value in item.items() if key not in (self.KEY, Keys.ATTR, Keys.ARGS)}
-                constructor = {Keys.ATTR: "fromconfig.utils.import_from_string", "name": name}
-                constructor = {Keys.ATTR: "functools.partial", Keys.ARGS: [constructor, *args], **kwargs}
+                attr = {Keys.ATTR: to_import_string(from_import_string), "name": name}
+                constructor = {Keys.ATTR: to_import_string(partial), Keys.ARGS: [attr, *args], **kwargs}
                 return {Keys.ATTR: "singleton", "key": key, "constructor": constructor}
             return item
 

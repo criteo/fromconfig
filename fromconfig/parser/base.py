@@ -22,17 +22,3 @@ class Chain(Parser):
         for parser in self.parsers:
             config = parser(config)
         return config
-
-
-class Select(Parser):
-    """Apply parser only on one key."""
-
-    def __init__(self, key: str, parser: Callable):
-        self.key = key
-        self.parser = parser
-
-    def __call__(self, config: Mapping):
-        if self.key in config:
-            parsed = self.parser(config[self.key])
-            return {self.key: parsed, **{key: value for key, value in config.items() if key != self.key}}
-        return config

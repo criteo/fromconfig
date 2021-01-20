@@ -1,10 +1,11 @@
 """Reference Parser."""
 
-from typing import Any, Mapping, Iterable
+from typing import Any, Mapping, List, Union
+import functools
+import operator
 
-from fromconfig.core import Keys
 from fromconfig.parser import base
-from fromconfig.utils import flatten_dict, depth_map
+from fromconfig.utils import is_mapping, is_pure_iterable, try_init
 
 
 class ReferenceParser(base.Parser):
@@ -22,42 +23,63 @@ class ReferenceParser(base.Parser):
 
     PREFIX = "@"
 
-    def __init__(self, keys: Iterable[str] = None, allow_missing: bool = False):
-        self.keys = keys
-        self.allow_missing = allow_missing
-
     def __call__(self, config: Mapping):
-        # Extract references from config
-        def _cond_fn(cfg):
-            return not any(key in cfg for key in Keys)
+        def _resolve(item, visited: List[str]):
+            if is_mapping(item):
+                kwargs = {key: _resolve(value, visited) for key, value in item.items()}
+                return try_init(type(item), dict, kwargs)
 
-        if self.keys is not None:
-            references = flatten_dict({key: value for key, value in config.items() if key in self.keys}, _cond_fn)
-        else:
-            references = flatten_dict(config, _cond_fn)
+            if is_pure_iterable(item):
+                args = [_resolve(it, visited) for it in item]
+                return try_init(type(item), list, args)
 
-        def _map_fn(item):
-            if self.is_reference(item):
-                ref = self.get_reference(item)
-                if ref in references:
-                    return references[ref]
-                if self.allow_missing:
-                    return item
-                raise KeyError(f"Reference {ref} not found in references {references}")
+            if is_reference(item):
+                if item in visited:
+                    raise ValueError(f"Found cycle {visited}")
+                visited_copy = visited + [item]  # Copy when "branching"
+                keys = reference_to_keys(item)
+                return _resolve(functools.reduce(operator.getitem, keys, config), visited_copy)
+
             return item
 
-        # TODO: more deterministic (check for cycles)
-        for _ in range(len(references)):
-            config = depth_map(_map_fn, config)
+        return _resolve(config, [])
 
-        return config
 
-    def is_reference(self, ref: Any) -> bool:
-        if hasattr(ref, "startswith"):
-            return ref.startswith(self.PREFIX)
-        return False
+def is_reference(item: Any) -> bool:
+    """Return True if item is a string starting with the "@".
 
-    def get_reference(self, ref: str) -> str:
-        if not self.is_reference(ref):
-            raise ValueError(f"{ref} is not a valid reference.")
-        return ref[1:]  # Remove PREFIX
+    Parameters
+    ----------
+    item : Any
+        Any python object
+
+    Returns
+    -------
+    bool
+    """
+    if hasattr(item, "startswith"):
+        return item.startswith(ReferenceParser.PREFIX)
+    return False
+
+
+def reference_to_keys(reference: str) -> List[Union[str, int]]:
+    """Get keys from a reference string.
+
+    Parameters
+    ----------
+    reference : str
+        A reference string
+
+    Returns
+    -------
+    List[Union[str, int]]
+    """
+    parts = []
+    for part in reference.lstrip(ReferenceParser.PREFIX).split("."):
+        if part.endswith("]"):
+            left = part.find("[")
+            parts.append(part[:left])
+            parts.append(int(part[left + 1 : -1]))
+        else:
+            parts.append(part)
+    return parts
