@@ -4,6 +4,7 @@ from typing import Any
 import importlib
 import builtins
 import logging
+import inspect
 
 
 LOGGER = logging.getLogger(__name__)
@@ -18,13 +19,36 @@ def try_import(name, package=None):
         return None
 
 
-def import_from_string(name: str) -> Any:
+def to_import_string(attr: Any) -> str:
+    """Retrieve import string from attribute.
+
+    Parameters
+    ----------
+    attr : Any
+        Any python function, class or method
+    """
+    if inspect.ismodule(attr):
+        return attr.__name__
+    module = inspect.getmodule(attr)
+    if module is None:
+        raise ValueError(f"Unable to resolve module of {attr}")
+    if inspect.isclass(attr) or inspect.ismethod(attr) or inspect.isfunction(attr):
+        if module is builtins:
+            return attr.__qualname__
+        else:
+            return f"{module.__name__}.{attr.__qualname__}"
+    if not hasattr(attr, "__class__"):
+        raise ValueError(f"Unable to resolve class of {attr}")
+    return to_import_string(attr.__class__)
+
+
+def from_import_string(name: str) -> Any:
     """Import from string.
 
     Examples
     --------
     >>> import fromconfig
-    >>> fromconfig.utils.import_from_string("str") == str
+    >>> fromconfig.utils.from_import_string("str") == str
     True
 
     Parameters

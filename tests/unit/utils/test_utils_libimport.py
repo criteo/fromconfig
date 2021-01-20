@@ -25,7 +25,7 @@ class Class:
 
 
 def function():
-    """function."""
+    """Gunction."""
 
 
 @pytest.mark.parametrize(
@@ -42,10 +42,33 @@ def function():
         pytest.param("functools.partial", functools.partial, id="functools"),
     ],
 )
-def test_utils_import_from_string(name, expected):
-    """Test utils.import_from_string."""
+def test_utils_from_import_string(name, expected):
+    """Test utils.from_import_string."""
     if expected is ImportError:
         with pytest.raises(ImportError):
-            fromconfig.utils.import_from_string(name)
+            fromconfig.utils.from_import_string(name)
     else:
-        assert fromconfig.utils.import_from_string(name) == expected
+        assert fromconfig.utils.from_import_string(name) == expected
+
+
+@pytest.mark.parametrize(
+    "attr,name",
+    [
+        pytest.param("A string", ValueError, id="string"),
+        pytest.param(Class.VARIABLE, ValueError, id="VARIABLE"),
+        pytest.param(fromconfig, "fromconfig", id="module"),
+        pytest.param(dict, "dict", id="dict"),
+        pytest.param(list, "list", id="list"),
+        pytest.param(Class, "tests.unit.utils.test_utils_libimport.Class", id="Class"),
+        pytest.param(Class.method, "tests.unit.utils.test_utils_libimport.Class.method", id="method"),
+        pytest.param(function, "tests.unit.utils.test_utils_libimport.function", id="function"),
+        pytest.param(functools.partial, "functools.partial", id="functools"),
+    ],
+)
+def test_utils_to_import_string(attr, name):
+    """Test utils.to_import_string."""
+    if name is ValueError:
+        with pytest.raises(ValueError):
+            fromconfig.utils.to_import_string(attr)
+    else:
+        assert fromconfig.utils.to_import_string(attr) == name

@@ -1,6 +1,6 @@
 """Register."""
 
-from fromconfig.utils import import_from_string, WeakImmutableDict
+from fromconfig.utils import from_import_string, WeakImmutableDict
 
 
 class _Register(WeakImmutableDict):
@@ -39,7 +39,7 @@ class _Register(WeakImmutableDict):
         if name in self:
             return self[name]
         if not safe:
-            return import_from_string(name)
+            return from_import_string(name)
         else:
             raise ValueError(f"Attribute {name} not found in register")
 

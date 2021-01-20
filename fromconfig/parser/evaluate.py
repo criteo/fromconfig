@@ -2,10 +2,11 @@
 
 import logging
 from typing import Mapping
+import functools
 
 from fromconfig.core import Keys
 from fromconfig.parser import base
-from fromconfig.utils import StrEnum, depth_map, is_mapping
+from fromconfig.utils import StrEnum, depth_map, is_mapping, to_import_string, from_import_string
 
 
 LOGGER = logging.getLogger(__name__)
@@ -40,12 +41,12 @@ class EvaluateParser(base.Parser):
                     if args or kwargs:
                         msg = f"Found {args} {kwargs} in item {item}, expected only {Keys.ATTR} (evaluate = {evaluate})"
                         raise ValueError(msg)
-                    return {Keys.ATTR: "fromconfig.utils.import_from_string", Keys.ARGS: [name]}
+                    return {Keys.ATTR: to_import_string(from_import_string), Keys.ARGS: [name]}
 
                 # If PARTIAL, wrap type (if present)
                 if evaluate == EvaluateMode.PARTIAL:
-                    fn = {Keys.ATTR: "fromconfig.utils.import_from_string", "name": name}
-                    return {Keys.ATTR: "functools.partial", Keys.ARGS: [fn, *args], **kwargs}
+                    fn = {Keys.ATTR: to_import_string(from_import_string), "name": name}
+                    return {Keys.ATTR: to_import_string(functools.partial), Keys.ARGS: [fn, *args], **kwargs}
 
                 # If CALL, nothing to do (default behavior)
                 if evaluate == EvaluateMode.CALL:
