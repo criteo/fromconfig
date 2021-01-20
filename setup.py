@@ -16,17 +16,7 @@ if __name__ == "__main__":
 
     # Run setup
     setuptools.setup(
-        name="fromconfig",
         author=metadata["author"],
-        version=metadata["version"],
-        install_requires=[],
-        tests_require=["pytest"],
-        dependency_links=[],
-        data_files=[(".", ["requirements.txt", "README.md"])],
-        packages=setuptools.find_packages(),
-        description=long_description.split("\n")[0],
-        long_description=long_description,
-        long_description_content_type="text/x-rst",
         classifiers=[
             "License :: OSI Approved :: Apache Software License",
             "Operating System :: OS Independent",
@@ -34,4 +24,15 @@ if __name__ == "__main__":
             "Programming Language :: Python :: 3.6",
             "Intended Audience :: Developers",
         ],
+        data_files=[(".", ["requirements.txt", "README.md"])],
+        dependency_links=[],
+        description=long_description.split("\n")[0],
+        entry_points={"console_scripts": ["fromconfig = fromconfig.cli.main:main"]},
+        install_requires=[],
+        long_description=long_description,
+        long_description_content_type="text/x-rst",
+        name="fromconfig",
+        packages=setuptools.find_packages(),
+        tests_require=["pytest"],
+        version=metadata["version"],
     )

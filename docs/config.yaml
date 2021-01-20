@@ -1,0 +1,8 @@
+model:
+  _attr_: "model.Model"
+  dim: 100
+
+trainer:
+  _attr_: "model.Trainer"
+  model: "@model"
+  optimizer: "SGD"

@@ -9,10 +9,8 @@ from fromconfig.parser.rename import RenameParser
 from fromconfig.parser.singleton import SingletonParser
 
 
-_STANDARD = Chain(ReferenceParser(), EvaluateParser(), SingletonParser())
-
-# _DEFAULT = Chain(Select(key=MacroParser.MACRO, parser=_STANDARD), MacroParser(), _STANDARD)
+DEFAULT = Chain(ReferenceParser(), EvaluateParser(), SingletonParser())
 
 
-# def parse(config, parser: Callable = _DEFAULT):
-#     return parser(config) if parser else config
+def parse(config, parser: Callable = DEFAULT):
+    return parser(config) if parser else config

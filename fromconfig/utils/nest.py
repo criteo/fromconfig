@@ -43,7 +43,7 @@ def flatten_dict(item: Mapping, cond_fn: Callable = None) -> Mapping:
     return item
 
 
-def merge_dict(item1: Mapping, item2: Mapping, allow_override: bool = True) -> Mapping:
+def merge_dict(item1: Mapping, item2: Mapping, allow_override: bool = False) -> Mapping:
     """Merge item2 into item1.
 
     Examples
