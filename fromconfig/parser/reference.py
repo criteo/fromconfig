@@ -24,6 +24,9 @@ class ReferenceParser(base.Parser):
     PREFIX = "@"
 
     def __call__(self, config: Mapping):
+
+        references = set()
+
         def _resolve(item, visited: List[str]):
             if is_mapping(item):
                 kwargs = {key: _resolve(value, visited) for key, value in item.items()}
@@ -34,6 +37,7 @@ class ReferenceParser(base.Parser):
                 return try_init(type(item), list, args)
 
             if is_reference(item):
+                references.add(item)
                 if item in visited:
                     raise ValueError(f"Found cycle {visited}")
                 visited_copy = visited + [item]  # Copy when "branching"
@@ -74,7 +78,7 @@ def reference_to_keys(reference: str) -> List[Union[str, int]]:
     -------
     List[Union[str, int]]
     """
-    parts = []
+    parts = []  # type: List[Union[str, int]]
     for part in reference.lstrip(ReferenceParser.PREFIX).split("."):
         if part.endswith("]"):
             left = part.find("[")

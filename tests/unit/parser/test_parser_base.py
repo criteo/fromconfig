@@ -31,17 +31,3 @@ def test_parser_chain():
     parser = fromconfig.parser.Chain(Update({1: 2}), Update({3: 4}))
     parsed = parser({})
     assert parsed == {1: 2, 3: 4}
-
-
-@pytest.mark.parametrize(
-    "config, expected",
-    [
-        pytest.param({"x": {}, "y": {3: 4}}, {"x": {1: 2}, "y": {3: 4}}, id="simple"),
-        pytest.param({"y": {3: 4}}, {"y": {3: 4}}, id="missing"),
-    ],
-)
-def test_parser_select(config, expected):
-    """Test parser.Select."""
-    parser = fromconfig.parser.Select(key="x", parser=Update({1: 2}))
-    parsed = parser(config)
-    assert parsed == expected

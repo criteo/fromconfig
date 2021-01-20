@@ -1,6 +1,5 @@
 """Tests for core.config."""
 
-import importlib
 import json
 import yaml
 from pathlib import Path
@@ -15,20 +14,20 @@ def test_core_config_no_jsonnet(tmpdir, monkeypatch):
     monkeypatch.setattr(fromconfig.core.config, "_jsonnet", None)
 
     # No issue to dump even if missing
-    config = fromconfig.Config({"x": 2})
-    config.dump(str(tmpdir.join("config.jsonnet")))
-    config.dump(str(tmpdir.join("config.json")))
-    config.dump(str(tmpdir.join("config.yaml")))
-    config.dump(str(tmpdir.join("config.yml")))
+    config = {"x": 2}
+    fromconfig.dump(config, str(tmpdir.join("config.jsonnet")))
+    fromconfig.dump(config, str(tmpdir.join("config.json")))
+    fromconfig.dump(config, str(tmpdir.join("config.yaml")))
+    fromconfig.dump(config, str(tmpdir.join("config.yml")))
 
     # No issue to load non-jsonnet files
-    assert fromconfig.Config.load(str(tmpdir.join("config.json"))) == config
-    assert fromconfig.Config.load(str(tmpdir.join("config.yaml"))) == config
-    assert fromconfig.Config.load(str(tmpdir.join("config.yml"))) == config
+    assert fromconfig.load(str(tmpdir.join("config.json"))) == config
+    assert fromconfig.load(str(tmpdir.join("config.yaml"))) == config
+    assert fromconfig.load(str(tmpdir.join("config.yml"))) == config
 
     # Raise import error if reloading from jsonnet
     with pytest.raises(ImportError):
-        fromconfig.Config.load(str(tmpdir.join("config.jsonnet")))
+        fromconfig.load(str(tmpdir.join("config.jsonnet")))
 
 
 def test_core_config():
@@ -58,10 +57,10 @@ def test_core_config_load_dump(path, serializer, tmpdir):
     if serializer is None:
         # Incorrect path (not supported)
         with pytest.raises(ValueError):
-            fromconfig.Config(config).dump(path)
+            fromconfig.dump(config, path)
 
         with pytest.raises(ValueError):
-            fromconfig.Config.load(path)
+            fromconfig.load(path)
 
     else:
         # Dump config to file
@@ -73,11 +72,11 @@ def test_core_config_load_dump(path, serializer, tmpdir):
             content = file.read()
 
         # Reload
-        reloaded = fromconfig.Config.load(path)
+        reloaded = fromconfig.load(path)
         assert reloaded == config
 
         # Dump with config method and check content is the same as before
-        reloaded.dump(path)
+        fromconfig.dump(reloaded, path)
         with Path(path).open() as file:
             assert file.read() == content
 
