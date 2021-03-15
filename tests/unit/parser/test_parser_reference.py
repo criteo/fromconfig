@@ -58,7 +58,7 @@ def test_parser_reference_exceptions(config, exception):
 )
 def test_parser_reference_is_reference(item, expected):
     """Test parser.reference.is_reference."""
-    assert fromconfig.parser.is_reference(item) == expected
+    assert fromconfig.parser.reference.is_reference(item) == expected
 
 
 @pytest.mark.parametrize(
@@ -73,4 +73,4 @@ def test_parser_reference_is_reference(item, expected):
 )
 def test_parser_reference_to_keys(item, expected):
     """Test parser.reference.reference_to_keys."""
-    assert fromconfig.parser.reference_to_keys(item) == expected
+    assert fromconfig.parser.reference.reference_to_keys(item) == expected

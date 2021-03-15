@@ -8,9 +8,10 @@ import fromconfig
 @pytest.mark.parametrize(
     "config, expected", [pytest.param({"_attr_": "list", "_eval_": "partial", "_args_": [[1]]}, lambda: [1])]
 )
-def test_parser_parse(config, expected):
+def test_parser_default_parser(config, expected):
     """Test default parse."""
-    parsed = fromconfig.parser.parse(config)
+    parser = fromconfig.parser.DefaultParser()
+    parsed = parser(config)
     if callable(expected):
         assert fromconfig.fromconfig(parsed)() == expected()
     else:
