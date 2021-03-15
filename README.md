@@ -2,6 +2,12 @@
 
 Create object from config files. Makes it easy to launch jobs from config files with a generic command line.
 
+## Features
+
+* short command line with config file instead of long command line (eg with fire), much more readable, possible to commit the config, ...
+* avoid passing arguments down the call stack, and instead configure classes directly
+* compose configs in different files
+
 ## Install
 
 ```bash
