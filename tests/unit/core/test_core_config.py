@@ -88,7 +88,7 @@ def test_core_config_load_dump(path, serializer, tmpdir):
             {"_attr_": "str", "_args_": "hello"}, fromconfig.Config(_attr_="str", _args_="hello"), id="simple"
         ),
         pytest.param(
-            {"config": {"_attr_": "str", "_args_": "hello"}},
+            {"_config_": {"_attr_": "str", "_args_": "hello"}},
             fromconfig.Config(_attr_="str", _args_="hello"),
             id="config",
         ),

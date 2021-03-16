@@ -1,32 +1,34 @@
 """Main entry point."""
 
 import sys
+import functools
 
 import fire
 
 import fromconfig
 
 
-def run(path: str, safe: bool = False):
+def run(*paths: str):
     """Load config, parse and instantiate.
 
     Parameters
     ----------
-    path : str
-        Path to config file
-    safe : bool, optional
-        If True, use safe mode to resolve modules and attributes.
+    *paths : str
+        Paths to config files.
     """
+    # Load configs and merge them
+    configs = [fromconfig.load(path) for path in paths]
+    config = functools.reduce(fromconfig.utils.merge_dict, configs)
+
+    # Parse merged config
     parser = fromconfig.parser.DefaultParser()
-    parsed = parser(fromconfig.load(path))
-    return fromconfig.fromconfig(parsed, safe=safe)
+    parsed = parser(config)
+
+    # Instantiate and return
+    return fromconfig.fromconfig(parsed)
 
 
 def main():
     """Main entry point"""
-    sys.path.append(".")
-    fire.Fire({"run": run})
-
-
-if __name__ == "__main__":
-    main()
+    sys.path.append(".")  # For local imports
+    fire.Fire(run)

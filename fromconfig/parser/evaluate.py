@@ -21,7 +21,17 @@ class EvaluateMode(StrEnum):
 
 
 class EvaluateParser(base.Parser):
-    """Evaluate parser."""
+    """Evaluate parser.
+
+    Examples
+    --------
+    >>> import fromconfig
+    >>> config = {"_attr_": "str", "_eval_": "import"}
+    >>> parser = fromconfig.parser.EvaluateParser()
+    >>> parsed = parser(config)
+    >>> fromconfig.fromconfig(parsed) is str
+    True
+    """
 
     KEY = "_eval_"
 
@@ -41,16 +51,20 @@ class EvaluateParser(base.Parser):
                     if args or kwargs:
                         msg = f"Found {args} {kwargs} in item {item}, expected only {Keys.ATTR} (evaluate = {evaluate})"
                         raise ValueError(msg)
-                    return {Keys.ATTR: to_import_string(from_import_string), Keys.ARGS: [name]}
+                    return {Keys.ATTR.value: to_import_string(from_import_string), Keys.ARGS.value: [name]}
 
                 # If PARTIAL, wrap type (if present)
                 if evaluate == EvaluateMode.PARTIAL:
-                    fn = {Keys.ATTR: to_import_string(from_import_string), "name": name}
-                    return {Keys.ATTR: to_import_string(functools.partial), Keys.ARGS: [fn, *args], **kwargs}
+                    fn = {Keys.ATTR.value: to_import_string(from_import_string), "name": name}
+                    return {
+                        Keys.ATTR.value: to_import_string(functools.partial),
+                        Keys.ARGS.value: [fn, *args],
+                        **kwargs,
+                    }
 
                 # If CALL, nothing to do (default behavior)
                 if evaluate == EvaluateMode.CALL:
-                    return {Keys.ATTR: name, Keys.ARGS: args, **kwargs}
+                    return {Keys.ATTR.value: name, Keys.ARGS.value: args, **kwargs}
 
             return item
 

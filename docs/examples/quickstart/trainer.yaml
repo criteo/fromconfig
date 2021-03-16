@@ -1,0 +1,4 @@
+trainer:
+  _attr_: "training.Trainer"
+  model: "@model"
+  optimizer: "@optimizer"
