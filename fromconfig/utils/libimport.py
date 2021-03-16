@@ -32,18 +32,24 @@ def to_import_string(attr: Any) -> str:
     module = inspect.getmodule(attr)
     if module is None:
         raise ValueError(f"Unable to resolve module of {attr}")
+
+    # If class, method or function, use __qualname__
     if inspect.isclass(attr) or inspect.ismethod(attr) or inspect.isfunction(attr):
         if module is builtins:
             return attr.__qualname__
         else:
             return f"{module.__name__}.{attr.__qualname__}"
-    if not hasattr(attr, "__class__"):
-        raise ValueError(f"Unable to resolve class of {attr}")
-    return to_import_string(attr.__class__)
+
+    # Look for the instance's name in the user-defined module
+    for name, member in inspect.getmembers(module):
+        if id(member) == id(attr):
+            return f"{module.__name__}.{name}"
+
+    raise ValueError(f"Unable to resolve import string of {attr}")  # pragma: no cover
 
 
 def from_import_string(name: str) -> Any:
-    """Import from string.
+    """Import module, class, method or attribute from string.
 
     Examples
     --------
@@ -59,22 +65,33 @@ def from_import_string(name: str) -> Any:
     # Resolve import parts
     parts = [part for part in name.split(".") if part]
     if not parts:
-        raise ImportError(f"No module specified ({name})")
+        raise ImportError(f"No parts found (name='{name}', parts={parts})")
 
     # Import modules
-    module, part = None, 0
+    module, offset = None, 0
     for idx in range(1, len(parts)):
         try:
             module_name = ".".join(parts[:idx])
             module = importlib.import_module(module_name)
-            part = idx
+            offset = idx
         except Exception as e:  # pylint: disable=broad-except
             LOGGER.info(f"Exception while loading module from {module_name}: {e}")
             break
 
-    # Resolve attribute
-    attr = module if module is not None else builtins
-    for part_name in parts[part:]:
-        attr = getattr(attr, part_name)
+    # Get attribute from provided module, builtins or call stack modules
+    for mod in [module, builtins] + [inspect.getmodule(fi.frame) for fi in inspect.stack()]:
+        try:
+            attr = mod
+            for part in parts[offset:]:
+                attr = getattr(attr, part)
+            return attr
+        except Exception as e:  # pylint: disable=broad-except
+            LOGGER.info(f"Exception while getting attribute from module {mod}: {e}")
 
-    return attr
+    # Look for name in call stack globals
+    for fi in inspect.stack():
+        for key, value in fi.frame.f_globals.items():
+            if key == name:
+                return value
+
+    raise ValueError(f"Unable to resolve attribute from import string '{name}'")

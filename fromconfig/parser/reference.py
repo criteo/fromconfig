@@ -5,7 +5,7 @@ import functools
 import operator
 
 from fromconfig.parser import base
-from fromconfig.utils import is_mapping, is_pure_iterable, try_init
+from fromconfig.utils import is_mapping, is_pure_iterable
 
 
 class ReferenceParser(base.Parser):
@@ -15,10 +15,23 @@ class ReferenceParser(base.Parser):
     --------
     >>> import fromconfig
     >>> parser = fromconfig.parser.ReferenceParser()
-    >>> config = {"x": 1, "y": "@x"}
+    >>> config = {"params": {"x": 1}, "y": "@params.x"}
     >>> parsed = parser(config)
     >>> parsed["y"]
     1
+
+    The reference parser is convenient to compose different configs
+    dynamically.
+
+    >>> import fromconfig
+    >>> param1 = {"params": {"x": 1}}
+    >>> param2 = {"params": {"x": 2}}
+    >>> config = {"model": {"x": "@params.x"}}
+    >>> parser = fromconfig.parser.ReferenceParser()
+    >>> parser({**config, **param1})["model"]["x"]
+    1
+    >>> parser({**config, **param2})["model"]["x"]
+    2
     """
 
     PREFIX = "@"
@@ -29,12 +42,10 @@ class ReferenceParser(base.Parser):
 
         def _resolve(item, visited: List[str]):
             if is_mapping(item):
-                kwargs = {key: _resolve(value, visited) for key, value in item.items()}
-                return try_init(type(item), dict, kwargs)
+                return {_resolve(key, visited): _resolve(value, visited) for key, value in item.items()}
 
             if is_pure_iterable(item):
-                args = [_resolve(it, visited) for it in item]
-                return try_init(type(item), list, args)
+                return [_resolve(it, visited) for it in item]
 
             if is_reference(item):
                 references.add(item)

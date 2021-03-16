@@ -3,17 +3,24 @@
 from abc import ABC, abstractclassmethod
 import inspect
 import logging
-from typing import Any, Mapping
+from typing import Any, Dict
 
-from fromconfig.core.register import register
-from fromconfig.utils import StrEnum, is_pure_iterable, is_mapping, try_init
+from fromconfig.utils import StrEnum, is_pure_iterable, is_mapping, from_import_string
 
 
 LOGGER = logging.getLogger(__name__)
 
 
 class Keys(StrEnum):
-    """Special Keys."""
+    """Special Keys used by fromconfig.
+
+    Attributes
+    ----------
+    ARGS : str
+        Name of the special key for the full import string.
+    ATTR : str
+        Name of the special key for positional arguments.
+    """
 
     ATTR = "_attr_"
     ARGS = "_args_"
@@ -23,61 +30,69 @@ class FromConfig(ABC):
     """Abstract class for custom from_config implementations."""
 
     @abstractclassmethod
-    def fromconfig(cls, config: Mapping):
+    def fromconfig(cls, config: Dict):
         """Subclasses must override.
 
         Parameters
         ----------
-        config : Mapping
+        config : Dict
             Config dictionary, non-instantiated.
         """
         raise NotImplementedError()
 
 
-def fromconfig(config: Any, safe: bool = False):
+def fromconfig(config: Any):
     """From config implementation.
 
-    Examples
-    --------
+    Example
+    -------
+    Use the '_attr_' key to configure the class, function, variable or
+    method to configure. It is generally the full import string or the
+    name of the class for builtins.
+
     >>> import fromconfig
-    >>> @fromconfig.register("Model")
-    ... class Model:
-    ...     def __init__(self, dim):
-    ...         self.dim = dim
-    >>> config = {"_attr_": "Model", "dim": 100}
-    >>> model = fromconfig.fromconfig(config)
-    >>> isinstance(model, Model)
+    >>> config = {"_attr_": "str", "_args_": [1]}
+    >>> fromconfig.fromconfig(config)
+    '1'
+
+    A more complicated example is
+    >>> import fromconfig
+    >>> class Point:
+    ...     def __init__(self, x, y):
+    ...         self.x = x
+    ...         self.y = y
+    >>> config = {
+    ...     "_attr_": "Point",
+    ...     "x": 0,
+    ...     "y": 0
+    ... }
+    >>> point = fromconfig.fromconfig(config)
+    >>> isinstance(point, Point) and point.x == 0 and point.y == 0
     True
-    >>> model.dim
-    100
 
     Parameters
     ----------
     config : Any
         Typically a dictionary
-    safe : bool, optional
-        If True, don't use import string to resolve attributes.
     """
     if is_mapping(config):
         # Resolve attribute, check if subclass of FromConfig
-        attr = register.resolve(config[Keys.ATTR], safe=safe) if Keys.ATTR in config else None
+        attr = from_import_string(config[Keys.ATTR]) if Keys.ATTR in config else None
         if inspect.isclass(attr) and issubclass(attr, FromConfig):
             return attr.fromconfig({key: value for key, value in config.items() if key != Keys.ATTR})
 
         # Resolve and instantiate args and kwargs
-        args = fromconfig(config.get(Keys.ARGS, []), safe=safe)
-        kwargs = {key: fromconfig(value, safe=safe) for key, value in config.items() if key not in Keys}
+        args = fromconfig(config.get(Keys.ARGS, []))
+        kwargs = {key: fromconfig(value) for key, value in config.items() if key not in Keys}
 
         # No attribute resolved, return args and kwargs
         if attr is None:
-            kwargs = {Keys.ARGS: args, **kwargs} if args else kwargs
-            return try_init(type(config), dict, kwargs)
+            return type(config)({Keys.ARGS: args, **kwargs}) if args else type(config)(kwargs)
 
         # If attribute resolved, call attribute with args and kwargs
         return attr(*args, **kwargs)
 
     if is_pure_iterable(config):
-        args = [fromconfig(item, safe=safe) for item in config]
-        return try_init(type(config), list, args)
+        return type(config)(fromconfig(item) for item in config)
 
     return config

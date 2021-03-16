@@ -57,12 +57,14 @@ def test_utils_from_import_string(name, expected):
         pytest.param("A string", ValueError, id="string"),
         pytest.param(Class.VARIABLE, ValueError, id="VARIABLE"),
         pytest.param(fromconfig, "fromconfig", id="module"),
+        pytest.param(str, "str", id="str"),
         pytest.param(dict, "dict", id="dict"),
         pytest.param(list, "list", id="list"),
         pytest.param(Class, "tests.unit.utils.test_utils_libimport.Class", id="Class"),
         pytest.param(Class.method, "tests.unit.utils.test_utils_libimport.Class.method", id="method"),
         pytest.param(function, "tests.unit.utils.test_utils_libimport.function", id="function"),
         pytest.param(functools.partial, "functools.partial", id="functools"),
+        pytest.param(range(2), ValueError, id="generator"),
     ],
 )
 def test_utils_to_import_string(attr, name):

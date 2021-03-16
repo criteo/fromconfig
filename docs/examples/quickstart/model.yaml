@@ -1,0 +1,3 @@
+model:
+    _attr_: "training.Model"
+    dim: "@params.dim"

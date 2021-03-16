@@ -1,15 +1,14 @@
-"""Config Class."""
+"""Config serialization utilities."""
 
 from collections import UserDict
 import json
 import yaml
 import logging
 from pathlib import Path
-from typing import Union
+from typing import Union, Dict
 
-from fromconfig.core.base import FromConfig
-from fromconfig.core.register import register
-from fromconfig.utils.libimport import try_import
+from fromconfig.core import base
+from fromconfig.utils import try_import
 
 
 _jsonnet = try_import("_jsonnet")
@@ -18,13 +17,26 @@ _jsonnet = try_import("_jsonnet")
 LOGGER = logging.getLogger(__name__)
 
 
-@register("Config")
-class Config(FromConfig, UserDict):
-    """Help with serialization of dictionaries."""
+class Config(base.FromConfig, UserDict):
+    """Keep a dictionary as dict during a fromconfig call.
+
+    Example
+    -------
+    >>> import fromconfig
+    >>> config = {
+    ...     "_attr_": "fromconfig.Config",
+    ...     "_config_": {
+    ...         "_attr_": "list"
+    ...     }
+    ... }
+    >>> parsed = fromconfig.fromconfig(config)
+    >>> parsed
+    {'_attr_': 'list'}
+    """
 
     @classmethod
-    def fromconfig(cls, config):
-        return cls(config.get("config", config))
+    def fromconfig(cls, config: Dict):
+        return cls(config.get("_config_", config))
 
 
 def load(path: Union[str, Path]):
@@ -33,7 +45,7 @@ def load(path: Union[str, Path]):
     Parameters
     ----------
     path : Union[str, Path]
-        Path to file or yaml / json string
+        Path to file (yaml, yml, json or jsonnet format)
     """
     suffix = Path(path).suffix
     if suffix in (".yaml", ".yml"):
@@ -55,7 +67,7 @@ def dump(config, path: Union[str, Path]):
     Parameters
     ----------
     path : Union[str, Path]
-        Path to json or yaml file.
+        Path to file (yaml, yml, json or jsonnet format)
     """
     suffix = Path(path).suffix
     if suffix in (".yaml", ".yml"):
