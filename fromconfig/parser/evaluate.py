@@ -1,8 +1,8 @@
 """Evaluate parser."""
 
-import logging
 from typing import Mapping
 import functools
+import logging
 
 from fromconfig.core import Keys
 from fromconfig.parser import base

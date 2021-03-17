@@ -1,8 +1,8 @@
 """Singleton parser."""
 
-from typing import Any, Callable, Mapping
-from functools import partial
 from collections import UserDict
+from functools import partial
+from typing import Any, Callable, Mapping
 
 from fromconfig.core import Keys
 from fromconfig.parser import base
