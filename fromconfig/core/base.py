@@ -1,9 +1,9 @@
 """Base functionality."""
 
 from abc import ABC, abstractclassmethod
+from typing import Any, Dict
 import inspect
 import logging
-from typing import Any, Dict
 
 from fromconfig.utils import StrEnum, is_pure_iterable, is_mapping, from_import_string
 

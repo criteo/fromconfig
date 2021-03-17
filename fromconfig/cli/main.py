@@ -1,7 +1,7 @@
 """Main entry point."""
 
-import sys
 import functools
+import sys
 
 import fire
 

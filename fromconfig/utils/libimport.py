@@ -1,10 +1,10 @@
 """Import utilities."""
 
 from typing import Any
-import importlib
 import builtins
-import logging
+import importlib
 import inspect
+import logging
 
 
 LOGGER = logging.getLogger(__name__)
