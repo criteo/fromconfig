@@ -1,0 +1,4 @@
+fire==0.4.0
+jsonnet==0.17.0
+PyYAML==5.4.1
+omegaconf==2.0.6

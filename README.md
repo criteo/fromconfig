@@ -30,6 +30,7 @@ Thanks to [Python Fire](https://github.com/google/python-fire), `fromconfig` act
     - [Custom FromConfig](#custom-fromconfig)
     - [Machine Learning](#machine-learning)
     - [Hyper-Parameter Search](#hyper-parameter-search)
+- [Development](#development)
 
 <!-- /MarkdownTOC -->
 
@@ -684,3 +685,33 @@ Training Model(dim=100) with Optimizer(learning_rate=0.1)
 ```
 
 This example can be found in [`docs/examples/ml`](docs/examples/ml) (run `python hp.py`).
+
+
+<a id="development"></a>
+## Development
+
+To install the library from source in editable mode
+
+```bash
+git clone https://github.com/criteo/fromconfig
+cd fromconfig
+make install
+```
+
+To install development tools
+
+```bash
+make install-dev
+```
+
+To lint the code (mypy, pylint and black)
+
+```bash
+make lint
+```
+
+To format the code with black
+
+```bash
+make black
+```
