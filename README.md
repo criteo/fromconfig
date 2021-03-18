@@ -24,7 +24,7 @@ Thanks to [Python Fire](https://github.com/google/python-fire), `fromconfig` act
         - [References](#references)
         - [Evaluate](#evaluate)
         - [Singleton](#singleton)
-- [Advanced Use](#advanced-use)
+- [Examples](#examples)
     - [Manual](#manual)
     - [Custom Parser](#custom-parser)
     - [Custom FromConfig](#custom-fromconfig)
@@ -90,7 +90,7 @@ Here is a step-by-step breakdown of what is happening
 
 This example can be found in [`docs/examples/quickstart`](docs/examples/quickstart).
 
-To learn more about `FromConfig` features, see the [Usage Reference](#usage-reference) section.
+To learn more about `FromConfig` features, see the [Usage Reference](#usage-reference) and [Examples](#examples) sections.
 
 
 <a id="cheat-sheet"></a>
@@ -120,7 +120,7 @@ To learn more about `FromConfig` features, see the [Usage Reference](#usage-refe
 
 It echoes the `FromParams` base class of [AllenNLP](https://github.com/allenai/allennlp).
 
-It is particularly well suited for __Machine Learning__. Launching training jobs on remote clusters requires custom command lines, with arguments that need to be propagated through the call stack (e.g., setting parameters of a particular layer). The usual way is to write a custom command with a reduced set of arguments, combined by an assembler that creates the different objects. With `fromconfig`, the command line becomes generic, and all the specifics are kept in config files. As a result, this preserves the code from any backwards dependency issues and allows full reproducibility by saving config files as jobs' artifacts. It also makes it easier to merge different sets of arguments in a dynamic way through references and interpolation.
+It is particularly well suited for __Machine Learning__ (see [examples](#machine-learning)). Launching training jobs on remote clusters requires custom command lines, with arguments that need to be propagated through the call stack (e.g., setting parameters of a particular layer). The usual way is to write a custom command with a reduced set of arguments, combined by an assembler that creates the different objects. With `fromconfig`, the command line becomes generic, and all the specifics are kept in config files. As a result, this preserves the code from any backwards dependency issues and allows full reproducibility by saving config files as jobs' artifacts. It also makes it easier to merge different sets of arguments in a dynamic way through references and interpolation.
 
 
 `fromconfig` is based off the config system developed as part of the [deepr](https://github.com/criteo/deepr) library, a collections of utilities to define and train Tensorflow models in a Hadoop environment.
@@ -217,15 +217,25 @@ Note that during instantiation, the config object is not modified. Also, any map
 - `EvaluateParser`: syntactic sugar to configure `functool.partial` or simple imports
 - `SingletonParser`: syntactic sugar to define singletons
 
-For example, let's see how you can create singletons, use references and interpolation
+For example, let's see how to create singletons, use references and interpolation
 
 ```python
 import fromconfig
 
 
+class Model:
+    def __init__(self, model_dir):
+        self.model_dir = model_dir
+
+
+class Trainer:
+    def __init__(self, model):
+        self.model = model
+
+
 config = {
     "model": {
-        "_attr_": "mylib.models.MyModel",
+        "_attr_": "Model",
         "_singleton_": "my_model",  # singleton
         "model_dir": "${data.root}/${data.model}"  # interpolation
     },
@@ -234,15 +244,15 @@ config = {
         "model": "subdir/for/model"
     },
     "trainer": {
-        "_attr_": "mylib.train.Trainer",
+        "_attr_": "Trainer",
         "model": "@model",  # reference
     }
 }
 parser = fromconfig.parser.DefaultParser()
 parsed = parser(config)
-parsed["model"].keys()  # ['_attr_', 'constructor', 'key']
-parsed["model"] == parsed["trainer"]["model"]  # True
-parsed["model"]["constructor"]["model_dir"]  # '/path/to/root/subdir/for/model'
+instance = fromconfig.fromconfig(parsed)
+id(instance["model"]) == id(instance["trainer"].model)  # True
+instance["model"].model_dir == "/path/to/root/subdir/for/model"  # True
 ```
 
 <a id="omegaconf"></a>
@@ -395,8 +405,8 @@ Note that using references is not a solution to create singletons, as the refere
 
 The parser uses the special key `_singleton_` whose value is the name associated with the instance to resolve singletons at instantiation time.
 
-<a id="advanced-use"></a>
-## Advanced Use
+<a id="examples"></a>
+## Examples
 
 <a id="manual"></a>
 ### Manual
