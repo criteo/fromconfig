@@ -410,11 +410,11 @@ if __name__ == "__main__":
         }
     }
 
-    # Parse config (replace references as "@model")
+    # Parse config (replace "@params.learning_rate" by its value)
     parser = fromconfig.parser.DefaultParser()
     parsed = parser(config)
 
-    # Instantiate trainer and call run()
+    # Instantiate model and call train()
     model = fromconfig.fromconfig(parsed["model"])
     model.train()
 ```

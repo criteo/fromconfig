@@ -15,8 +15,17 @@ black: ## [Local development] Auto-format python code using black
 	python -m black -l 120 .
 
 test: ## [Local development] Run unit tests, doctest and notebooks
-	python -m pytest -v --cov=fromconfig --cov-report term-missing --cov-fail-under 100 tests/unit
+	python -m pytest -v --cov=fromconfig --cov-report term-missing --cov-fail-under 95 tests/unit
 	python -m pytest --doctest-modules -v fromconfig
+	$(MAKE) examples
+
+examples:  ## [Doc] Run all examples
+	cd docs/examples/quickstart && fromconfig config.yaml params.yaml - model - train
+	cd docs/examples/manual && python manual.py
+	cd docs/examples/custom_parser && python lorem_ipsum.py
+	cd docs/examples/ml && fromconfig trainer.yaml model.yaml optimizer.yaml params/small.yaml - trainer - run
+	cd docs/examples/ml && fromconfig trainer.yaml model.yaml optimizer.yaml params/big.yaml - trainer - run
+	cd docs/examples/ml && python hp.py
 
 integration: ## [Local development] Run integration tests.
 	python -m pytest -v tests/integration
