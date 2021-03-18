@@ -25,6 +25,26 @@ class EvaluateParser(base.Parser):
 
     Examples
     --------
+    Mode "call"
+    >>> import fromconfig
+    >>> config = {"_attr_": "str", "_eval_": "call", "_args_": ["hello world"]}
+    >>> parser = fromconfig.parser.EvaluateParser()
+    >>> parsed = parser(config)
+    >>> fromconfig.fromconfig(parsed) == "hello world"
+    True
+
+    Mode "partial"
+    >>> import fromconfig
+    >>> config = {"_attr_": "str", "_eval_": "partial", "_args_": ["hello world"]}
+    >>> parser = fromconfig.parser.EvaluateParser()
+    >>> parsed = parser(config)
+    >>> fn = fromconfig.fromconfig(parsed)
+    >>> isinstance(fn, functools.partial)
+    True
+    >>> fn() == "hello world"
+    True
+
+    Mode "import"
     >>> import fromconfig
     >>> config = {"_attr_": "str", "_eval_": "import"}
     >>> parser = fromconfig.parser.EvaluateParser()

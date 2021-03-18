@@ -13,6 +13,7 @@ Thanks to [Python Fire](https://github.com/google/python-fire), `fromconfig` act
 
 - [Install](#install)
 - [Quickstart](#quickstart)
+- [Cheat Sheet](#cheat-sheet)
 - [Why FromConfig ?](#why-fromconfig-)
 - [Usage Reference](#usage-reference)
     - [Config syntax](#config-syntax)
@@ -25,6 +26,7 @@ Thanks to [Python Fire](https://github.com/google/python-fire), `fromconfig` act
 - [Advanced Use](#advanced-use)
     - [Manual](#manual)
     - [Custom Parser](#custom-parser)
+    - [Custom FromConfig](#custom-fromconfig)
     - [Machine Learning](#machine-learning)
     - [Hyper-Parameter Search](#hyper-parameter-search)
 
@@ -83,11 +85,32 @@ Here is a step-by-step breakdown of what is happening
 1. Load the yaml files into dictionaries
 2. Merge the dictionaries
 3. After parsing the resulting dictionary with a default parser (resolving references as `@params.learning_rate`, etc.), it recursively instantiate sub-dictionaries, using the `_attr_` key to resolve the Python class / function as an import string.
-4. Finally, the `- model - train` part of the command is a Python Fire syntax, which translates into "get the `model` key from the instantiated dictionary and execute the `train` method".
+4. Finally, the `- model - train` part of the command is a [Python Fire](https://github.com/google/python-fire) syntax, which translates into "get the `model` key from the instantiated dictionary and execute the `train` method".
 
-You can find this example in [`docs/examples/quickstart`](docs/examples/quickstart).
+This example can be found in [`docs/examples/quickstart`](docs/examples/quickstart).
 
-To learn more about `FromConfig` features, see the Usage Reference section.
+To learn more about `FromConfig` features, see the [Usage Reference](#usage-reference) section.
+
+
+<a id="cheat-sheet"></a>
+## Cheat Sheet
+
+`fromconfig.fromconfig` special keys
+
+
+| Key        | Value Example     | Use                                               |
+|------------|-------------------|---------------------------------------------------|
+| "\_attr\_" | "foo.bar.MyClass" | Full import string of a class, function or method |
+| "\_args\_" | [1, 2]            | Positional arguments                              |
+
+`fromconfig.parser.DefaultParser` syntax
+
+| Key             | Value                         | Use                                    |
+|-----------------|-------------------------------|----------------------------------------|
+| "\_singleton\_" | "my_singleton_name"           | Creates a singleton identified by name |
+| "\_eval\_"      | "call", "import", "partial"   | Evaluation modes                       |
+|                 | "@layers.Dropout"             | Reference                              |
+|                 | "${params.url}:${params.port} | Interpolation via OmegaConf            |
 
 <a id="why-fromconfig-"></a>
 ## Why FromConfig ?
@@ -96,12 +119,18 @@ To learn more about `FromConfig` features, see the Usage Reference section.
 
 It echoes the `FromParams` base class of [AllenNLP](https://github.com/allenai/allennlp).
 
-Similar systems exist
-* [Python Fire](https://github.com/google/python-fire) automatically generate command line interface (CLIs) from absolutely any Python object.
+It is particularly well suited for __Machine Learning__. Launching training jobs on remote clusters requires custom command lines, with arguments that need to be propagated through the call stack (e.g., setting parameters of a particular layer). The usual way is to write a custom command with a reduced set of arguments, combined by an assembler that creates the different objects. With `fromconfig`, the command line becomes generic, and all the specifics are kept in config files. As a result, this preserves the code from any backwards dependency issues and allows full reproducibility by saving config files as jobs' artifacts. It also makes it easier to merge different sets of arguments in a dynamic way through references and interpolation.
+
+
+`fromconfig` is based off the config system developed as part of the [deepr](https://github.com/criteo/deepr) library, a collections of utilities to define and train Tensorflow models in a Hadoop environment.
+
+Other relevant libraries are:
+* [fire](https://github.com/google/python-fire) automatically generate command line interface (CLIs) from absolutely any Python object.
 * [omegaconf](https://github.com/omry/omegaconf) YAML based hierarchical configuration system with support for merging configurations from multiple sources.
 * [hydra](https://hydra.cc/docs/intro/) A higher-level framework based off `omegaconf` to configure complex applications.
 * [gin](https://github.com/google/gin-config) A lightweight configuration framework based on dependency injection.
 * [thinc](https://thinc.ai/) A lightweight functional deep learning library that comes with an integrated config system
+
 
 <a id="usage-reference"></a>
 ## Usage Reference
@@ -117,8 +146,8 @@ The `fromconfig` library relies on two independent components.
 The `fromconfig.fromconfig` function recursively instantiates objects from dictionaries.
 
 It uses two special keys
-- `_attr_`: (optional) special key for a full import string to any Python object
-- `_args_`: (optional) special key for positional arguments.
+- `_attr_`: (optional) full import string to any Python object.
+- `_args_`: (optional) positional arguments.
 
 For example
 
@@ -198,7 +227,6 @@ parsed["model"] == parsed["trainer"]["model"]  # True
 parsed["model"]["constructor"]["model_dir"]  # '/path/to/root/subdir/for/model'
 ```
 
-
 <a id="omegaconf"></a>
 #### OmegaConf
 
@@ -273,7 +301,36 @@ parsed1["model"]["x"]  # 2
 
 The `EvaluateParser` makes it possible to simply import a class / function, or configure a constructor via a `functools.partial` call.
 
-For example
+The parser uses a special key `_eval_` with possible values
+- `call`: standard behavior, results in `attr(kwargs)`.
+- `partial`: delays the call, results in a `functools.partial(attr, **kwargs)`
+- `import`: simply import the attribute, results in `attr`
+
+__call__
+
+```python
+import fromconfig
+
+config = {"_attr_": "str", "_eval_": "call", "_args_": ["hello world"]}
+parser = fromconfig.parser.EvaluateParser()
+parsed = parser(config)
+fromconfig.fromconfig(parsed) == "hello world"  # True
+```
+
+__partial__
+
+```python
+import fromconfig
+
+config = {"_attr_": "str", "_eval_": "partial", "_args_": ["hello world"]}
+parser = fromconfig.parser.EvaluateParser()
+parsed = parser(config)
+fn = fromconfig.fromconfig(parsed)
+isinstance(fn, functools.partial)  # True
+fn() == "hello world"  # True
+```
+
+__import__
 
 ```python
 import fromconfig
@@ -283,11 +340,6 @@ parser = fromconfig.parser.EvaluateParser()
 parsed = parser(config)
 fromconfig.fromconfig(parsed) is str  # True
 ```
-
-The parser uses a special key `_eval_` with possible values
-- `call`: standard behavior, results in `attr(kwargs)`.
-- `partial`: delays the call, results in a `functools.partial(attr, **kwargs)`
-- `import`: simply import the attribute, results in `attr`
 
 
 <a id="singleton"></a>
@@ -367,7 +419,7 @@ if __name__ == "__main__":
     model.train()
 ```
 
-This example can be found in [`docs/examples/advanced/custom_parser`](docs/examples/advanced/custom_parser)
+This example can be found in [`docs/examples/manual`](docs/examples/manual)
 
 <a id="custom-parser"></a>
 ### Custom Parser
@@ -411,7 +463,60 @@ parsed = parser(cfg)
 print(parsed)  # {"x": "Hello World", "y": "lorem ipsum"}
 ```
 
-This example can be found in [`docs/examples/advanced/custom_parser`](docs/examples/advanced/custom_parser)
+This example can be found in [`docs/examples/custom_parser`](docs/examples/custom_parser)
+
+
+<a id="custom-fromconfig"></a>
+### Custom FromConfig
+
+The logic to instantiate objects from config dictionaries is always the same.
+
+It resolves the class, function or method `attr` from the `_attr_` key, recursively call `fromconfig` on all the other key-values to get a `kwargs` dictionary of objects, and call `attr(**kwargs)`.
+
+It is possible to customize the behavior of `fromconfig` by inheriting the `FromConfig` class.
+
+For example
+
+
+```python
+import fromconfig
+
+
+class MyClass(fromconfig.FromConfig):
+
+    def __init__(self, x):
+        self.x = x
+
+    @classmethod
+    def fromconfig(cls, config):
+        if "x" not in config:
+            return cls(0)
+        else:
+            return cls(**config)
+
+
+config = {}
+got = MyClass.fromconfig(config)
+isinstance(got, MyClass)  # True
+got.x  # 0
+```
+
+One custom `FromConfig` class is provided in `fromconfig` which makes it possible to stop the instantiation and keep config dictionaries as config dictionaries.
+
+For example
+
+```python
+import fromconfig
+
+
+config = {
+    "_attr_": "fromconfig.Config",
+    "_config_": {
+        "_attr_": "list"
+    }
+}
+fromconfig.fromconfig(config)  # {'_attr_': 'list'}
+```
 
 <a id="machine-learning"></a>
 ### Machine Learning
@@ -497,7 +602,9 @@ Training Model(dim=10) with Optimizer(learning_rate=0.01)
 Training Model(dim=100) with Optimizer(learning_rate=0.001)
 ```
 
-This example can be found in [`docs/examples/advanced/ml`](docs/examples/advanced/ml)
+This example can be found in [`docs/examples/ml`](docs/examples/ml).
+
+Note that it is encouraged to save these config files with the experiment's files to get full reproducibility. [MlFlow](https://mlflow.org) is an open-source platform that tracks your experiments by logging metrics and artifacts.
 
 
 <a id="hyper-parameter-search"></a>
@@ -528,19 +635,24 @@ if __name__ == "__main__":
         }
     }
     parser = fromconfig.parser.DefaultParser()
-    params = {
-        "dim": [10, 100, 1000],
-        "learning_rate": [0.001, 0.01, 0.1]
-    }
-    for dim in [10, 100, 1000]:
-        for learning_rate in [0.001, 0.01, 0.1]:
-            config["params"] = {
+    for dim in [10, 100]:
+        for learning_rate in [0.01, 0.1]:
+            params = {
                 "dim": dim,
                 "learning_rate": learning_rate
             }
-            parsed = parser(config)
+            parsed = parser({**config, "params": params})
             trainer = fromconfig.fromconfig(parsed)["trainer"]
             trainer.run()
 ```
 
-This example can be found in [`docs/examples/advanced/ml`](docs/examples/advanced/ml) (run `python hp.py`).
+which prints
+
+```
+Training Model(dim=10) with Optimizer(learning_rate=0.01)
+Training Model(dim=10) with Optimizer(learning_rate=0.1)
+Training Model(dim=100) with Optimizer(learning_rate=0.01)
+Training Model(dim=100) with Optimizer(learning_rate=0.1)
+```
+
+This example can be found in [`docs/examples/ml`](docs/examples/ml) (run `python hp.py`).
