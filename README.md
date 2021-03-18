@@ -7,6 +7,8 @@ Thanks to [Python Fire](https://github.com/google/python-fire), `fromconfig` act
 
 ![FromConfig](docs/images/fromconfig.svg)
 
+## Table Of Content
+
 <!-- MarkdownTOC -->
 
 - [Install](#install)
@@ -23,6 +25,8 @@ Thanks to [Python Fire](https://github.com/google/python-fire), `fromconfig` act
 - [Advanced Use](#advanced-use)
     - [Manual](#manual)
     - [Custom Parser](#custom-parser)
+    - [Machine Learning](#machine-learning)
+    - [Hyper-Parameter Search](#hyper-parameter-search)
 
 <!-- /MarkdownTOC -->
 
@@ -37,94 +41,58 @@ pip install fromconfig
 <a id="quickstart"></a>
 ## Quickstart
 
-You don't need to modify your code, `fromconfig` can configure any Python object.
+`fromconfig` can configure any Python object, without any change to the code.
 
-As an example, let's consider the following `training.py` module
+As an example, let's consider a `foo.py` module
 
 ```python
-from dataclasses import dataclass
-
-
-@dataclass
 class Model:
-    """Dummy Model class."""
+    def __init__(self, learning_rate: float):
+        self.learning_rate = learning_rate
 
-    dim: int
-
-
-@dataclass
-class Optimizer:
-    """Dummy Optimizer class."""
-
-    learning_rate: float
-
-
-class Trainer:
-    """Dummy Trainer class."""
-
-    def __init__(self, model, optimizer):
-        self.model = model
-        self.optimizer = optimizer
-
-    def run(self):
-        print(f"Training {self.model} with {self.optimizer}")
+    def train(self):
+        print(f"Training model with learning_rate {self.learning_rate}")
 ```
 
-Now, define the following `yaml` configuration files
-
-- `trainer.yaml`: configures the training pipeline
-```yaml
-trainer:
-    _attr_: "training.Trainer"
-    model: "@model"
-    optimizer: "@optimizer"
-```
-- `params.yaml`: defines some parameters
-```yaml
-params:
-    dim: 100
-    learning_rate: 0.001
-```
-- `model.yaml`: configures the model
+with the following config files
+- `config.yaml`
 ```yaml
 model:
-    _attr_: "training.Model"
-    dim: "@params.dim"
+  _attr_: foo.Model
+  learning_rate: "@params.learning_rate"
 ```
-- `optimizer.yaml`: configures the optimizer
+- `params.yaml`
 ```yaml
-optimizer:
-    _attr_: "training.Optimizer"
-    learning_rate: @params.learning_rate
+params:
+  learning_rate: 0.1
 ```
 
-To instantiate a model, optimizer and trainer from these config files and call the `run` method, do
+In a terminal, run
 
 ```bash
-fromconfig trainer.yaml model.yaml optimizer.yaml params.yaml - trainer - run
+fromconfig config.yaml params.yaml - model - train
 ```
 
-which should print
-
+which prints
 ```
-Training Model(dim=100) with Optimizer(learning_rate=0.001)
+Training model with learning_rate 0.1
 ```
-
-You can find this example in [`docs/examples/quickstart`](docs/examples/quickstart).
 
 Here is a step-by-step breakdown of what is happening
 
 1. Load the yaml files into dictionaries
 2. Merge the dictionaries
-3. After parsing the resulting dictionary with a default parser (resolving references as `@model`, etc.), it recursively instantiate sub-dictionaries, using the `_attr_` key to resolve the Python class / function as an import string.
-4. Finally, the `- trainer - run` part of the command is a Python Fire syntax, which translates into "get the `trainer` key from the instantiated dictionary and execute the `run` method".
+3. After parsing the resulting dictionary with a default parser (resolving references as `@params.learning_rate`, etc.), it recursively instantiate sub-dictionaries, using the `_attr_` key to resolve the Python class / function as an import string.
+4. Finally, the `- model - train` part of the command is a Python Fire syntax, which translates into "get the `model` key from the instantiated dictionary and execute the `train` method".
 
-To learn more about `FromConfig` features, see the Advanced Usage section.
+You can find this example in [`docs/examples/quickstart`](docs/examples/quickstart).
+
+To learn more about `FromConfig` features, see the Usage Reference section.
 
 <a id="why-fromconfig-"></a>
 ## Why FromConfig ?
 
-It is called `FromConfig` because it enables the instantiation of arbitrary trees of Python objects from config files.
+`fromconfig` enables the instantiation of arbitrary trees of Python objects from config files.
 
 It echoes the `FromParams` base class of [AllenNLP](https://github.com/allenai/allennlp).
 
@@ -140,8 +108,8 @@ Similar systems exist
 
 The `fromconfig` library relies on two independent components.
 
-1. A lightweight __syntax__ for to instantiate any Python object from dictionaries (using special keys `_attr_` and `_args_`).
-2. A composable, flexible and customizable framework to __parse__ configs before instantiation. This allows configs to remain short and readable with syntactic sugar to define singletons, references, etc.
+1. A lightweight __syntax__ to instantiate any Python object from dictionaries (using special keys `_attr_` and `_args_`).
+2. A composable, flexible, and customizable framework to __parse__ configs before instantiation. This allows configs to remain short and readable with syntactic sugar to define singletons, references, etc.
 
 <a id="config-syntax"></a>
 ### Config syntax
@@ -188,7 +156,7 @@ config = {
 fromconfig.fromconfig(config)  # Point(0, 0)
 ```
 
-Note that during instantiation, the config object is not modified. Also, any mapping-like container is supported (there is no special configuration class in `fromconfig`).
+Note that during instantiation, the config object is not modified. Also, any mapping-like container is supported (there is no special "config" class in `fromconfig`).
 
 <a id="parsing"></a>
 ### Parsing
@@ -196,7 +164,7 @@ Note that during instantiation, the config object is not modified. Also, any map
 <a id="default"></a>
 #### Default
 
-`FromConfig` comes with a default parser which applies sequentially
+`FromConfig` comes with a default parser which sequentially applies
 - `OmegaConfParser`: can be practical for interpolation
 - `ReferenceParser`: resolves references
 - `EvaluateParser`: syntactic sugar to configure `functool.partial` or simple imports
@@ -211,8 +179,8 @@ import fromconfig
 config = {
     "model": {
         "_attr_": "mylib.models.MyModel",
-        "_singleton_": "my_model",
-        "model_dir": "${data.root}/${data.model}"
+        "_singleton_": "my_model",  # singleton
+        "model_dir": "${data.root}/${data.model}"  # interpolation
     },
     "data": {
         "root": "/path/to/root",
@@ -220,18 +188,14 @@ config = {
     },
     "trainer": {
         "_attr_": "mylib.train.Trainer",
-        "model": "@model",
+        "model": "@model",  # reference
     }
 }
 parser = fromconfig.parser.DefaultParser()
 parsed = parser(config)
-
-parsed["model"].keys()  # Now wrapped into singleton
-# ['_attr_', 'constructor', 'key']
-parsed["model"] == parsed["trainer"]["model"]  # Reference
-# True
-parsed["model"]["constructor"]["model_dir"]  # Interpolation
-# '/path/to/root/subdir/for/model'
+parsed["model"].keys()  # ['_attr_', 'constructor', 'key']
+parsed["model"] == parsed["trainer"]["model"]  # True
+parsed["model"]["constructor"]["model_dir"]  # '/path/to/root/subdir/for/model'
 ```
 
 
@@ -271,11 +235,11 @@ parsed = parser(config)
 parsed["y"]
 ```
 
-The `ReferenceParser` looks for values starting with a `@`, then split the value by `.` and uses it to navigate from the top-level dictionary.
+The `ReferenceParser` looks for values starting with a `@`, then split by `.`, and navigate from the top-level dictionary.
 
 In practice, it makes configuration files more readable (flat) and avoids duplicates.
 
-It also makes it easy to split and compose different configs dynamically.
+It is also a convenient way to dynamically compose different configs.
 
 For example
 
@@ -307,7 +271,7 @@ parsed1["model"]["x"]  # 2
 <a id="evaluate"></a>
 #### Evaluate
 
-Sometimes you want to simply import a class, configure a constructor via a `functools.partial` call. You can use the `EvaluateParser`
+The `EvaluateParser` makes it possible to simply import a class / function, or configure a constructor via a `functools.partial` call.
 
 For example
 
@@ -320,7 +284,7 @@ parsed = parser(config)
 fromconfig.fromconfig(parsed) is str  # True
 ```
 
-Writing `attr` the Python class, function or method resolved from the `_attr_` key, the parser uses a special key `_eval_` with possible values
+The parser uses a special key `_eval_` with possible values
 - `call`: standard behavior, results in `attr(kwargs)`.
 - `partial`: delays the call, results in a `functools.partial(attr, **kwargs)`
 - `import`: simply import the attribute, results in `attr`
@@ -355,9 +319,9 @@ instance = fromconfig.fromconfig(parsed)
 id(instance["x"]) == id(instance["y"])
 ```
 
-Without the `_singleton_` entry, you would end up with two different dictionaries.
+Without the `_singleton_` entry, two different dictionaries would have been created.
 
-Note that if you were to use references without the singleton key, you would still get two distinct objects as the reference mechanism only copies config dictionaries.
+Note that using references is not a solution to create singletons, as the reference mechanism only copies missing parts of the configs.
 
 The parser uses the special key `_singleton_` whose value is the name associated with the instance to resolve singletons at instantiation time.
 
@@ -367,55 +331,30 @@ The parser uses the special key `_singleton_` whose value is the name associated
 <a id="manual"></a>
 ### Manual
 
-If want to manipulate configs directly in the code without using the `fromconfig` CLI,
+It is possible to manipulate configs directly in the code without using the `fromconfig` CLI.
+
+For example,
 
 ```python
 """Manual Example."""
 
-from dataclasses import dataclass
-
 import fromconfig
 
 
-@dataclass
 class Model:
-    """Dummy Model class."""
+    def __init__(self, learning_rate: float):
+        self.learning_rate = learning_rate
 
-    dim: int
-
-
-@dataclass
-class Optimizer:
-    """Dummy Optimizer class."""
-
-    learning_rate: float
-
-
-class Trainer:
-    """Dummy Trainer class."""
-
-    def __init__(self, model, optimizer):
-        self.model = model
-        self.optimizer = optimizer
-
-    def run(self):
-        print(f"Training {self.model} with {self.optimizer}")
+    def train(self):
+        print(f"Training model with learning_rate {self.learning_rate}")
 
 
 if __name__ == "__main__":
+    # Create config dictionary
     config = {
-        "trainer": {
-            "_attr_": "manual.Trainer",
-            "model": "@model",
-            "optimizer": "@optimizer"
-        },
-        "model": {
-            "_attr_": "manual.Model",
-            "dim": 10
-        },
-        "optimizer": {
-            "_attr_": "manual.Optimizer",
-            "learning_rate": 0.001
+        "model": {"_attr_": "Model", "learning_rate": "@params.learning_rate"},
+        "params": {
+            "learning_rate": 0.1
         }
     }
 
@@ -424,20 +363,20 @@ if __name__ == "__main__":
     parsed = parser(config)
 
     # Instantiate trainer and call run()
-    trainer = fromconfig.fromconfig(parsed["trainer"])
-    trainer.run()
+    model = fromconfig.fromconfig(parsed["model"])
+    model.train()
 ```
+
+This example can be found in [`docs/examples/advanced/custom_parser`](docs/examples/advanced/custom_parser)
 
 <a id="custom-parser"></a>
 ### Custom Parser
 
 One of `fromconfig`'s strength is its flexibility when it comes to the config syntax.
 
-You want to reduce the config boilerplate and add a new syntax? Create your own parser.
+To reduce the config boilerplate, it is possible to add a new `Parser` to support a new syntax.
 
-Let's cover a dummy example.
-
-Let's say we want to replace all empty strings with "lorem ipsum".
+Let's cover a dummy example : let's say we want to replace all empty strings with "lorem ipsum".
 
 ```python
 from typing import Dict
@@ -471,3 +410,137 @@ parser = LoremIpsumParser()
 parsed = parser(cfg)
 print(parsed)  # {"x": "Hello World", "y": "lorem ipsum"}
 ```
+
+This example can be found in [`docs/examples/advanced/custom_parser`](docs/examples/advanced/custom_parser)
+
+<a id="machine-learning"></a>
+### Machine Learning
+
+`fromconfig` is particularly well suited for Machine Learning as it is common to have a lot of different parameters, sometimes far down the call stack, and different configurations of these hyper-parameters.
+
+Given a module `ml.py` defining model, optimizer and trainer classes
+
+```python
+from dataclasses import dataclass
+
+
+@dataclass
+class Model:
+    """Dummy Model class."""
+
+    dim: int
+
+
+@dataclass
+class Optimizer:
+    """Dummy Optimizer class."""
+
+    learning_rate: float
+
+
+class Trainer:
+    """Dummy Trainer class."""
+
+    def __init__(self, model, optimizer):
+        self.model = model
+        self.optimizer = optimizer
+
+    def run(self):
+        print(f"Training {self.model} with {self.optimizer}")
+```
+
+And the following config files
+
+- `trainer.yaml`: configures the training pipeline
+```yaml
+trainer:
+    _attr_: "training.Trainer"
+    model: "@model"
+    optimizer: "@optimizer"
+```
+- `model.yaml`: configures the model
+```yaml
+model:
+    _attr_: "training.Model"
+    dim: "@params.dim"
+```
+- `optimizer.yaml`: configures the optimizer
+```yaml
+optimizer:
+    _attr_: "training.Optimizer"
+    learning_rate: @params.learning_rate
+```
+- `params/small.yaml`: hyper-parameters for a small version of the model
+```yaml
+params:
+    dim: 10
+    learning_rate: 0.01
+```
+- `params/big.yaml`: hyper-parameters for a big version of the model
+```yaml
+params:
+    dim: 100
+    learning_rate: 0.001
+```
+
+It is possible to launch two different trainings with different set of hyper-parameters with
+
+```bash
+fromconfig trainer.yaml model.yaml optimizer.yaml params/small.yaml - trainer - run
+fromconfig trainer.yaml model.yaml optimizer.yaml params/big.yaml - trainer - run
+```
+
+which should print
+
+```
+Training Model(dim=10) with Optimizer(learning_rate=0.01)
+Training Model(dim=100) with Optimizer(learning_rate=0.001)
+```
+
+This example can be found in [`docs/examples/advanced/ml`](docs/examples/advanced/ml)
+
+
+<a id="hyper-parameter-search"></a>
+### Hyper-Parameter Search
+
+To launch an hyper-parameter search, generate config files on the fly if using the `fromconfig` CLI, or config dictionaries.
+
+For example,
+
+```python
+import fromconfig
+
+
+if __name__ == "__main__":
+    config = {
+        "model": {
+            "_attr_": "ml.Model",
+            "dim": "@params.dim"
+        },
+        "optimizer": {
+            "_attr_": "ml.Optimizer",
+            "learning_rate": "@params.learning_rate"
+        },
+        "trainer": {
+            "_attr_": "ml.Trainer",
+            "model": "@model",
+            "optimizer": "@optimizer"
+        }
+    }
+    parser = fromconfig.parser.DefaultParser()
+    params = {
+        "dim": [10, 100, 1000],
+        "learning_rate": [0.001, 0.01, 0.1]
+    }
+    for dim in [10, 100, 1000]:
+        for learning_rate in [0.001, 0.01, 0.1]:
+            config["params"] = {
+                "dim": dim,
+                "learning_rate": learning_rate
+            }
+            parsed = parser(config)
+            trainer = fromconfig.fromconfig(parsed)["trainer"]
+            trainer.run()
+```
+
+This example can be found in [`docs/examples/advanced/ml`](docs/examples/advanced/ml) (run `python hp.py`).
