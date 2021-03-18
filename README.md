@@ -110,7 +110,7 @@ To learn more about `FromConfig` features, see the [Usage Reference](#usage-refe
 |-----------------|-------------------------------|----------------------------------------|
 | "\_singleton\_" | "my_singleton_name"           | Creates a singleton identified by name |
 | "\_eval\_"      | "call", "import", "partial"   | Evaluation modes                       |
-|                 | "@layers.Dropout"             | Reference                              |
+|                 | "@params.model"               | Reference                              |
 |                 | "${params.url}:${params.port} | Interpolation via OmegaConf            |
 
 <a id="why-fromconfig-"></a>
