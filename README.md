@@ -7,7 +7,7 @@ A library to instantiate any Python object from configuration files.
 Thanks to [Python Fire](https://github.com/google/python-fire), `fromconfig` acts as a generic command line interface from configuration files *with absolutely no change to the code*.
 
 
-![FromConfig](docs/images/fromconfig.svg)
+![FromConfig](https://raw.githubusercontent.com/criteo/fromconfig/master/docs/images/fromconfig.svg)
 
 ## Table Of Content
 
