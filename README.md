@@ -16,6 +16,7 @@ Thanks to [Python Fire](https://github.com/google/python-fire), `fromconfig` act
 - [Cheat Sheet](#cheat-sheet)
 - [Why FromConfig ?](#why-fromconfig-)
 - [Usage Reference](#usage-reference)
+    - [Command Line](#command-line)
     - [Config syntax](#config-syntax)
     - [Parsing](#parsing)
         - [Default](#default)
@@ -139,6 +140,23 @@ The `fromconfig` library relies on two independent components.
 
 1. A lightweight __syntax__ to instantiate any Python object from dictionaries (using special keys `_attr_` and `_args_`).
 2. A composable, flexible, and customizable framework to __parse__ configs before instantiation. This allows configs to remain short and readable with syntactic sugar to define singletons, references, etc.
+
+<a id="command-line"></a>
+### Command Line
+
+Usage : call `fromconfig` on any number of paths to config files.
+
+```bash
+fromconfig config.yaml params.yaml
+```
+
+Supported formats : YAML, JSON, and [JSONNET](https://jsonnet.org).
+
+The command line loads the different config files into Python dictionaries and merge them (it fails in case of any key conflict). It parses the resulting dictionary with the `DefaultParser` before calling `fromconfig.fromconfig` to instantiate the object.
+
+As the `fromconfig` command is wrapped in a [Python Fire](https://github.com/google/python-fire) call, you can manipulate the resulting instantiated dictionary via the command line by using the fire syntax.
+
+For example `fromconfig config.yaml - name` instantiates the dictionary defined in `config.yaml` and gets the value associated with the key `name`.
 
 <a id="config-syntax"></a>
 ### Config syntax
