@@ -1,7 +1,7 @@
 """Base functionality."""
 
 from abc import ABC, abstractclassmethod
-from typing import Any, Dict
+from typing import Any, Mapping
 import inspect
 import logging
 
@@ -27,15 +27,35 @@ class Keys(StrEnum):
 
 
 class FromConfig(ABC):
-    """Abstract class for custom from_config implementations."""
+    """Abstract class for custom from_config implementations.
+
+    Example
+    -------
+    >>> import fromconfig
+    >>> class MyClass(fromconfig.FromConfig):
+    ...     def __init__(self, x):
+    ...         self.x = x
+    ...     @classmethod
+    ...     def fromconfig(cls, config):
+    ...         if "x" not in config:
+    ...             return cls(0)
+    ...         else:
+    ...             return cls(**config)
+    >>> config = {}
+    >>> got = MyClass.fromconfig(config)
+    >>> isinstance(got, MyClass)
+    True
+    >>> got.x
+    0
+    """
 
     @abstractclassmethod
-    def fromconfig(cls, config: Dict):
+    def fromconfig(cls, config: Mapping):
         """Subclasses must override.
 
         Parameters
         ----------
-        config : Dict
+        config : Mapping
             Config dictionary, non-instantiated.
         """
         raise NotImplementedError()

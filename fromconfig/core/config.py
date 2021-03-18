@@ -2,7 +2,7 @@
 
 from collections import UserDict
 from pathlib import Path
-from typing import Union, Dict
+from typing import Union, Mapping
 import json
 import logging
 import yaml
@@ -35,7 +35,7 @@ class Config(base.FromConfig, UserDict):
     """
 
     @classmethod
-    def fromconfig(cls, config: Dict):
+    def fromconfig(cls, config: Mapping):
         return cls(config.get("_config_", config))
 
 
