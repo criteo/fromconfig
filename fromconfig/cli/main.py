@@ -16,6 +16,10 @@ def run(*paths: str):
     *paths : str
         Paths to config files.
     """
+    # If no paths, return run to get fire help
+    if not paths:
+        return run
+
     # Load configs and merge them
     configs = [fromconfig.load(path) for path in paths]
     config = functools.reduce(fromconfig.utils.merge_dict, configs)
