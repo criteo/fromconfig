@@ -15,9 +15,15 @@ class DefaultParser(Parser):
     Example
     -------
     >>> import fromconfig
+    >>> class Model:
+    ...     def __init__(self, model_dir):
+    ...         self.model_dir = model_dir
+    >>> class Trainer:
+    ...     def __init__(self, model):
+    ...         self.model = model
     >>> config = {
     ...     "model": {
-    ...         "_attr_": "mylib.models.MyModel",
+    ...         "_attr_": "Model",
     ...         "_singleton_": "my_model",
     ...         "model_dir": "${data.root}/${data.model}"
     ...     },
@@ -26,18 +32,17 @@ class DefaultParser(Parser):
     ...         "model": "subdir/for/model"
     ...     },
     ...     "trainer": {
-    ...         "_attr_": "mylib.train.Trainer",
+    ...         "_attr_": "Trainer",
     ...         "model": "@model",
     ...     }
     ... }
     >>> parser = fromconfig.parser.DefaultParser()
     >>> parsed = parser(config)
-    >>> sorted(parsed["model"])  # Now wrapped into singleton
-    ['_attr_', 'constructor', 'key']
-    >>> parsed["model"] == parsed["trainer"]["model"]  # Reference
+    >>> instance = fromconfig.fromconfig(parsed)
+    >>> id(instance["model"]) == id(instance["trainer"].model)
     True
-    >>> parsed["model"]["constructor"]["model_dir"]  # Interpolation
-    '/path/to/root/subdir/for/model'
+    >>> instance["model"].model_dir == "/path/to/root/subdir/for/model"
+    True
     """
 
     def __init__(self):
