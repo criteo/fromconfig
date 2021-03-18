@@ -12,7 +12,6 @@ class LoremIpsumParser(fromconfig.parser.Parser):
         self.default = default
 
     def __call__(self, config: Mapping):
-
         def _map_fn(value):
             if isinstance(value, str) and not value:
                 return self.default
@@ -24,10 +23,7 @@ class LoremIpsumParser(fromconfig.parser.Parser):
 
 
 if __name__ == "__main__":
-    cfg = {
-        "x": "Hello World",
-        "y": ""
-    }
+    cfg = {"x": "Hello World", "y": ""}
     parser = LoremIpsumParser()
     parsed = parser(cfg)
     print(parsed)
