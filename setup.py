@@ -35,7 +35,7 @@ if __name__ == "__main__":
             "pyyaml"
         ],
         long_description=long_description,
-        long_description_content_type="text/x-rst",
+        long_description_content_type="text/markdown",
         name="fromconfig",
         packages=setuptools.find_packages(),
         tests_require=["pytest"],
