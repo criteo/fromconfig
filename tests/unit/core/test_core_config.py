@@ -39,6 +39,12 @@ def test_core_config():
     assert config["x"] == 2
 
 
+def test_core_config_is_json_serializable():
+    """Test that Config is json serializable."""
+    config = fromconfig.Config(x=1)
+    assert json.dumps(config) == '{"x": 1}'
+
+
 @pytest.mark.parametrize(
     "path,serializer",
     [

@@ -28,12 +28,7 @@ if __name__ == "__main__":
         dependency_links=[],
         description=long_description.split("\n")[0],
         entry_points={"console_scripts": ["fromconfig = fromconfig.cli.main:main"]},
-        install_requires=[
-            "fire",
-            "jsonnet",
-            "omegaconf",
-            "pyyaml"
-        ],
+        install_requires=["fire", "jsonnet", "omegaconf", "pyyaml"],
         long_description=long_description,
         long_description_content_type="text/markdown",
         name="fromconfig",
