@@ -1,6 +1,5 @@
 """Config serialization utilities."""
 
-from collections import UserDict
 from pathlib import Path
 from typing import Union, Mapping
 import json
@@ -18,7 +17,7 @@ _jsonnet = try_import("_jsonnet")
 LOGGER = logging.getLogger(__name__)
 
 
-class Config(base.FromConfig, UserDict):
+class Config(base.FromConfig, dict):
     """Keep a dictionary as dict during a fromconfig call.
 
     Example
