@@ -675,6 +675,9 @@ if __name__ == "__main__":
             parsed = parser({**config, "params": params})
             trainer = fromconfig.fromconfig(parsed)["trainer"]
             trainer.run()
+            # Clear the singletons if any as we most likely don't want
+            # to share between configs
+            fromconfig.parser.singleton.clear()
 ```
 
 which prints
