@@ -26,6 +26,7 @@ examples:  ## [Doc] Run all examples
 	cd docs/examples/ml && fromconfig trainer.yaml model.yaml optimizer.yaml params/small.yaml - trainer - run
 	cd docs/examples/ml && fromconfig trainer.yaml model.yaml optimizer.yaml params/big.yaml - trainer - run
 	cd docs/examples/ml && python hp.py
+	cd docs/examples/mlflow && python -m pip install mlflow && python submit.py config.yaml params.yaml --use_mlflow=True - model - train
 
 venv-lint-test: ## [Continuous integration] Install in venv and run lint and test
 	python3.6 -m venv .env && . .env/bin/activate && make install install-dev lint test && rm -rf .env

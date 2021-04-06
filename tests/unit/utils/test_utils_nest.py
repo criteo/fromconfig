@@ -9,6 +9,19 @@ import fromconfig
 
 
 @pytest.mark.parametrize(
+    "config, expected",
+    [
+        pytest.param({"x": 1}, [("x", 1)]),
+        pytest.param({"x": {"y": 1}}, [("x.y", 1)]),
+        pytest.param({"x": [1]}, [("x.0", 1)]),
+    ],
+)
+def test_utils_flatten(config, expected):
+    """Test utils.flatten."""
+    assert fromconfig.utils.flatten(config) == expected
+
+
+@pytest.mark.parametrize(
     "item1, item2, expected",
     [
         pytest.param({"x": 1}, {"y": 2}, {"x": 1, "y": 2}, id="simple"),
