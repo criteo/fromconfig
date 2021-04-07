@@ -13,12 +13,13 @@ import fromconfig
     [
         pytest.param({"x": 1}, [("x", 1)]),
         pytest.param({"x": {"y": 1}}, [("x.y", 1)]),
-        pytest.param({"x": [1]}, [("x.0", 1)]),
+        pytest.param({"x": [1]}, [("x[0]", 1)]),
     ],
 )
-def test_utils_flatten(config, expected):
+def test_utils_flatten_exand(config, expected):
     """Test utils.flatten."""
     assert fromconfig.utils.flatten(config) == expected
+    assert fromconfig.utils.expand(expected) == config
 
 
 @pytest.mark.parametrize(
