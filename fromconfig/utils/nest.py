@@ -117,7 +117,7 @@ def flatten(config: Any) -> List[Tuple[str, Any]]:
         Each tuple is a flattened key with the corresponding value.
     """
 
-    def _flatten(item) -> List[Tuple[List[str], Any]]:
+    def _flatten(item) -> List[Tuple[List[Union[str, int]], Any]]:
         if is_mapping(item):
             result = []
             for key, values in item.items():
@@ -147,7 +147,7 @@ def expand(flat: Iterable[Tuple[str, Any]]):
     -------
     >>> import fromconfig
     >>> d = {"x.y": 0}
-    >>> fromconfig.utils.unfold(d)
+    >>> fromconfig.utils.expand(d.items())
     {'x': {'y': 0}}
 
     Parameters
@@ -158,7 +158,7 @@ def expand(flat: Iterable[Tuple[str, Any]]):
 
     def _expand(it: List[Tuple[List[Union[str, int]], Any]]) -> Dict:
         # Recursive step
-        result = {}
+        result = {}  # type: ignore
         for keys, value in it:
             if not keys:
                 if None in result:
@@ -209,7 +209,7 @@ def _from_dotlist(dotlist: str) -> List[Union[str, int]]:
     dotlist : str
         Dot-List
     """
-    keys = []
+    keys: List[Union[str, int]] = []
     for item in dotlist.split("."):
         for it in item.split("["):
             if it.endswith("]"):

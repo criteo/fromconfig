@@ -28,16 +28,14 @@ def run(*paths: str, **kwargs):
 
     # Extract parameters
     allow_override = params.pop("allow_override", True)
-    level = params.pop("logging", {}).get("level", logging.INFO)
-
-    # Load plugins
-    plugins = [
-        fromconfig.plugin.plugins()[name](**params.pop(name, {}))
-        for name in params.pop("plugins", fromconfig.plugin.plugins())
-    ]
+    level = params.pop("logging", {}).get("level")
 
     # Set verbosity level
     logging.basicConfig(level=level)
+
+    # Load plugins
+    active = params.pop("plugins", [name for name in fromconfig.plugin.plugins() if name in params])
+    plugins = [fromconfig.plugin.plugins()[name](**params.pop(name, {})) for name in active]
 
     # Load configs and merge them with params from kwargs
     configs = [params] + [fromconfig.load(path) for path in paths]

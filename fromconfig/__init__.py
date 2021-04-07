@@ -2,5 +2,5 @@
 
 from fromconfig.core import *
 from fromconfig import parser
-from fromconfig import plugin
 from fromconfig import utils
+from fromconfig import plugin
