@@ -28,6 +28,6 @@ def test_cli_main(tmpdir):
     # Execute command and check result
     command = ["fromconfig", path_config, path_parameters, "-", "run"]
     out, err, exitcode = capture(command)
-    assert exitcode == 0
+    assert exitcode == 0, (out, err)
     assert out == b"hello world\n"
     assert err == b""

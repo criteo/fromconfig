@@ -3,7 +3,7 @@
 from abc import ABC
 from typing import Any
 
-import fromconfig
+from fromconfig.parser.base import Parser
 
 
 class Plugin(ABC):
@@ -13,7 +13,7 @@ class Plugin(ABC):
 class ParserPlugin(Plugin, ABC):
     """Base class for parser plugins."""
 
-    def parser(self, parser: fromconfig.parser.Parser) -> fromconfig.parser.Parser:
+    def parser(self, parser: Parser) -> Parser:
         """Create parser from existing parser.
 
         Parameters
