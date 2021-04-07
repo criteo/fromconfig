@@ -9,7 +9,7 @@ import fire
 import fromconfig
 
 
-def run(*paths: str, **kwargs):
+def run(*paths: str, verbosity: int = None, **kwargs):
     """Load config, parse and instantiate.
 
     Parameters
@@ -19,6 +19,8 @@ def run(*paths: str, **kwargs):
     **kwargs
         Optional key value parameters, for config, params and plugins
     """
+    logging.basicConfig(level=verbosity)
+
     # If no paths and kwargs, return run to get fire help
     if not paths and not kwargs:
         return run
@@ -26,33 +28,20 @@ def run(*paths: str, **kwargs):
     # Expand kwargs into nested dictionary
     params = fromconfig.utils.expand(kwargs.items())
 
-    # Extract parameters
-    allow_override = params.pop("allow_override", True)
-    level = params.pop("logging", {}).get("level")
-
-    # Set verbosity level
-    logging.basicConfig(level=level)
-
     # Load plugins
-    active = params.pop("plugins", [name for name in fromconfig.plugin.plugins() if name in params])
-    plugins = [fromconfig.plugin.plugins()[name](**params.pop(name, {})) for name in active]
+    active = params.pop("plugins", fromconfig.plugin.plugins)
+    plugins = [fromconfig.plugin.plugins[name].fromconfig(params.pop(name, {})) for name in active]
 
     # Load configs and merge them with params from kwargs
     configs = [params] + [fromconfig.load(path) for path in paths]
-    config = functools.reduce(
-        functools.partial(fromconfig.utils.merge_dict, allow_override=allow_override), configs[::-1]
-    )
-
-    # Resolve parser
-    parser = fromconfig.parser.DefaultParser()
-    for plugin in filter(lambda p: isinstance(p, fromconfig.plugin.ParserPlugin), plugins):
-        parser = plugin.parser(parser)
+    config = functools.reduce(fromconfig.utils.merge_dict, configs[::-1])
 
     # Parse merged config
+    parser = fromconfig.parser.Chain(*[p.parser() for p in plugins if isinstance(p, fromconfig.plugin.ParserPlugin)])
     parsed = parser(config)
 
     # Logging
-    for plugin in filter(lambda p: isinstance(p, fromconfig.plugin.LoggingPlugin), plugins):
+    for plugin in filter(lambda p: isinstance(p, fromconfig.plugin.LoggerPlugin), plugins):
         plugin.log(config=config, parsed=parsed)
 
     # Instantiate and return

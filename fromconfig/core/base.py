@@ -49,7 +49,7 @@ class FromConfig(ABC):
     0
     """
 
-    @abstractclassmethod
+    @classmethod
     def fromconfig(cls, config: Mapping):
         """Subclasses must override.
 
@@ -58,7 +58,9 @@ class FromConfig(ABC):
         config : Mapping
             Config dictionary, non-instantiated.
         """
-        raise NotImplementedError()
+        args = fromconfig(config.get(Keys.ARGS, []))
+        kwargs = {key: fromconfig(value) for key, value in config.items() if key not in Keys}
+        return cls(*args, **kwargs)  # type: ignore
 
 
 def fromconfig(config: Any):

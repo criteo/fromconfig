@@ -1,44 +1,47 @@
 """Base class for plugins."""
 
 from abc import ABC
-from typing import Any
+import pkg_resources
+import logging
+import collections
 
-from fromconfig.parser.base import Parser
+from fromconfig.core.base import FromConfig
+from fromconfig.version import MAJOR
 
 
-class Plugin(ABC):
+LOGGER = logging.getLogger(__name__)
+
+
+class Plugin(FromConfig, ABC):
     """Base Plugin Class."""
 
 
-class ParserPlugin(Plugin, ABC):
-    """Base class for parser plugins."""
+class PluginRegistry(collections.UserDict):
+    """Plugins Registry.
 
-    def parser(self, parser: Parser) -> Parser:
-        """Create parser from existing parser.
+    TODO: resolve lazy loading / cyclic import issue
+    """
 
-        Parameters
-        ----------
-        parser : fromconfig.parser.Parser
-            Parser from previous plugins or DefaultParser
+    def __setitem__(self, key, value):
+        if key in self and value is not self[key]:
+            raise KeyError(f"Plugin name conflict for name {key} ({value} and {self[key]})")
+        super().__setitem__(key, value)
 
-        Returns
-        -------
-        fromconfig.parser.Parser
-        """
-        return parser
+    def register(self, name: str):
+        """Return register decorator to add plugin to registry."""
+
+        def _register(plugin):
+            self[name] = plugin
+
+        return _register
+
+    def _load(self):
+        for entry_point in pkg_resources.iter_entry_points(f"fromconfig{MAJOR}"):
+            self[entry_point.name] = entry_point.load()
+            try:
+                self[entry_point.name] = entry_point.load()
+            except Exception as e:  # pylint: disable=broad-except
+                LOGGER.error(f"Exception while loading plugin {entry_point.name} ({e})")
 
 
-class LoggingPlugin(Plugin, ABC):
-    """Base class for logging plugins."""
-
-    def log(self, config: Any, parsed: Any):
-        """Log config during run call.
-
-        Parameters
-        ----------
-        config : Any
-            Result of the reduction of different config files.
-        parsed : Any
-            Result of the config parsing.
-        """
-        pass
+plugins = PluginRegistry()

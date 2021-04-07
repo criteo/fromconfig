@@ -12,9 +12,6 @@ def test_core_fromconfig_abstract():
     with pytest.raises(Exception):
         fromconfig.FromConfig()  # pylint: disable=abstract-class-instantiated
 
-    with pytest.raises(NotImplementedError):
-        fromconfig.FromConfig.fromconfig({"x": 1})
-
 
 class Custom(fromconfig.FromConfig):
     """Custom FromConfig class."""
