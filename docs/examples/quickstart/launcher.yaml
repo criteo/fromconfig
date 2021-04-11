@@ -1,0 +1,16 @@
+fromconfig:
+  launcher:
+    _attr_: "fromconfig.launcher.MultiLauncher"
+    params:
+      learning_rate: [0.1, 0.01]
+    launcher:
+      _attr_: "fromconfig.launcher.LoggerLauncher"
+      level: 20
+      launcher:
+        _attr_: "fromconfig_mlflow.MlFlowLauncher"
+        tracking_uri: "http://127.0.0.1:5000"
+        launcher:
+          _attr_: "fromconfig.launcher.LocalLauncher"
+
+  parser:
+    _attr_: "fromconfig.parser.CustomParser"
