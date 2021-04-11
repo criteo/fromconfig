@@ -9,46 +9,67 @@ import fire
 import fromconfig
 
 
-def run(*paths: str, verbosity: int = None, **kwargs):
+LOGGER = logging.getLogger(__name__)
+
+
+def run(paths, overrides, command):
     """Load config, parse and instantiate.
 
     Parameters
     ----------
-    *paths : str
+    paths : str
         Paths to config files.
-    **kwargs
+    overrides
         Optional key value parameters, for config, params and plugins
+
+
+    1. For each config, parse + log
+    2. Sweep generates new configs
+    3. Launcher launch configs and get results
+    4. Give results back to sweeper
+    5. Repeat
     """
-    logging.basicConfig(level=verbosity)
-
-    # If no paths and kwargs, return run to get fire help
-    if not paths and not kwargs:
-        return run
-
-    # Expand kwargs into nested dictionary
-    params = fromconfig.utils.expand(kwargs.items())
-
-    # Load plugins
-    active = params.pop("plugins", fromconfig.plugin.plugins)
-    plugins = [fromconfig.plugin.plugins[name].fromconfig(params.pop(name, {})) for name in active]
-
-    # Load configs and merge them with params from kwargs
-    configs = [params] + [fromconfig.load(path) for path in paths]
+    # Load configs and merge them with params
+    configs = [fromconfig.utils.expand(overrides.items())] + [fromconfig.load(path) for path in paths]
     config = functools.reduce(fromconfig.utils.merge_dict, configs[::-1])
 
-    # Parse merged config
-    parser = fromconfig.parser.Chain(*[p.parser() for p in plugins if isinstance(p, fromconfig.plugin.ParserPlugin)])
-    parsed = parser(config)
+    # Instantiate parser and launcher
+    runconfig = config.pop("fromconfig", {})
+    parser = fromconfig.fromconfig(runconfig.get("parser")) or fromconfig.parser.DefaultParser()
+    launcher = fromconfig.fromconfig(runconfig.get("launcher")) or fromconfig.launcher.DefaultLauncher()
 
-    # Logging
-    for plugin in filter(lambda p: isinstance(p, fromconfig.plugin.LoggerPlugin), plugins):
-        plugin.log(config=config, parsed=parsed)
+    # Launch
+    launcher(parser, config, command)
 
-    # Instantiate and return
-    return fromconfig.fromconfig(parsed)
+
+def parse_args():
+    """Parse arguments from command line using Fire."""
+    _paths, _overrides = [], {}  # pylint: disable=invalid-name
+
+    def _parse_args(*paths, **overrides):
+        # Display Fire Help
+        if not paths and not overrides:
+            return _parse_args
+
+        # Extract paths and overrides from arguments
+        _paths.extend(paths)
+        _overrides.update(overrides)
+
+        # Do nothing with remaining arguments
+        def _no_op(*_args, **_kwargs):
+            return None if not (_args or _kwargs) else _no_op
+
+        return _no_op
+
+    argv = sys.argv[1:]
+    fire.Fire(_parse_args, argv)
+    command = " ".join(argv[len(_paths) + len(_overrides) + 1 :])
+    return _paths, _overrides, command
 
 
 def main():
-    """Main entry point"""
+    """Main entry point."""
     sys.path.append(".")  # For local imports
-    fire.Fire(run)
+    paths, overrides, command = parse_args()
+    if paths or overrides:
+        run(paths, overrides, command)

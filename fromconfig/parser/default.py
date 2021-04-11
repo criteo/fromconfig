@@ -7,7 +7,7 @@ from fromconfig.parser.evaluate import EvaluateParser
 from fromconfig.parser.singleton import SingletonParser
 
 
-class DefaultParser(base.Chain):
+class DefaultParser(base.ChainParser):
     """Create Default Parser.
 
     Example

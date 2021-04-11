@@ -1,2 +1,3 @@
 params:
   learning_rate: 0.1
+  l: ["hello", "world"]

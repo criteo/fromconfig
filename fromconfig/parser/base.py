@@ -12,7 +12,7 @@ class Parser(ABC):
         raise NotImplementedError()
 
 
-class Chain(Parser):
+class ChainParser(Parser):
     """A parser that applies parsers sequentially."""
 
     def __init__(self, *parsers: Parser):
