@@ -1,4 +1,4 @@
-"""Logger Launcher."""
+"""Logging LogLauncher."""
 
 from typing import Any
 import logging
@@ -11,7 +11,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 class LoggingLauncher(base.LogLauncher):
-    """Logger Launcher."""
+    """Logging LogLauncher."""
 
     def log(self, config: Any, command: str = "", parsed: Any = None):
         """Log parsed config params using logging module."""

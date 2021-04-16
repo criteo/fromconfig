@@ -1,6 +1,6 @@
 """Base functionality."""
 
-from abc import ABC, abstractclassmethod
+from abc import ABC
 from typing import Any, Mapping
 import inspect
 import logging
