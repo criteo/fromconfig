@@ -3,6 +3,7 @@
 import functools
 import sys
 import logging
+from typing import Iterable, Mapping
 
 import fire
 
@@ -12,34 +13,23 @@ import fromconfig
 LOGGER = logging.getLogger(__name__)
 
 
-def run(paths, overrides, command):
+def run(paths: Iterable[str], overrides: Mapping, command: str):
     """Load config, parse and instantiate.
 
     Parameters
     ----------
-    paths : str
+    paths : Iterable[str]
         Paths to config files.
-    overrides
-        Optional key value parameters, for config, params and plugins
-
-
-    1. For each config, parse + log
-    2. Sweep generates new configs
-    3. Launcher launch configs and get results
-    4. Give results back to sweeper
-    5. Repeat
+    overrides : Mapping
+        Optional key value parameters that overrides config files
+    command : str
+        Rest of the python Fire command
     """
     # Load configs and merge them with params
     configs = [fromconfig.utils.expand(overrides.items())] + [fromconfig.load(path) for path in paths]
     config = functools.reduce(fromconfig.utils.merge_dict, configs[::-1])
-
-    # Instantiate parser and launcher
-    runconfig = config.pop("fromconfig", {})
-    parser = fromconfig.fromconfig(runconfig.get("parser")) or fromconfig.parser.DefaultParser()
-    launcher = fromconfig.fromconfig(runconfig.get("launcher")) or fromconfig.launcher.DefaultLauncher()
-
-    # Launch
-    launcher(parser, config, command)
+    launcher = fromconfig.launcher.init(config.pop("fromconfig", {}))
+    launcher(config=config, command=command)
 
 
 def parse_args():
@@ -63,7 +53,8 @@ def parse_args():
 
     argv = sys.argv[1:]
     fire.Fire(_parse_args, argv)
-    command = " ".join(argv[len(_paths) + len(_overrides) + 1 :])
+    num_args_used = len(_paths) + len(_overrides)
+    command = " ".join(argv[(num_args_used + 1) :])
     return _paths, _overrides, command
 
 
