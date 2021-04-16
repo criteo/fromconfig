@@ -1,4 +1,4 @@
 params:
   l: ["hello", "world"]
 hparams:
-  learning_rate: [0.001, 0.01, 0.1]
+  learning_rate: [0.001]
