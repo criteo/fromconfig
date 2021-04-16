@@ -15,7 +15,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 def run(paths: Iterable[str], overrides: Mapping, command: str):
-    """Load config, parse and instantiate.
+    """Load configs, merge, get launcher from plugins and launch.
 
     Parameters
     ----------
@@ -26,10 +26,9 @@ def run(paths: Iterable[str], overrides: Mapping, command: str):
     command : str
         Rest of the python Fire command
     """
-    # Load configs and merge them with params
     configs = [fromconfig.utils.expand(overrides.items())] + [fromconfig.load(path) for path in paths]
     config = functools.reduce(fromconfig.utils.merge_dict, configs[::-1])
-    plugins = Plugins.fromconfig(config.get("fromconfig", {}))
+    plugins = Plugins.fromconfig(config.get("plugins", {}))
     plugins.launcher(config=config, command=command)
 
 
@@ -54,8 +53,8 @@ def parse_args():
 
     argv = sys.argv[1:]
     fire.Fire(_parse_args, argv)
-    num_args_used = len(_paths) + len(_overrides)
-    command = " ".join(argv[(num_args_used + 1) :])
+    num_args_used = len(_paths) + len(_overrides) + 1  # +1 for the fire separator
+    command = " ".join(argv[num_args_used:])
     return _paths, _overrides, command
 
 

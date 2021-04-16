@@ -9,7 +9,7 @@ from fromconfig.core.base import fromconfig, FromConfig
 from fromconfig.launcher.base import Launcher, RunLauncher, LogLauncher, ParseLauncher, SweepLauncher
 from fromconfig.launcher.local import LocalLauncher
 from fromconfig.launcher.logger import LoggingLauncher
-from fromconfig.launcher.params import ParamsLauncher
+from fromconfig.launcher.hparams import HParamsLauncher
 from fromconfig.launcher.parser import ParserLauncher
 from fromconfig.utils.nest import merge_dict
 from fromconfig.version import MAJOR
@@ -28,7 +28,7 @@ class Plugins(FromConfig):
             return cls(fromconfig(config["launcher"]))
 
         # Look for Launcher classes defined in plugins
-        defaults = [LocalLauncher, LoggingLauncher, ParamsLauncher, ParserLauncher]
+        defaults = [LocalLauncher, LoggingLauncher, HParamsLauncher, ParserLauncher]
         classes = [("default", default_cls) for default_cls in defaults]
         for entry_point in pkg_resources.iter_entry_points(f"fromconfig{MAJOR}"):
             module = entry_point.load()
@@ -40,7 +40,7 @@ class Plugins(FromConfig):
             ("runner", RunLauncher),
             ("logger", LogLauncher),
             ("parser", ParseLauncher),
-            ("sweeper", SweepLauncher)
+            ("sweeper", SweepLauncher),
         ]
         classes_by_base = collections.defaultdict(dict)
         for name, launcher_cls in classes:

@@ -1,4 +1,4 @@
-"""Multi."""
+"""Hyper Params SweepLauncher."""
 
 import itertools
 from typing import Any
@@ -12,8 +12,8 @@ from fromconfig.core.base import fromconfig
 LOGGER = logging.getLogger(__name__)
 
 
-class ParamsLauncher(base.SweepLauncher):
-    """Multi Launcher.
+class HParamsLauncher(base.SweepLauncher):
+    """Hyper Params SweepLauncher.
 
     Given a config, it extracts hyper parameters ranges by instantiating
     the unparsed `hparams` entry of the config.
@@ -39,4 +39,4 @@ class ParamsLauncher(base.SweepLauncher):
                 LOGGER.info("Launching with params")
                 for key, value in overrides.items():
                     LOGGER.info(f"- {key}: {value}")
-                self.launcher(config=merge_dict(config, {"params": overrides}), command=command)
+                self.launcher(config=merge_dict(config, {"hparams": overrides}), command=command)
