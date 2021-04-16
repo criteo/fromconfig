@@ -49,6 +49,9 @@ class SweepLauncher(Launcher, ABC):
     def __init__(self, launcher: Launcher):
         self.launcher = launcher
 
+    def setup(self):
+        self.launcher.setup()
+
     def launch(self, config: Any, command: str = "", parsed: Any = None):
         if parsed is not None:
             raise ParsedIsNotNoneError(parsed)
@@ -67,12 +70,18 @@ class SweepLauncher(Launcher, ABC):
         """
         raise NotImplementedError()
 
+    def teardown(self):
+        self.launcher.teardown()
+
 
 class ParseLauncher(Launcher, ABC):
     """Base class for parse launchers."""
 
     def __init__(self, launcher: Launcher):
         self.launcher = launcher
+
+    def setup(self):
+        self.launcher.setup()
 
     def launch(self, config: Any, command: str = "", parsed: Any = None):
         if parsed is not None:
@@ -85,12 +94,18 @@ class ParseLauncher(Launcher, ABC):
         """Subclasses must implement."""
         raise NotImplementedError()
 
+    def teardown(self):
+        self.launcher.teardown()
+
 
 class LogLauncher(Launcher, ABC):
     """Base class for log launchers."""
 
     def __init__(self, launcher: Launcher):
         self.launcher = launcher
+
+    def setup(self):
+        self.launcher.setup()
 
     def launch(self, config: Any, command: str = "", parsed: Any = None):
         if parsed is None:
@@ -101,6 +116,9 @@ class LogLauncher(Launcher, ABC):
     def log(self, config: Any, command: str = "", parsed: Any = None):
         """Subclasses must implement."""
         raise NotImplementedError()
+
+    def teardown(self):
+        self.launcher.teardown()
 
 
 class RunLauncher(Launcher, ABC):

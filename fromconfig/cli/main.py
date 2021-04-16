@@ -8,7 +8,6 @@ from typing import Iterable, Mapping
 import fire
 
 import fromconfig
-from fromconfig.cli.plugins import Plugins
 
 
 LOGGER = logging.getLogger(__name__)
@@ -28,7 +27,7 @@ def run(paths: Iterable[str], overrides: Mapping, command: str):
     """
     configs = [fromconfig.utils.expand(overrides.items())] + [fromconfig.load(path) for path in paths]
     config = functools.reduce(fromconfig.utils.merge_dict, configs[::-1])
-    plugins = Plugins.fromconfig(config.get("plugins", {}))
+    plugins = fromconfig.launcher.DefaultLauncher.fromconfig(config.get("launcher", {}))
     plugins.launcher(config=config, command=command)
 
 
