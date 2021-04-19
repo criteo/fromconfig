@@ -1,25 +1,25 @@
-"""ParseLauncher using the DefaultParser."""
+"""Parse the config."""
 
 from typing import Any
+import logging
 
+from fromconfig.core.base import fromconfig
 from fromconfig.launcher import base
-from fromconfig.parser.base import Parser
 from fromconfig.parser.default import DefaultParser
 from fromconfig.parser.singleton import singleton
 
 
-class ParserLauncher(base.ParseLauncher):
-    """ParseLauncher using the DefaultParser."""
+LOGGER = logging.getLogger(__name__)
 
-    def __init__(self, launcher: base.Launcher, parser: Parser = None):
-        self.parser = parser or DefaultParser()
+
+class ParserLauncher(base.Launcher):
+    """Parse the config."""
+
+    def __init__(self, launcher: base.Launcher):
         super().__init__(launcher=launcher)
 
-    def parse(self, config: Any):
-        return self.parser(config)
-
-    def teardown(self):
-        # The SingletonParser uses singleton to store singletons
-        # during instantiation. Clear it to avoid leaks between
-        # different consecutive launchers (during a parameter sweep).
-        singleton.clear()
+    def __call__(self, config: Any, command: str = ""):
+        parser = fromconfig(config.pop("parser")) if "parser" in config else DefaultParser()
+        LOGGER.info(f"Resolved parser {parser}")
+        self.launcher(config=parser(config), command=command)
+        singleton.clear()  # Clear singleton to avoid leaks

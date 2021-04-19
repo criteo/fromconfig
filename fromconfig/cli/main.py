@@ -13,7 +13,7 @@ import fromconfig
 LOGGER = logging.getLogger(__name__)
 
 
-def run(paths: Iterable[str], overrides: Mapping, command: str):
+def launch(paths: Iterable[str], overrides: Mapping, command: str):
     """Load configs, merge, get launcher from plugins and launch.
 
     Parameters
@@ -27,8 +27,8 @@ def run(paths: Iterable[str], overrides: Mapping, command: str):
     """
     configs = [fromconfig.utils.expand(overrides.items())] + [fromconfig.load(path) for path in paths]
     config = functools.reduce(fromconfig.utils.merge_dict, configs[::-1])
-    plugins = fromconfig.launcher.DefaultLauncher.fromconfig(config.get("launcher", {}))
-    plugins.launcher(config=config, command=command)
+    launcher = fromconfig.launcher.DefaultLauncher.fromconfig(config.get("launcher", {}))
+    launcher(config=config, command=command)
 
 
 def parse_args():
@@ -62,4 +62,4 @@ def main():
     sys.path.append(".")  # For local imports
     paths, overrides, command = parse_args()
     if paths or overrides:
-        run(paths, overrides, command)
+        launch(paths, overrides, command)
