@@ -12,14 +12,14 @@ from fromconfig.core.base import fromconfig
 LOGGER = logging.getLogger(__name__)
 
 
-class HParamsLauncher(base.SweepLauncher):
-    """Hyper Params SweepLauncher.
+class HParamsLauncher(base.Launcher):
+    """Hyper Params Launcher.
 
     Given a config, it extracts hyper parameters ranges by instantiating
-    the unparsed `hparams` entry of the config.
+    the `hparams` entry of the config.
 
-    It then generates sets of parameters and merge their value into
-    the `params` entry of the config.
+    It then generates sets of parameters and merge their values into
+    the `hparams` entry of the config.
 
     Attributes
     ----------
@@ -27,7 +27,10 @@ class HParamsLauncher(base.SweepLauncher):
         Launcher to launch each sub-job
     """
 
-    def sweep(self, config: Any, command: str = ""):
+    def __init__(self, launcher: base.Launcher):
+        super().__init__(launcher=launcher)
+
+    def __call__(self, config: Any, command: str = ""):
         """Generate configs via hyper-parameters."""
         hparams = fromconfig(config.get("hparams", {}))
         if not hparams:

@@ -1,4 +1,4 @@
-"""Logging LogLauncher."""
+"""Logging Launcher."""
 
 from typing import Any
 import logging
@@ -10,19 +10,22 @@ from fromconfig.utils.nest import flatten
 LOGGER = logging.getLogger(__name__)
 
 
-class LoggingLauncher(base.LogLauncher):
-    """Logging LogLauncher."""
+class LoggingLauncher(base.Launcher):
+    """Logging Launcher."""
 
-    def log(self, config: Any, command: str = "", parsed: Any = None):
+    def __init__(self, launcher: base.Launcher):
+        super().__init__(launcher=launcher)
+
+    def __call__(self, config: Any, command: str = ""):
         """Log parsed config params using logging module."""
         # Setup logger
-        level = parsed.get("logging", {}).get("level")
+        level = config.get("logging", {}).get("level")
         if level is not None:
             logging.basicConfig(level=level)
 
         # Parse config and log
-        for key, value in flatten(parsed):
+        for key, value in flatten(config):
             LOGGER.info(f"- {key}: {value}")
 
         # Execute sub-launcher with no parser (already parsed)
-        self.launcher(config=config, parsed=parsed, command=command)
+        self.launcher(config=config, command=command)

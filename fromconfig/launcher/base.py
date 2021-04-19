@@ -1,135 +1,155 @@
 """Base class for launchers."""
 
-from abc import ABC, abstractmethod
-from typing import Any
+from abc import ABC
+from typing import Any, Mapping, Dict, Type
+import pkg_resources
+import inspect
+import logging
+
+from fromconfig.core.base import fromconfig, FromConfig
+from fromconfig.utils.types import is_pure_iterable, is_mapping
+from fromconfig.version import MAJOR
 
 
-class ParsedIsNotNoneError(ValueError):
-    """Parsed is not None, but config should not be parsed yet."""
+LOGGER = logging.getLogger(__name__)
 
 
-class ParsedIsNoneError(ValueError):
-    """Parsed is None, but config should already be parsed."""
-
-
-class Launcher(ABC):
+class Launcher(FromConfig, ABC):
     """Base class for launchers."""
 
-    def __call__(self, config: Any, command: str = "", parsed: Any = None):
+    def __init__(self, launcher: "Launcher" = None):
+        self.launcher = launcher
+
+    def __call__(self, config: Any, command: str = ""):
         """Launch implementation.
 
         Parameters
         ----------
         config : Any
-            The unparsed config
+            The config
         command : str, optional
             The fire command
-        parsed : Any, optional
-            The parsed config, if any
         """
-        self.setup()
-        self.launch(config=config, command=command, parsed=parsed)
-        self.teardown()
-
-    def setup(self):
-        """Optional setup step."""
-
-    @abstractmethod
-    def launch(self, config: Any, command: str = "", parsed: Any = None):
-        """Subclasses must implement."""
         raise NotImplementedError()
 
-    def teardown(self):
-        """Optional teardown step."""
+    @classmethod
+    def fromconfig(cls, config: Mapping) -> "Launcher":
+        """Custom fromconfig implementation.
 
+        The config parameter can either be a plain config dictionary
+        with special keys (like _attr_, etc.). In that case, it simply
+        uses fromconfig to instantiate the corresponding class.
 
-class SweepLauncher(Launcher, ABC):
-    """Base class for sweep launchers."""
+        It can also list launchers by name (set internally or plugin
+        names for external launchers). In that case, it will compose
+        the launchers (first item will be higher in the instance
+        hierarchy).
 
-    def __init__(self, launcher: Launcher):
-        self.launcher = launcher
+        It can also be a dictionary with special keys run, log, parse
+        and sweep. Each of these values can either be a plain dictionary
+        or a Launcher class name. In that case, it is equivalent to a
+        list of launchers defined in the sweep -> parse -> log -> run
+        order. When overriding only a subset of these keys, the defaults
+        will be used for the other steps.
 
-    def setup(self):
-        self.launcher.setup()
+        Example
+        -------
+        In this example, we instantiate a Launcher that uses the default
+        class for each of the launching steps.
 
-    def launch(self, config: Any, command: str = "", parsed: Any = None):
-        if parsed is not None:
-            raise ParsedIsNotNoneError(parsed)
-        self.sweep(config=config, command=command)
+        >>> import fromconfig
+        >>> config = {
+        ...     "run": "local",
+        ...     "log": "logging",
+        ...     "parse": "parser",
+        ...     "sweep": "hparams"
+        ... }
+        >>> launcher = fromconfig.launcher.Launcher.fromconfig(config)
 
-    @abstractmethod
-    def sweep(self, config: Any, command: str = ""):
-        """Launch multiple launchers on different configs.
+        By specifying twice "logging" for the "log" step the resulting
+        launcher will wrap the LoggingLauncher twice (resulting in a
+        double logging).
+
+        >>> import fromconfig
+        >>> config = {
+        ...     "log": ["logging", "logging"]
+        ... }
+        >>> launcher = fromconfig.launcher.Launcher.fromconfig(config)
 
         Parameters
         ----------
-        config : Any
-            The unparsed config
-        command : str, optional
-            The fire command
+        config : Mapping
+            Typically a dictionary with keys run, log, parse and sweep.
+
+        Returns
+        -------
+        Launcher
         """
-        raise NotImplementedError()
 
-    def teardown(self):
-        self.launcher.teardown()
+        def _fromconfig(cfg, launcher: Launcher = None):
+            # Launcher class name
+            if isinstance(cfg, str):
+                return _get_cls(cfg)(launcher=launcher)
 
+            # List of launchers to compose (first item is highest)
+            if is_pure_iterable(cfg):
+                for item in cfg[::-1]:
+                    launcher = _fromconfig(item, launcher)
+                return launcher
 
-class ParseLauncher(Launcher, ABC):
-    """Base class for parse launchers."""
+            if is_mapping(cfg):
+                # Special syntax by section
+                keys = [("sweep", ["hparams"]), ("parse", ["parser"]), ("log", ["logging"]), ("run", ["local"])]
+                if any(key in cfg for key, _ in keys):
+                    launcher = None
+                    for key, defaults in keys[::-1]:
+                        launcher = _fromconfig(cfg.get(key, defaults), launcher=launcher)
+                    return launcher
 
-    def __init__(self, launcher: Launcher):
-        self.launcher = launcher
+                # Regular config, special treatment for "launcher" key
+                if "launcher" in cfg:
+                    if launcher is not None:
+                        raise ValueError(f"Launcher conflict, launcher is not None ({launcher}) but cfg={cfg}")
+                    launcher = _fromconfig(cfg["launcher"])
+                cfg = cfg if not launcher else {**cfg, "launcher": launcher}
+                return fromconfig(cfg)
 
-    def setup(self):
-        self.launcher.setup()
+            raise TypeError(f"Unable to instantiate launcher from {cfg} (unsupported type {type(cfg)})")
 
-    def launch(self, config: Any, command: str = "", parsed: Any = None):
-        if parsed is not None:
-            raise ParsedIsNotNoneError(parsed)
-        parsed = self.parse(config)
-        self.launcher(config=config, parsed=parsed, command=command)
-
-    @abstractmethod
-    def parse(self, config: Any) -> Any:
-        """Subclasses must implement."""
-        raise NotImplementedError()
-
-    def teardown(self):
-        self.launcher.teardown()
-
-
-class LogLauncher(Launcher, ABC):
-    """Base class for log launchers."""
-
-    def __init__(self, launcher: Launcher):
-        self.launcher = launcher
-
-    def setup(self):
-        self.launcher.setup()
-
-    def launch(self, config: Any, command: str = "", parsed: Any = None):
-        if parsed is None:
-            raise ParsedIsNoneError()
-        self.log(config=config, command=command, parsed=parsed)
-
-    @abstractmethod
-    def log(self, config: Any, command: str = "", parsed: Any = None):
-        """Subclasses must implement."""
-        raise NotImplementedError()
-
-    def teardown(self):
-        self.launcher.teardown()
+        return _fromconfig(config)
 
 
-class RunLauncher(Launcher, ABC):
-    """Base class for run launchers."""
+# First call to _get_cls adds internal and external classes
+_CLASSES: Dict[str, Type] = {}
 
-    def launch(self, config: Any, command: str = "", parsed: Any = None):
-        if parsed is None:
-            raise ParsedIsNoneError()
-        self.run(parsed, command)
 
-    @abstractmethod
-    def run(self, parsed: Any, command: str = ""):
-        """Subclasses must implement."""
-        raise NotImplementedError()
+def _get_cls(name: str) -> Dict[str, Type]:
+    """Load and return internal and external launcher classes."""
+    if not _CLASSES:
+        # pylint: disable=import-outside-toplevel
+        # Import internal classes
+        from fromconfig.launcher.hparams import HParamsLauncher
+        from fromconfig.launcher.parser import ParserLauncher
+        from fromconfig.launcher.logger import LoggingLauncher
+        from fromconfig.launcher.local import LocalLauncher
+
+        # Create references with default names
+        _CLASSES["local"] = LocalLauncher
+        _CLASSES["logging"] = LoggingLauncher
+        _CLASSES["hparams"] = HParamsLauncher
+        _CLASSES["parser"] = ParserLauncher
+
+        # Load external classes, use entry point's name for reference
+        for entry_point in pkg_resources.iter_entry_points(f"fromconfig{MAJOR}"):
+            module = entry_point.load()
+            for _, cls in inspect.getmembers(module, lambda m: inspect.isclass(m) and issubclass(m, Launcher)):
+                if entry_point.name in _CLASSES:
+                    raise ValueError(f"Duplicate launcher name found {entry_point.name} ({_CLASSES})")
+                _CLASSES[entry_point.name] = cls
+
+        # Log loaded classes
+        LOGGER.info(f"Loaded Launcher classes {_CLASSES}")
+
+    if name not in _CLASSES:
+        raise KeyError(f"Launcher class {name} not found in {_CLASSES}")
+    return _CLASSES[name]
