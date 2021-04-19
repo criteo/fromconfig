@@ -27,9 +27,6 @@ class HParamsLauncher(base.Launcher):
         Launcher to launch each sub-job
     """
 
-    def __init__(self, launcher: base.Launcher):
-        super().__init__(launcher=launcher)
-
     def __call__(self, config: Any, command: str = ""):
         """Generate configs via hyper-parameters."""
         hparams = fromconfig(config.get("hparams", {}))

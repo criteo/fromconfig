@@ -13,9 +13,6 @@ LOGGER = logging.getLogger(__name__)
 class LoggingLauncher(base.Launcher):
     """Logging Launcher."""
 
-    def __init__(self, launcher: base.Launcher):
-        super().__init__(launcher=launcher)
-
     def __call__(self, config: Any, command: str = ""):
         """Log parsed config params using logging module."""
         # Setup logger
@@ -28,4 +25,4 @@ class LoggingLauncher(base.Launcher):
             LOGGER.info(f"- {key}: {value}")
 
         # Execute sub-launcher with no parser (already parsed)
-        self.launcher(config=config, command=command)
+        self.launcher(config=config, command=command)  # type: ignore
