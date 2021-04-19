@@ -1,0 +1,7 @@
+logging:
+  level: 20
+launcher:
+  sweep: hparams
+  parse: parser
+  log: logging
+  run: local
