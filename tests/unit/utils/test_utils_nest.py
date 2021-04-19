@@ -22,12 +22,7 @@ def test_utils_flatten_expand(config, expected):
     assert fromconfig.utils.expand(expected) == config
 
 
-@pytest.mark.parametrize(
-    "config",
-    [
-        pytest.param({"a.b": {"c": "d"}}, id="key-has-dot")
-    ]
-)
+@pytest.mark.parametrize("config", [pytest.param({"a.b": {"c": "d"}}, id="key-has-dot")])
 def test_utils_flatten_impossible(config):
     with pytest.raises(ValueError):
         fromconfig.utils.flatten(config)

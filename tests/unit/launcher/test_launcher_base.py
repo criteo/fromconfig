@@ -61,7 +61,7 @@ def test_get_cls(name, expected):
             ValueError,
             id="fromconfig+nested-duplicate",
         ),
-        pytest.param(1, TypeError, id="incorrect-type")
+        pytest.param(1, TypeError, id="incorrect-type"),
     ],
 )
 def test_launcher_fromconfig(config, expected):

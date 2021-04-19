@@ -27,7 +27,7 @@ examples:  ## [Doc] Run all examples
 	cd docs/examples/ml && fromconfig trainer.yaml model.yaml optimizer.yaml params/small.yaml - trainer - run
 	cd docs/examples/ml && fromconfig trainer.yaml model.yaml optimizer.yaml params/big.yaml - trainer - run
 	cd docs/examples/ml && python hp.py
-	cd doc/examples/ml && fromconfig trainer.yaml model.yaml optimizer.yaml hparams.yaml - trainer - run
+	cd docs/examples/ml && fromconfig trainer.yaml model.yaml optimizer.yaml hparams.yaml - trainer - run
 	cd docs/examples/mlflow && python -m pip install mlflow && python submit.py config.yaml params.yaml --use_mlflow=True - model - train
 	cd docs/examples/launcher && fromconfig config.yaml params.yaml launcher.yaml - model - train
 
