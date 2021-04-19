@@ -1,0 +1,3 @@
+launcher:
+  log:
+    _attr_: print_command.PrintCommandLauncher

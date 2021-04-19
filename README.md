@@ -19,6 +19,7 @@ Thanks to [Python Fire](https://github.com/google/python-fire), `fromconfig` act
 - [Why FromConfig ?](#why-fromconfig-)
 - [Usage Reference](#usage-reference)
     - [Command Line](#command-line)
+    - [Overrides](#overrides)
     - [Config syntax](#config-syntax)
     - [Parsing](#parsing)
         - [Default](#default)
@@ -26,12 +27,25 @@ Thanks to [Python Fire](https://github.com/google/python-fire), `fromconfig` act
         - [References](#references)
         - [Evaluate](#evaluate)
         - [Singleton](#singleton)
+- [Launcher](#launcher)
+    - [Default](#default-1)
+    - [Launcher Configuration](#launcher-configuration)
+        - [Config Dict](#config-dict)
+        - [Name](#name)
+        - [List](#list)
+        - [Steps](#steps)
+    - [HParams](#hparams)
+    - [Parser](#parser)
+    - [Logging](#logging)
+    - [Local](#local)
 - [Examples](#examples)
     - [Manual](#manual)
     - [Custom Parser](#custom-parser)
     - [Custom FromConfig](#custom-fromconfig)
+    - [Custom Launcher](#custom-launcher)
+    - [Launcher Extensions](#launcher-extensions)
     - [Machine Learning](#machine-learning)
-    - [Hyper-Parameter Search](#hyper-parameter-search)
+    - [Custom Hyper-Parameter Search](#custom-hyper-parameter-search)
     - [MlFlow Tracking](#mlflow-tracking)
 - [Development](#development)
 
@@ -162,6 +176,38 @@ As the `fromconfig` command is wrapped in a [Python Fire](https://github.com/goo
 
 For example `fromconfig config.yaml - name` instantiates the dictionary defined in `config.yaml` and gets the value associated with the key `name`.
 
+
+<a id="overrides"></a>
+### Overrides
+
+You can provide additional key value parameters following the [Python Fire](https://github.com/google/python-fire) syntax as overrides directly via the command line.
+
+For example
+
+```bash
+fromconfig config.yaml params.yaml --params.learning_rate=0.01 - model - train
+```
+will print
+
+```
+Training model with learning_rate 0.01
+```
+
+This is strictly equivalent to defining another config file (eg. `overrides.yaml`)
+
+```yaml
+params:
+    learning_rate: 0.01
+```
+
+and running
+
+```bash
+fromconfig config.yaml params.yaml overrides.yaml - model - train
+```
+
+since the config files are merged from left to right, the files on the right overriding the existing keys from the left in case of conflict.
+
 <a id="config-syntax"></a>
 ### Config syntax
 
@@ -216,10 +262,11 @@ Note that during instantiation, the config object is not modified. Also, any map
 #### Default
 
 `FromConfig` comes with a default parser which sequentially applies
-- `OmegaConfParser`: can be practical for interpolation
-- `ReferenceParser`: resolves references
-- `EvaluateParser`: syntactic sugar to configure `functool.partial` or simple imports
-- `SingletonParser`: syntactic sugar to define singletons
+
+- `OmegaConfParser`: can be practical for interpolation ([learn more](#omegaconf))
+- `ReferenceParser`: resolves references ([learn more](#references))
+- `EvaluateParser`: syntactic sugar to configure `functool.partial` or simple imports ([learn more](#evaluate))
+- `SingletonParser`: syntactic sugar to define singletons ([learn more](#singletons))
 
 For example, let's see how to create singletons, use references and interpolation
 
@@ -409,6 +456,199 @@ Note that using references is not a solution to create singletons, as the refere
 
 The parser uses the special key `_singleton_` whose value is the name associated with the instance to resolve singletons at instantiation time.
 
+
+<a id="launcher"></a>
+## Launcher
+
+<a id="default-1"></a>
+### Default
+
+When a `fromconfig` command is executed (example `fromconfig config.yaml params.yaml - model - train`), the config is loaded, a launcher is instantiated (possibly configured by the config itself) and then the launcher "launches" the config with the remaining fire arguments.
+
+By default, 4 launchers are executed in the following order
+
+- `fromconfig.launcher.HParamsLauncher`: uses the `hparams` key of the config (if present) to launch multiple sub-configs from a grid of hyper-parameters ([learn more](#hparams))
+- `fromconfig.launcher.Parser`: applies a parser (by default, `DefaultParser`) to the config to replace references etc. ([learn more](#parser))
+- `fromconfig.launcher.LoggingLauncher`: uses `logging.info` to log a flattened view of the config ([learn more](#logging))
+- `fromconfig.launcher.LocalLauncher`: runs `fire.Fire(fromconfig.fromconfig(config), command)` to instantiate and execute the config with the fire arguments (`command`, for example `model - train`) ([learn more](#local)).
+
+Let's see for example how to configure the logging level and perform an hyper-parameter search.
+
+Given the following module and config files (similar to the quickstart, we only changed `params` into `hparams`)
+
+```python
+class Model:
+    def __init__(self, learning_rate: float):
+        self.learning_rate = learning_rate
+
+    def train(self):
+        print(f"Training model with learning_rate {self.learning_rate}")
+```
+
+```yaml
+# config.yaml
+model:
+  _attr_: foo.Model
+  learning_rate: "@hparams.learning_rate"
+
+# params.yaml
+hparams:
+  learning_rate: [0.01, 0.001]
+
+# launcher.yaml
+logging:
+  level: 20
+```
+
+run
+
+```bash
+fromconfig config.yaml params.yaml launcher.yaml - model - train
+```
+
+You should see plenty of logs and two trainings
+
+```
+INFO:fromconfig.launcher.logger:- model._attr_: foo.Model
+INFO:fromconfig.launcher.logger:- model.learning_rate: 0.01
+....
+Training model with learning_rate 0.01
+INFO:fromconfig.launcher.logger:- model._attr_: foo.Model
+INFO:fromconfig.launcher.logger:- model.learning_rate: 0.001
+...
+Training model with learning_rate 0.001
+```
+
+<a id="launcher-configuration"></a>
+### Launcher Configuration
+
+The launcher is instantiated from the `launcher` key if present in the config.
+
+For ease of use, multiple syntaxes are provided.
+
+<a id="config-dict"></a>
+#### Config Dict
+The `launcher` entry can be a config dictionary (with an `_attr_` key) that defines how to instantiate a `Launcher` instance (possibly custom).
+
+For example
+
+```yaml
+launcher:
+    _attr_: fromconfig.launcher.LocalLauncher
+```
+
+<a id="name"></a>
+#### Name
+The `launcher` entry can be a `str`, corresponding to a name that maps to a `Launcher` class. The internal `Launcher` names are
+
+
+| Name    | Class                                 |
+|---------|---------------------------------------|
+| hparams | `fromconfig.launcher.HParamsLauncher` |
+| parser  | `fromconfig.launcher.ParserLauncher`  |
+| logging | `fromconfig.launcher.LoggingLauncher` |
+| local   | `fromconfig.launcher.LocalLauncher`   |
+
+It is possible via extensions to add new `Launcher` classes to the list of available launchers (learn more in the examples section).
+
+
+<a id="list"></a>
+#### List
+The `launcher` entry can be a list of [config dict](#config-dict) and/or [names](#name). In that case, the resulting launcher is a nested launcher instance of the different launchers.
+
+For example
+
+```yaml
+launcher:
+    - hparams
+    - local
+```
+
+will result in `HParamsLauncher(LocalLauncher())`.
+
+
+<a id="steps"></a>
+#### Steps
+The `launcher` entry can also be a dictionary with 4 special keys for which the value can be any of config dict, name or list.
+
+- `sweep`: if not specified, will use [`hparams`](#hparams)
+- `parse`: if not specified, will use [`parser`](#parser)
+- `log`: if not specified, will use [`logging`](#logging)
+- `run`: if not specified, will use [`local`](#logging)
+
+Setting either all or a subset of these keys allows you to modify one of the 4 steps while still using the defaults for the rest of the steps.
+
+The result, again, is similar to the list mechanism, as a nested instance.
+
+For example
+
+```yaml
+launcher:
+  sweep: hparams
+  parse: parser
+  log: logging
+  run: local
+```
+
+results in `HParamsLauncher(ParserLauncher(LoggingLauncher(LocalLauncher)))`.
+
+
+<a id="hparams"></a>
+### HParams
+
+The `HParamsLauncher` provides basic hyper parameter search support. It is active by default.
+
+In your config, simply add a `hparams` entry. Each key is the name of a hyper parameter. Each value should be an iterable of values to try. The `HParamsLauncher` retrieves these hyper-parameter values, iterates over the combinations (Cartesian product) and launches each config overriding the `hparams` entry with the actual values.
+
+For example
+
+```yaml
+fromconfig --hparams.a=1,2 --hparams.b=3,4
+```
+
+Generates
+
+```
+hparams: {"a": 1, "b": 3}
+hparams: {"a": 1, "b": 4}
+hparams: {"a": 2, "b": 3}
+hparams: {"a": 2, "b": 4}
+```
+
+<a id="parser"></a>
+### Parser
+
+The `ParserLauncher` applies parsing to the config. By default, it uses the `DefaultParser`. You can configure the parser with your custom parser by overriding the `parser` key of the config.
+
+For example
+
+```yaml
+parser:
+    _attr_: "fromconfig.parser.DefaultParser"
+```
+
+Will tell the `ParserLauncher` to instantiate the `DefaultParser`.
+
+<a id="logging"></a>
+### Logging
+
+The `LoggingLauncher` can change the logging level (modifying the `logging.basicConfig` so this will apply to any other `logger` configured to impact the logging's root logger) and log a flattened view of the parameters.
+
+For example, to change the logging verbosity to `INFO` (20), simply do
+
+```yaml
+logging:
+    level: 20
+```
+
+
+<a id="local"></a>
+### Local
+
+The previous `Launcher`s were only either generating configs, parsing them, or logging them. To actually instantiate the object using `fromconfig` and manipulate the resulting object via the python Fire syntax, the default behavior is to use the `LocalLauncher`.
+
+If you wanted to execute the code remotely, you would have to swap the `LocalLauncher` by your custom `Launcher`.
+
 <a id="examples"></a>
 ## Examples
 
@@ -550,6 +790,99 @@ config = {
 fromconfig.fromconfig(config)  # {'_attr_': 'list'}
 ```
 
+
+<a id="custom-launcher"></a>
+### Custom Launcher
+
+Another flexibility provided by `fromconfig` is the ability to write custom `Launcher` classes.
+
+The `Launcher` base class is simple
+
+```python
+class Launcher(FromConfig, ABC):
+    """Base class for launchers."""
+
+    def __init__(self, launcher: "Launcher"):
+        self.launcher = launcher
+
+    def __call__(self, config: Any, command: str = ""):
+        """Launch implementation.
+
+        Parameters
+        ----------
+        config : Any
+            The config
+        command : str, optional
+            The fire command
+        """
+        raise NotImplementedError()
+```
+
+For example, let's implement a `Launcher` that simply prints the command (and does nothing else).
+
+```python
+from typing import Any
+
+import fromconfig
+
+
+class PrintCommandLauncher(fromconfig.launcher.Launcher):
+
+    def __call__(self, config: Any, command: str = ""):
+        print(command)
+```
+
+Given the following launcher config
+
+```yaml
+# launcher.yaml
+launcher:
+  log:
+    _attr_: print_command.PrintCommandLauncher
+```
+
+Run
+
+```
+fromconfig launcher.yaml - "hello world"
+```
+
+You should see
+
+```
+hello world
+```
+
+This example can be found in [`docs/examples/custom_launcher`](docs/examples/custom_launcher).
+
+
+<a id="launcher-extensions"></a>
+### Launcher Extensions
+
+Once you've implemented your custom launcher (it usually fits one of the `sweep`, `parse`, `log`, `run` steps), you can share it as a `fromconfig` extension.
+
+To do so, publish a new package on `PyPI` that has a specific entry point that maps to a module defined in your package in which one `Launcher` class is defined.
+
+To add an entry point, update the `setup.py` by adding
+
+```python
+setuptools.setup(
+    ...
+    entry_points={"fromconfig0": ["your_extension_name = your_extension_module"]},
+)
+```
+
+Make sure to look at the available launchers defined directly in `fromconfig`. It is recommended to keep the number of `__init__` arguments as low as possible (if any) and instead retrieve parameters from the `config` itself at run time. A good practice is to use the same name for the config entry that will be used as the shortened name given by the entry-point.
+
+If your `Launcher` class is not meant to wrap another `Launcher` class (that's the case of the `LocalLauncher` for example), make sure to override the `__init__` method like so
+
+```python
+def __init__(self, launcher: Launcher = None):
+    if launcher is not None:
+        raise ValueError(f"Cannot wrap another launcher but got {launcher}")
+    super().__init__(launcher=launcher)  # type: ignore
+```
+
 <a id="machine-learning"></a>
 ### Machine Learning
 
@@ -639,12 +972,41 @@ This example can be found in [`docs/examples/ml`](docs/examples/ml).
 Note that it is encouraged to save these config files with the experiment's files to get full reproducibility. [MlFlow](https://mlflow.org) is an open-source platform that tracks your experiments by logging metrics and artifacts.
 
 
-<a id="hyper-parameter-search"></a>
-### Hyper-Parameter Search
+<a id="custom-hyper-parameter-search"></a>
+### Custom Hyper-Parameter Search
 
-To launch an hyper-parameter search, generate config files on the fly if using the `fromconfig` CLI, or config dictionaries.
+You can use the `hparams` entry, that the `HParamsLauncher` uses to generate configs (see [more above](#hparams)).
 
-For example,
+Reusing the [ML example](#machine-learning), simply add a `hparams.yaml` file
+
+```yaml
+params:
+  dim: "@hparams.dim"
+  learning_rate: "@hparams.learning_rate"
+
+hparams:
+  dim: [10, 100]
+  learning_rate: [0.1, 0.01]
+```
+
+And launch a hyper-parameter sweep with
+
+```bash
+fromconfig trainer.yaml model.yaml optimizer.yaml hparams.yaml - trainer - run
+```
+
+which should print
+
+```
+Training Model(dim=10) with Optimizer(learning_rate=0.1)
+Training Model(dim=10) with Optimizer(learning_rate=0.01)
+Training Model(dim=100) with Optimizer(learning_rate=0.1)
+Training Model(dim=100) with Optimizer(learning_rate=0.01)
+```
+
+You can also write your custom config generator (and even make it a `Launcher`, see [how to implement a custom Launcher](#custom-launcher)).
+
+For example, something that is equivalent to what we just did is
 
 ```python
 import fromconfig

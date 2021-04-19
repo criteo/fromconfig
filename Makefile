@@ -21,12 +21,15 @@ test: ## [Local development] Run unit tests, doctest and notebooks
 
 examples:  ## [Doc] Run all examples
 	cd docs/examples/quickstart && fromconfig config.yaml params.yaml - model - train
+	cd docs/examples/quickstart && fromconfig config.yaml params.yaml --params.learning_rate=0.01 - model - train
 	cd docs/examples/manual && python manual.py
 	cd docs/examples/custom_parser && python lorem_ipsum.py
 	cd docs/examples/ml && fromconfig trainer.yaml model.yaml optimizer.yaml params/small.yaml - trainer - run
 	cd docs/examples/ml && fromconfig trainer.yaml model.yaml optimizer.yaml params/big.yaml - trainer - run
 	cd docs/examples/ml && python hp.py
+	cd doc/examples/ml && fromconfig trainer.yaml model.yaml optimizer.yaml hparams.yaml - trainer - run
 	cd docs/examples/mlflow && python -m pip install mlflow && python submit.py config.yaml params.yaml --use_mlflow=True - model - train
+	cd docs/examples/launcher && fromconfig config.yaml params.yaml launcher.yaml - model - train
 
 venv-lint-test: ## [Continuous integration] Install in venv and run lint and test
 	python3.6 -m venv .env && . .env/bin/activate && make install install-dev lint test && rm -rf .env
