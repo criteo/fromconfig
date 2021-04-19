@@ -1,11 +1,11 @@
 """Local Launcher."""
 
-import fire
 from typing import Any
+import fire
 import logging
 
-from fromconfig.launcher import base
 from fromconfig.core.base import fromconfig
+from fromconfig.launcher import base
 
 
 LOGGER = logging.getLogger(__name__)
