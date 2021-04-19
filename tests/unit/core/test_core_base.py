@@ -7,12 +7,6 @@ import pytest
 import fromconfig
 
 
-def test_core_fromconfig_abstract():
-    """Test that from config is abstract."""
-    with pytest.raises(Exception):
-        fromconfig.FromConfig()  # pylint: disable=abstract-class-instantiated
-
-
 class Custom(fromconfig.FromConfig):
     """Custom FromConfig class."""
 
@@ -22,6 +16,10 @@ class Custom(fromconfig.FromConfig):
     def __eq__(self, other):
         return type(self) == type(other) and self.x == other.x  # pylint: disable=unidiomatic-typecheck
 
+
+class CustomOverriden(Custom):
+    """Custom FromConfig class with fromconfig implementation."""
+
     @classmethod
     def fromconfig(cls, config: Dict):
         return cls(config["_x"])
@@ -30,7 +28,23 @@ class Custom(fromconfig.FromConfig):
 @pytest.mark.parametrize(
     "config, expected",
     [
-        pytest.param({"_attr_": "tests.unit.core.test_core_base.Custom", "_x": 1}, Custom(1), id="simple"),
+        pytest.param({"x": 1}, Custom(1), id="simple"),
+        pytest.param(
+            {"x": {"_attr_": "tests.unit.core.test_core_base.Custom", "x": 2}}, Custom(Custom(2)), id="nested"
+        ),
+    ],
+)
+def test_default_custom_fromconfig(config, expected):
+    """Test default custom fromconfig."""
+    assert Custom.fromconfig(config) == expected
+
+
+@pytest.mark.parametrize(
+    "config, expected",
+    [
+        pytest.param(
+            {"_attr_": "tests.unit.core.test_core_base.CustomOverriden", "_x": 1}, CustomOverriden(1), id="simple"
+        ),
         pytest.param(
             {"_attr_": "fromconfig.Config", "_config_": {"_attr_": "str", "_args_": "hello"}},
             fromconfig.Config(_attr_="str", _args_="hello"),

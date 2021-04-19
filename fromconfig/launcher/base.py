@@ -6,7 +6,7 @@ import pkg_resources
 import inspect
 import logging
 
-from fromconfig.core.base import fromconfig, FromConfig
+from fromconfig.core.base import fromconfig, FromConfig, Keys
 from fromconfig.utils.types import is_pure_iterable, is_mapping
 from fromconfig.version import MAJOR
 
@@ -17,7 +17,7 @@ LOGGER = logging.getLogger(__name__)
 class Launcher(FromConfig, ABC):
     """Base class for launchers."""
 
-    def __init__(self, launcher: "Launcher" = None):
+    def __init__(self, launcher: "Launcher"):
         self.launcher = launcher
 
     def __call__(self, config: Any, command: str = ""):
@@ -89,7 +89,7 @@ class Launcher(FromConfig, ABC):
         def _fromconfig(cfg, launcher: Launcher = None):
             # Launcher class name
             if isinstance(cfg, str):
-                return _get_cls(cfg)(launcher=launcher)
+                return _get_cls(cfg)(launcher=launcher)  # type: ignore
 
             # List of launchers to compose (first item is highest)
             if is_pure_iterable(cfg):
@@ -106,13 +106,22 @@ class Launcher(FromConfig, ABC):
                         launcher = _fromconfig(cfg.get(key, defaults), launcher=launcher)
                     return launcher
 
-                # Regular config, special treatment for "launcher" key
+                # Special treatment for "launcher" key
                 if "launcher" in cfg:
                     if launcher is not None:
                         raise ValueError(f"Launcher conflict, launcher is not None ({launcher}) but cfg={cfg}")
                     launcher = _fromconfig(cfg["launcher"])
                 cfg = cfg if not launcher else {**cfg, "launcher": launcher}
-                return fromconfig(cfg)
+
+                # Regular config
+                if any(key in cfg for key in Keys):
+                    return fromconfig(cfg)
+
+                # Logical implementation
+                return cls(**{key: fromconfig(value) for key, value in cfg.items()})
+
+            if isinstance(cfg, Launcher):
+                return cfg
 
             raise TypeError(f"Unable to instantiate launcher from {cfg} (unsupported type {type(cfg)})")
 
@@ -123,10 +132,10 @@ class Launcher(FromConfig, ABC):
 _CLASSES: Dict[str, Type] = {}
 
 
-def _get_cls(name: str) -> Dict[str, Type]:
+def _get_cls(name: str) -> Type:
     """Load and return internal and external launcher classes."""
     if not _CLASSES:
-        # pylint: disable=import-outside-toplevel
+        # pylint: disable=import-outside-toplevel,cyclic-import
         # Import internal classes
         from fromconfig.launcher.hparams import HParamsLauncher
         from fromconfig.launcher.parser import ParserLauncher

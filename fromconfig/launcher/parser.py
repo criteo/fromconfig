@@ -15,11 +15,8 @@ LOGGER = logging.getLogger(__name__)
 class ParserLauncher(base.Launcher):
     """Parse the config."""
 
-    def __init__(self, launcher: base.Launcher):
-        super().__init__(launcher=launcher)
-
     def __call__(self, config: Any, command: str = ""):
         parser = fromconfig(config.pop("parser")) if "parser" in config else DefaultParser()
         LOGGER.info(f"Resolved parser {parser}")
-        self.launcher(config=parser(config), command=command)
+        self.launcher(config=parser(config), command=command)  # type: ignore
         singleton.clear()  # Clear singleton to avoid leaks
