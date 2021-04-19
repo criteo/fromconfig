@@ -2,9 +2,9 @@
 
 from abc import ABC
 from typing import Any, Mapping, Dict, Type
-import pkg_resources
 import inspect
 import logging
+import pkg_resources
 
 from fromconfig.core.base import fromconfig, FromConfig, Keys
 from fromconfig.utils.types import is_pure_iterable, is_mapping

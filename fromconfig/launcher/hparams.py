@@ -1,12 +1,12 @@
 """Hyper Params SweepLauncher."""
 
-import itertools
 from typing import Any
+import itertools
 import logging
 
+from fromconfig.core.base import fromconfig
 from fromconfig.launcher import base
 from fromconfig.utils.nest import merge_dict
-from fromconfig.core.base import fromconfig
 
 
 LOGGER = logging.getLogger(__name__)
