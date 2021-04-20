@@ -6,7 +6,7 @@ import logging
 
 from fromconfig.core.base import fromconfig
 from fromconfig.launcher import base
-
+from fromconfig.utils.types import is_mapping
 
 LOGGER = logging.getLogger(__name__)
 

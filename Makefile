@@ -20,7 +20,7 @@ test: ## [Local development] Run unit tests, doctest and notebooks
 	$(MAKE) examples
 
 examples:  ## [Doc] Run all examples
-	cd docs/examples/custom_launcher && fromconfig launcher.yaml - "hello world"
+	cd docs/examples/custom_launcher && fromconfig config.yaml launcher.yaml - model - train
 	cd docs/examples/custom_parser && python lorem_ipsum.py
 	cd docs/examples/launcher && fromconfig config.yaml params.yaml launcher.yaml - model - train
 	cd docs/examples/manual && python manual.py
