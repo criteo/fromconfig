@@ -108,7 +108,7 @@ Training model with learning_rate 0.1
 Here is a step-by-step breakdown of what is happening
 
 1. Load the yaml files into dictionaries
-2. Merge the dictionaries into a `config` dictionary
+2. Merge the dictionaries into a dictionary (`config`)
 3. Instantiate the `DefaultLauncher` and call `launch(config, command)` where `command` is `model - train` ([Python Fire](https://github.com/google/python-fire) syntax).
 4. The `DefaultLauncher` applies the `DefaultParser` to the `config` (it resolves references as `@params.learning_rate`, etc.)
 5. Finally, the `DefaultLauncher` runs the `LocalLauncher`. It recursively instantiate sub-dictionaries, using the `_attr_` key to resolve the Python class / function as an import string. It then launches `fire.Fire(object, command)`, which translates into "get the `model` key from the instantiated dictionary and execute the `train` method".
@@ -124,19 +124,83 @@ To learn more about `FromConfig` features, see the [Usage Reference](#usage-refe
 `fromconfig.fromconfig` special keys
 
 
-| Key        | Value Example     | Use                                               |
-|------------|-------------------|---------------------------------------------------|
-| "\_attr\_" | "foo.bar.MyClass" | Full import string of a class, function or method |
-| "\_args\_" | [1, 2]            | Positional arguments                              |
+| Key        | Value Example       | Use                                               |
+|------------|---------------------|---------------------------------------------------|
+| `"_attr_"` | `"foo.bar.MyClass"` | Full import string of a class, function or method |
+| `"_args_"` | `[1, 2]`            | Positional arguments                              |
 
 `fromconfig.parser.DefaultParser` syntax
 
-| Key             | Value                         | Use                                    |
-|-----------------|-------------------------------|----------------------------------------|
-| "\_singleton\_" | "my_singleton_name"           | Creates a singleton identified by name |
-| "\_eval\_"      | "call", "import", "partial"   | Evaluation modes                       |
-|                 | "@params.model"               | Reference                              |
-|                 | "${params.url}:${params.port} | Interpolation via OmegaConf            |
+| Key             | Value                             | Use                                    |
+|-----------------|-----------------------------------|----------------------------------------|
+| `"_singleton_"` | `"my_singleton_name"`             | Creates a singleton identified by name |
+| `"_eval_"`      | `"call"`, `"import"`, `"partial"` | Evaluation modes                       |
+|                 | `"@params.model"`                 | Reference                              |
+|                 | `"${params.url}:${params.port}"`  | Interpolation via OmegaConf            |
+
+`fromconfig.parser.DefaultLauncher` options (keys at config's toplevel)
+
+
+| Key         | Value Example                                      | Use                                         |
+|-------------|----------------------------------------------------|---------------------------------------------|
+| `"logging"` | `{"level": 20}`                                    | Change logging level to 20 (`logging.INFO`) |
+| `"parser"`  | `{"_attr_": "fromconfig.parser.DefaultParser"}`    | Configure which parser is used              |
+| `"hparams"` | `{"learning_rate": [0.1, 0.001]}`                  | Hyper-parameter search (use references like `@hparams.learning_rate` in other parts of the config)             |
+
+
+Config sample
+
+```yaml
+# Configure model
+model:
+  _attr_: foo.Model  # Full import string to the class to instantiate
+  _args_: ["@hparams.dim"]  # Positional arguments
+  _singleton_: "model_${hparams.dim}_${hparams.learning_rate}"  # All @model references will instantiate the same object with that name
+  _eval_: "call"  # Optional ("call" is the default behavior)
+  learning_rate: "@hparams.learning_rate"  # Other key value parameter
+
+# Configure hyper parameters, use references @hparams.key to use them
+hparams:
+  learning_rate: [0.1, 0.001]
+  dim: [10, 100]
+
+# Configure logging level (set to logging.INFO)
+logging:
+  level: 20
+
+# Configure parser (optional, using this parser is the default behavior)
+parser:
+  _attr_: "fromconfig.parser.DefaultParser"
+
+# Configure launcher (optional, the following config creates the same launcher as the default behavior)
+launcher:
+  sweep: "hparams"
+  parse: "parser"
+  log: "logging"
+  run: "local"
+
+```
+
+for module
+
+```python
+class Model:
+    def __init__(self, dim: int, learning_rate: float):
+        self.dim = dim
+        self.learning_rate = learning_rate
+
+    def train(self):
+        print(f"Training model({self.dim}) with learning_rate {self.learning_rate}")
+```
+
+Launch with
+
+```bash
+fromconfig config.yaml - model - train
+```
+
+This example can be found in [`docs/examples/cheat_sheet`](docs/examples/cheat_sheet).
+
 
 <a id="why-fromconfig-"></a>
 ## Why FromConfig ?
@@ -664,6 +728,8 @@ If you wanted to execute the code remotely, you would have to swap the `LocalLau
 
 <a id="examples"></a>
 ## Examples
+
+Note: you can run all the examples with `make examples` (see [Makefile](./Makefile)).
 
 <a id="manual"></a>
 ### Manual
@@ -1228,4 +1294,10 @@ To format the code with black
 
 ```bash
 make black
+```
+
+To run tests
+
+```bash
+make test
 ```
