@@ -6,6 +6,12 @@ A library to instantiate any Python object from configuration files.
 
 Thanks to [Python Fire](https://github.com/google/python-fire), `fromconfig` acts as a generic command line interface from configuration files *with absolutely no change to the code*.
 
+What are `fromconfig` strengths?
+
+1. __No code change__ Install with `pip install fromconfig` and [get started](#quickstart).
+2. __Simplicity__ See the simple [config syntax](#config-syntax) and [command line](#command-line).
+3. __Extendability__ See how to write [a custom `Parser`](#custom-parser), [a custom `Launcher`](#custom-launcher), and [a custom `FromConfig` class](#custom-fromconfig).
+
 
 ![FromConfig](https://raw.githubusercontent.com/criteo/fromconfig/master/docs/images/fromconfig.svg)
 
@@ -76,14 +82,14 @@ class Model:
 ```
 
 with the following config files
-- `config.yaml`
+
 ```yaml
+# config.yaml
 model:
   _attr_: foo.Model
   learning_rate: "@params.learning_rate"
-```
-- `params.yaml`
-```yaml
+
+# params.yaml
 params:
   learning_rate: 0.1
 ```
@@ -102,9 +108,10 @@ Training model with learning_rate 0.1
 Here is a step-by-step breakdown of what is happening
 
 1. Load the yaml files into dictionaries
-2. Merge the dictionaries
-3. After parsing the resulting dictionary with a default parser (resolving references as `@params.learning_rate`, etc.), it recursively instantiate sub-dictionaries, using the `_attr_` key to resolve the Python class / function as an import string.
-4. Finally, the `- model - train` part of the command is a [Python Fire](https://github.com/google/python-fire) syntax, which translates into "get the `model` key from the instantiated dictionary and execute the `train` method".
+2. Merge the dictionaries into a `config` dictionary
+3. Instantiate the `DefaultLauncher` and call `launch(config, command)` where `command` is `model - train` ([Python Fire](https://github.com/google/python-fire) syntax).
+4. The `DefaultLauncher` applies the `DefaultParser` to the `config` (it resolves references as `@params.learning_rate`, etc.)
+5. Finally, the `DefaultLauncher` runs the `LocalLauncher`. It recursively instantiate sub-dictionaries, using the `_attr_` key to resolve the Python class / function as an import string. It then launches `fire.Fire(object, command)`, which translates into "get the `model` key from the instantiated dictionary and execute the `train` method".
 
 This example can be found in [`docs/examples/quickstart`](docs/examples/quickstart).
 
@@ -144,6 +151,7 @@ It is particularly well suited for __Machine Learning__ (see [examples](#machine
 `fromconfig` is based off the config system developed as part of the [deepr](https://github.com/criteo/deepr) library, a collections of utilities to define and train Tensorflow models in a Hadoop environment.
 
 Other relevant libraries are:
+
 * [fire](https://github.com/google/python-fire) automatically generate command line interface (CLIs) from absolutely any Python object.
 * [omegaconf](https://github.com/omry/omegaconf) YAML based hierarchical configuration system with support for merging configurations from multiple sources.
 * [hydra](https://hydra.cc/docs/intro/) A higher-level framework based off `omegaconf` to configure complex applications.
@@ -154,25 +162,28 @@ Other relevant libraries are:
 <a id="usage-reference"></a>
 ## Usage Reference
 
-The `fromconfig` library relies on two independent components.
+The `fromconfig` library relies on three components.
 
-1. A lightweight __syntax__ to instantiate any Python object from dictionaries (using special keys `_attr_` and `_args_`).
-2. A composable, flexible, and customizable framework to __parse__ configs before instantiation. This allows configs to remain short and readable with syntactic sugar to define singletons, references, etc.
+1. A independent and lightweight __syntax__ to instantiate any Python object from dictionaries with `fromconfig.fromconfig(config)` (using special keys `_attr_` and `_args_`) (see [Config Syntax](#config-syntax)).
+2. A composable, flexible, and customizable framework to manipulate configs and launch jobs on remote servers, log values to tracking platforms, etc. (see [Launcher](#launcher)).
+3. A simple abstraction to parse configs before instantiation. This allows configs to remain short and readable with syntactic sugar to define singletons, perform interpolation, etc. (see [Parser](#parsing)).
 
 <a id="command-line"></a>
 ### Command Line
 
-Usage : call `fromconfig` on any number of paths to config files.
+Usage : call `fromconfig` on any number of paths to config files, with optional key value overrides. Use the full expressiveness of python Fire to manipulate the resulting instantiated object.
 
 ```bash
-fromconfig config.yaml params.yaml
+fromconfig config.yaml params.yaml --key=value - name
 ```
 
 Supported formats : YAML, JSON, and [JSONNET](https://jsonnet.org).
 
-The command line loads the different config files into Python dictionaries and merge them (it fails in case of any key conflict). It parses the resulting dictionary with the `DefaultParser` before calling `fromconfig.fromconfig` to instantiate the object.
+The command line loads the different config files into Python dictionaries and merge them (if there is any key conflict, the config on the right overrides the ones from the left).
 
-As the `fromconfig` command is wrapped in a [Python Fire](https://github.com/google/python-fire) call, you can manipulate the resulting instantiated dictionary via the command line by using the fire syntax.
+It then instantiate the `launcher` (using the `launcher` key if present in the config) and launches the config with the rest of the fire command.
+
+With [Python Fire](https://github.com/google/python-fire), you can manipulate the resulting instantiated dictionary via the command line by using the fire syntax.
 
 For example `fromconfig config.yaml - name` instantiates the dictionary defined in `config.yaml` and gets the value associated with the key `name`.
 
@@ -214,6 +225,7 @@ since the config files are merged from left to right, the files on the right ove
 The `fromconfig.fromconfig` function recursively instantiates objects from dictionaries.
 
 It uses two special keys
+
 - `_attr_`: (optional) full import string to any Python object.
 - `_args_`: (optional) positional arguments.
 
@@ -323,7 +335,7 @@ config = {
 parser = fromconfig.parser.OmegaConfParser()
 parsed = parser(config)
 parsed["url"]  # 'localhost:8008'
-````
+```
 
 Learn more on the [OmegaConf documentation website](https://omegaconf.readthedocs.io).
 
@@ -381,6 +393,7 @@ parsed1["model"]["x"]  # 2
 The `EvaluateParser` makes it possible to simply import a class / function, or configure a constructor via a `functools.partial` call.
 
 The parser uses a special key `_eval_` with possible values
+
 - `call`: standard behavior, results in `attr(kwargs)`.
 - `partial`: delays the call, results in a `functools.partial(attr, **kwargs)`
 - `import`: simply import the attribute, results in `attr`
@@ -590,7 +603,7 @@ launcher:
   run: local
 ```
 
-results in `HParamsLauncher(ParserLauncher(LoggingLauncher(LocalLauncher)))`.
+results in `HParamsLauncher(ParserLauncher(LoggingLauncher(LocalLauncher())))`.
 
 
 <a id="hparams"></a>
@@ -883,6 +896,8 @@ def __init__(self, launcher: Launcher = None):
     super().__init__(launcher=launcher)  # type: ignore
 ```
 
+See an example [here](https://github.com/guillaumegenthial/fromconfig-mlflow).
+
 <a id="machine-learning"></a>
 ### Machine Learning
 
@@ -921,33 +936,29 @@ class Trainer:
 
 And the following config files
 
-- `trainer.yaml`: configures the training pipeline
 ```yaml
+# trainer.yaml: configures the training pipeline
 trainer:
     _attr_: "training.Trainer"
     model: "@model"
     optimizer: "@optimizer"
-```
-- `model.yaml`: configures the model
-```yaml
+
+# model.yaml: configures the model
 model:
     _attr_: "training.Model"
     dim: "@params.dim"
-```
-- `optimizer.yaml`: configures the optimizer
-```yaml
+
+# optimizer.yaml: configures the optimizer
 optimizer:
     _attr_: "training.Optimizer"
     learning_rate: @params.learning_rate
-```
-- `params/small.yaml`: hyper-parameters for a small version of the model
-```yaml
+
+# params/small.yaml: hyper-parameters for a small version of the model
 params:
     dim: 10
     learning_rate: 0.01
-```
-- `params/big.yaml`: hyper-parameters for a big version of the model
-```yaml
+
+# params/big.yaml: hyper-parameters for a big version of the model
 params:
     dim: 100
     learning_rate: 0.001

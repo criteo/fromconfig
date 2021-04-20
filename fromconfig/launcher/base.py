@@ -89,7 +89,8 @@ class Launcher(FromConfig, ABC):
         def _fromconfig(cfg, launcher: Launcher = None):
             # Launcher class name
             if isinstance(cfg, str):
-                return _get_cls(cfg)(launcher=launcher)  # type: ignore
+                launcher_cls = _get_cls(cfg)
+                return launcher_cls(launcher=launcher) if launcher else launcher_cls()  # type: ignore
 
             # List of launchers to compose (first item is highest)
             if is_pure_iterable(cfg):
@@ -101,7 +102,6 @@ class Launcher(FromConfig, ABC):
                 # Special syntax by section
                 keys = [("sweep", ["hparams"]), ("parse", ["parser"]), ("log", ["logging"]), ("run", ["local"])]
                 if any(key in cfg for key, _ in keys):
-                    launcher = None
                     for key, defaults in keys[::-1]:
                         launcher = _fromconfig(cfg.get(key, defaults), launcher=launcher)
                     return launcher
@@ -117,10 +117,12 @@ class Launcher(FromConfig, ABC):
                 if any(key in cfg for key in Keys):
                     return fromconfig(cfg)
 
-                # Logical implementation
+                # Typical implementation
                 return cls(**{key: fromconfig(value) for key, value in cfg.items()})
 
             if isinstance(cfg, Launcher):
+                if launcher is not None:
+                    raise ValueError(f"Launcher conflict, launcher is not None ({launcher}) but cfg={cfg}")
                 return cfg
 
             raise TypeError(f"Unable to instantiate launcher from {cfg} (unsupported type {type(cfg)})")
