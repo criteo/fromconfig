@@ -113,7 +113,7 @@ Here is a step-by-step breakdown of what is happening
 4. The `DefaultLauncher` applies the `DefaultParser` to the `config` (it resolves references as `@params.learning_rate`, etc.)
 5. Finally, the `DefaultLauncher` runs the `LocalLauncher`. It recursively instantiate sub-dictionaries, using the `_attr_` key to resolve the Python class / function as an import string. It then launches `fire.Fire(object, command)`, which translates into "get the `model` key from the instantiated dictionary and execute the `train` method".
 
-This example can be found in [`docs/examples/quickstart`](docs/examples/quickstart).
+This example can be found in [`examples/quickstart`](examples/quickstart).
 
 To learn more about `FromConfig` features, see the [Usage Reference](#usage-reference) and [Examples](#examples) sections.
 
@@ -199,7 +199,7 @@ Launch with
 fromconfig config.yaml - model - train
 ```
 
-This example can be found in [`docs/examples/cheat_sheet`](docs/examples/cheat_sheet).
+This example can be found in [`examples/cheat_sheet`](examples/cheat_sheet).
 
 
 <a id="why-fromconfig-"></a>
@@ -770,7 +770,7 @@ if __name__ == "__main__":
     model.train()
 ```
 
-This example can be found in [`docs/examples/manual`](docs/examples/manual)
+This example can be found in [`examples/manual`](examples/manual)
 
 <a id="custom-parser"></a>
 ### Custom Parser
@@ -814,7 +814,7 @@ parsed = parser(cfg)
 print(parsed)  # {"x": "Hello World", "y": "lorem ipsum"}
 ```
 
-This example can be found in [`docs/examples/custom_parser`](docs/examples/custom_parser)
+This example can be found in [`examples/custom_parser`](examples/custom_parser)
 
 
 <a id="custom-fromconfig"></a>
@@ -950,7 +950,7 @@ model - train
 Training model with learning_rate 0.1
 ```
 
-This example can be found in [`docs/examples/custom_launcher`](docs/examples/custom_launcher).
+This example can be found in [`examples/custom_launcher`](examples/custom_launcher).
 
 
 <a id="launcher-extensions"></a>
@@ -980,7 +980,7 @@ def __init__(self, launcher: Launcher = None):
     super().__init__(launcher=launcher)  # type: ignore
 ```
 
-An example can be found in [`docs/examples/launcher_yarn_mlflow`](docs/examples/launcher_yarn_mlflow), using two extensions
+An example can be found in [`examples/launcher_yarn_mlflow`](examples/launcher_yarn_mlflow), using two extensions
 
 - [`fromconfig-mlflow`](https://github.com/guillaumegenthial/fromconfig-mlflow): tracking support with [MlFlow](https://www.mlflow.org)
 - [`fromconfig-yarn`](https://github.com/criteo/fromconfig-yarn): execution on a yarn cluster using [cluster-pack](https://github.com/criteo/cluster-pack)
@@ -1065,7 +1065,7 @@ Training Model(dim=10) with Optimizer(learning_rate=0.01)
 Training Model(dim=100) with Optimizer(learning_rate=0.001)
 ```
 
-This example can be found in [`docs/examples/ml`](docs/examples/ml).
+This example can be found in [`examples/ml`](examples/ml).
 
 Note that it is encouraged to save these config files with the experiment's files to get full reproducibility. [MlFlow](https://mlflow.org) is an open-source platform that tracks your experiments by logging metrics and artifacts.
 
@@ -1150,7 +1150,7 @@ Training Model(dim=100) with Optimizer(learning_rate=0.01)
 Training Model(dim=100) with Optimizer(learning_rate=0.1)
 ```
 
-This example can be found in [`docs/examples/ml`](docs/examples/ml) (run `python hp.py`).
+This example can be found in [`examples/ml`](examples/ml) (run `python hp.py`).
 
 
 <a id="mlflow-tracking"></a>
@@ -1243,7 +1243,7 @@ if __name__ == "__main__":
     fire.Fire(main)
 ```
 
-This example can be found in [`docs/examples/mlflow`](docs/examples/mlflow).
+This example can be found in [`examples/mlflow`](examples/mlflow).
 
 Start an MlFlow server with
 

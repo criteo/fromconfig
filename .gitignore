@@ -61,6 +61,9 @@ local_settings.py
 instance/
 .webassets-cache
 
+# MlFlow stuff:
+mlruns
+
 # Scrapy stuff:
 .scrapy
 
