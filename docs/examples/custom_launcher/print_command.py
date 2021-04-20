@@ -8,3 +8,4 @@ import fromconfig
 class PrintCommandLauncher(fromconfig.launcher.Launcher):
     def __call__(self, config: Any, command: str = ""):
         print(command)
+        self.launcher(config=config, command=command)

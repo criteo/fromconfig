@@ -840,30 +840,48 @@ import fromconfig
 
 
 class PrintCommandLauncher(fromconfig.launcher.Launcher):
-
     def __call__(self, config: Any, command: str = ""):
         print(command)
+        self.launcher(config=config, command=command)
 ```
 
 Given the following launcher config
 
 ```yaml
+# config.yaml
+model:
+  _attr_: foo.Model
+  learning_rate: 0.1
+
 # launcher.yaml
 launcher:
   log:
     _attr_: print_command.PrintCommandLauncher
 ```
 
+and module
+
+```python
+# foo.py
+class Model:
+    def __init__(self, learning_rate: float):
+        self.learning_rate = learning_rate
+
+    def train(self):
+        print(f"Training model with learning_rate {self.learning_rate}")
+```
+
 Run
 
 ```
-fromconfig launcher.yaml - "hello world"
+fromconfig config.yaml launcher.yaml - model - train
 ```
 
 You should see
 
 ```
-hello world
+model - train
+Training model with learning_rate 0.1
 ```
 
 This example can be found in [`docs/examples/custom_launcher`](docs/examples/custom_launcher).

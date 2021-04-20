@@ -27,7 +27,7 @@ def launch(paths: Iterable[str], overrides: Mapping, command: str):
     """
     configs = [fromconfig.utils.expand(overrides.items())] + [fromconfig.load(path) for path in paths]
     config = functools.reduce(fromconfig.utils.merge_dict, configs[::-1])
-    launcher = fromconfig.launcher.DefaultLauncher.fromconfig(config.get("launcher", {}))
+    launcher = fromconfig.launcher.DefaultLauncher.fromconfig(config.pop("launcher", {}))
     launcher(config=config, command=command)
 
 
