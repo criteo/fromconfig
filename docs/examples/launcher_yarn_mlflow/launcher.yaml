@@ -1,0 +1,41 @@
+# Configure logging level (set to logging.INFO)
+logging:
+  level: 20
+
+# Configure mlflow
+mlflow:
+  # tracking_uri: "http://127.0.0.1:5000"
+  # experiment_name: "test-experiment"
+  # run_name: test
+  # artifact_location: "path/to/artifacts"
+  launches:
+    -
+      log_artifacts: true
+      log_parameters: false
+      path_config: "config.json"
+      path_command: "launch_config.txt"
+    -
+      log_artifacts: true
+      log_parameters: true
+      path_config: "parsed.json"
+      path_command: "launch_parsed.json"
+      include_keys:
+        - model
+
+# Configure Yarn
+yarn:
+  name: test
+  # zip_file: "path/to/env.pex"  # Reuse existing pex
+
+# Configure launcher
+launcher:
+  parse:
+    - mlflow  # Log configs before parsing but not parameters (see mlflow.launches[0])
+    - parser
+  log:
+    - logging
+    - mlflow  # Log configs after parsing and parameters (see mlflow.launches[1])
+  run:
+    - yarn
+    - mlflow  # Reactivate MlFlow run on yarn
+    - local

@@ -32,6 +32,7 @@ examples:  ## [Doc] Run all examples
 	cd docs/examples/mlflow && python -m pip install mlflow && python submit.py config.yaml params.yaml --use_mlflow=True - model - train
 	cd docs/examples/quickstart && fromconfig config.yaml params.yaml - model - train
 	cd docs/examples/quickstart && fromconfig config.yaml params.yaml --params.learning_rate=0.01 - model - train
+	cd docs/examples/launcher_yarn_mlflow && python -m pip install -r requirements.txt && python monkeypatch_fromconfig.py config.yaml launcher.yaml - model - train
 
 venv-lint-test: ## [Continuous integration] Install in venv and run lint and test
 	python3.6 -m venv .env && . .env/bin/activate && make install install-dev lint test && rm -rf .env
