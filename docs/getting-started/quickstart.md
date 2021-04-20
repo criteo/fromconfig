@@ -1,4 +1,4 @@
-## Quick Start <!-- {docsify-ignore} -->
+## Quickstart <!-- {docsify-ignore} -->
 
 `fromconfig` can configure any Python object, without any change to the code.
 

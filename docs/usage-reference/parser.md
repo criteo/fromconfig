@@ -1,4 +1,4 @@
-### Parsing <!-- {docsify-ignore} -->
+### Parser <!-- {docsify-ignore} -->
 
 <a id="default"></a>
 #### Default
@@ -8,7 +8,7 @@
 - `OmegaConfParser`: can be practical for interpolation ([learn more](#omegaconf))
 - `ReferenceParser`: resolves references ([learn more](#references))
 - `EvaluateParser`: syntactic sugar to configure `functool.partial` or simple imports ([learn more](#evaluate))
-- `SingletonParser`: syntactic sugar to define singletons ([learn more](#singletons))
+- `SingletonParser`: syntactic sugar to define singletons ([learn more](#singleton))
 
 For example, let's see how to create singletons, use references and interpolation
 
