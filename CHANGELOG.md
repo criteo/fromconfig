@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org).
 
 
+## [0.3.0] - 2021-04-20
+
+### Added
+- `Launcher` base class with `HParamsLauncher`, `ParserLauncher`, `LoggingLauncher` and `LocalLauncher`
+- CLI mechanism for argument parsing and `fire.Fire` integration (now in Launcher)
+- Overrides support via key-value parameters for the CLI thanks to `utils.expand`
+- `ChainParser` to easily chain parsers.
+
+### Changed
+- The `FromConfig` class now has a default implementation of `fromconfig`
+- The `DefaultParser` now inherits `ChainParser` and its implementation is moved to `parser/default.py`
+
+### Deprecated
+### Removed
+- `jsonnet` requirement in the setup.py (it should be optional as it tends to cause issues in some users).
+
+### Fixed
+### Security
+
+
+
 ## [0.2.2] - 2021-03-31
 
 ### Added
@@ -15,7 +36,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Removed
 ### Fixed
 ### Security
-
 
 
 ## [0.2.0] - 2021-03-18
