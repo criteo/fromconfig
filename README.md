@@ -980,7 +980,10 @@ def __init__(self, launcher: Launcher = None):
     super().__init__(launcher=launcher)  # type: ignore
 ```
 
-See an example [here](https://github.com/guillaumegenthial/fromconfig-mlflow).
+An example can be found in [`docs/examples/launcher_yarn_mlflow`](docs/examples/launcher_yarn_mlflow), using two extensions
+
+- [`fromconfig-mlflow`](https://github.com/guillaumegenthial/fromconfig-mlflow): tracking support with [MlFlow](https://www.mlflow.org)
+- [`fromconfig-yarn`](https://github.com/criteo/fromconfig-yarn): execution on a yarn cluster using [cluster-pack](https://github.com/criteo/cluster-pack)
 
 <a id="machine-learning"></a>
 ### Machine Learning

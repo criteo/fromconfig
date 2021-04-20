@@ -1,0 +1,8 @@
+# Configure model
+model:
+  _attr_: foo.Model  # Full import string to the class to instantiate
+  learning_rate: "@hparams.learning_rate"  # Other key value parameter
+
+# Configure hyper parameters, use references @hparams.key to use them
+hparams:
+  learning_rate: [0.1, 0.01]
