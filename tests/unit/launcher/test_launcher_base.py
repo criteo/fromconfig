@@ -44,11 +44,12 @@ def test_get_cls(name, expected):
 @pytest.mark.parametrize(
     "config, expected",
     [
-        pytest.param("hparams", HParamsLauncher(None), id="hparams"),
-        pytest.param("parser", ParserLauncher(None), id="parser"),
-        pytest.param("logging", LoggingLauncher(None), id="logging"),
         pytest.param("local", LocalLauncher(), id="local"),
-        pytest.param(["hparams", "parser"], HParamsLauncher(ParserLauncher(None)), id="hparams+parser"),
+        pytest.param(
+            ["hparams", "parser", "logging", "local"],
+            HParamsLauncher(ParserLauncher(LoggingLauncher(LocalLauncher()))),
+            id="hparams+parser",
+        ),
         pytest.param({"sweep": [], "log": [], "parse": []}, LocalLauncher(), id="only-run"),
         pytest.param({"_attr_": "fromconfig.launcher.LocalLauncher"}, LocalLauncher(), id="fromconfig"),
         pytest.param(
