@@ -33,17 +33,17 @@ What are `fromconfig` strengths?
         - [References](#references)
         - [Evaluate](#evaluate)
         - [Singleton](#singleton)
-- [Launcher](#launcher)
-    - [Default](#default-1)
-    - [Launcher Configuration](#launcher-configuration)
-        - [Config Dict](#config-dict)
-        - [Name](#name)
-        - [List](#list)
-        - [Steps](#steps)
-    - [HParams](#hparams)
-    - [Parser](#parser)
-    - [Logging](#logging)
-    - [Local](#local)
+    - [Launcher](#launcher)
+        - [Default](#default-1)
+        - [Launcher Configuration](#launcher-configuration)
+            - [Config Dict](#config-dict)
+            - [Name](#name)
+            - [List](#list)
+            - [Steps](#steps)
+        - [HParams](#hparams)
+        - [Parser](#parser)
+        - [Logging](#logging)
+        - [Local](#local)
 - [Examples](#examples)
     - [Manual](#manual)
     - [Custom Parser](#custom-parser)
@@ -471,10 +471,10 @@ The parser uses the special key `_singleton_` whose value is the name associated
 
 
 <a id="launcher"></a>
-## Launcher
+### Launcher
 
 <a id="default-1"></a>
-### Default
+#### Default
 
 When a `fromconfig` command is executed (example `fromconfig config.yaml params.yaml - model - train`), the config is loaded, a launcher is instantiated (possibly configured by the config itself) and then the launcher "launches" the config with the remaining fire arguments.
 
@@ -533,14 +533,14 @@ Training model with learning_rate 0.001
 ```
 
 <a id="launcher-configuration"></a>
-### Launcher Configuration
+#### Launcher Configuration
 
 The launcher is instantiated from the `launcher` key if present in the config.
 
 For ease of use, multiple syntaxes are provided.
 
 <a id="config-dict"></a>
-#### Config Dict
+##### Config Dict
 The `launcher` entry can be a config dictionary (with an `_attr_` key) that defines how to instantiate a `Launcher` instance (possibly custom).
 
 For example
@@ -551,7 +551,7 @@ launcher:
 ```
 
 <a id="name"></a>
-#### Name
+##### Name
 The `launcher` entry can be a `str`, corresponding to a name that maps to a `Launcher` class. The internal `Launcher` names are
 
 
@@ -566,7 +566,7 @@ It is possible via extensions to add new `Launcher` classes to the list of avail
 
 
 <a id="list"></a>
-#### List
+##### List
 The `launcher` entry can be a list of [config dict](#config-dict) and/or [names](#name). In that case, the resulting launcher is a nested launcher instance of the different launchers.
 
 For example
@@ -581,7 +581,7 @@ will result in `HParamsLauncher(LocalLauncher())`.
 
 
 <a id="steps"></a>
-#### Steps
+##### Steps
 The `launcher` entry can also be a dictionary with 4 special keys for which the value can be any of config dict, name or list.
 
 - `sweep`: if not specified, will use [`hparams`](#hparams)
@@ -607,7 +607,7 @@ results in `HParamsLauncher(ParserLauncher(LoggingLauncher(LocalLauncher())))`.
 
 
 <a id="hparams"></a>
-### HParams
+#### HParams
 
 The `HParamsLauncher` provides basic hyper parameter search support. It is active by default.
 
@@ -629,7 +629,7 @@ hparams: {"a": 2, "b": 4}
 ```
 
 <a id="parser"></a>
-### Parser
+#### Parser
 
 The `ParserLauncher` applies parsing to the config. By default, it uses the `DefaultParser`. You can configure the parser with your custom parser by overriding the `parser` key of the config.
 
@@ -643,7 +643,7 @@ parser:
 Will tell the `ParserLauncher` to instantiate the `DefaultParser`.
 
 <a id="logging"></a>
-### Logging
+#### Logging
 
 The `LoggingLauncher` can change the logging level (modifying the `logging.basicConfig` so this will apply to any other `logger` configured to impact the logging's root logger) and log a flattened view of the parameters.
 
@@ -656,7 +656,7 @@ logging:
 
 
 <a id="local"></a>
-### Local
+#### Local
 
 The previous `Launcher`s were only either generating configs, parsing them, or logging them. To actually instantiate the object using `fromconfig` and manipulate the resulting object via the python Fire syntax, the default behavior is to use the `LocalLauncher`.
 
