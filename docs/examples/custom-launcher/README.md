@@ -26,43 +26,22 @@ class Launcher(FromConfig, ABC):
 
 For example, let's implement a `Launcher` that simply prints the command (and does nothing else).
 
-```python
-from typing import Any
+[print_command.py](print_command.py ':include :type=code python')
 
-import fromconfig
+Given the following config files
+
+`config.yaml`
+
+[config.yaml](config.yaml ':include :type=code yaml')
+
+`launcher.yaml`
+
+[launcher.yaml](launcher.yaml ':include :type=code yaml')
+
+and module `foo.py`
 
 
-class PrintCommandLauncher(fromconfig.launcher.Launcher):
-    def __call__(self, config: Any, command: str = ""):
-        print(command)
-        self.launcher(config=config, command=command)
-```
-
-Given the following launcher config
-
-```yaml
-# config.yaml
-model:
-  _attr_: foo.Model
-  learning_rate: 0.1
-
-# launcher.yaml
-launcher:
-  log:
-    _attr_: print_command.PrintCommandLauncher
-```
-
-and module
-
-```python
-# foo.py
-class Model:
-    def __init__(self, learning_rate: float):
-        self.learning_rate = learning_rate
-
-    def train(self):
-        print(f"Training model with learning_rate {self.learning_rate}")
-```
+[foo.py](foo.py ':include :type=code python')
 
 Run
 
@@ -76,5 +55,3 @@ You should see
 model - train
 Training model with learning_rate 0.1
 ```
-
-This example can be found in [`examples/custom_launcher`](examples/custom_launcher).

@@ -4,27 +4,20 @@
 
 As an example, let's consider a `foo.py` module
 
-```python
-class Model:
-    def __init__(self, learning_rate: float):
-        self.learning_rate = learning_rate
+[foo.py](foo.py ':include :type=code python')
 
-    def train(self):
-        print(f"Training model with learning_rate {self.learning_rate}")
-```
 
 with the following config files
 
-```yaml
-# config.yaml
-model:
-  _attr_: foo.Model
-  learning_rate: "@params.learning_rate"
 
-# params.yaml
-params:
-  learning_rate: 0.1
-```
+`config.yaml`
+
+[config.yaml](config.yaml ':include :type=code yaml')
+
+`params.yaml`
+
+[params.yaml](params.yaml ':include :type=code yaml')
+
 
 In a terminal, run
 

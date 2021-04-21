@@ -1,6 +1,8 @@
 ## Cheat Sheet <!-- {docsify-ignore} -->
 
 
+### Syntax and default options
+
 `fromconfig.fromconfig` special keys
 
 
@@ -28,55 +30,20 @@
 | `"hparams"` | `{"learning_rate": [0.1, 0.001]}`                  | Hyper-parameter search (use references like `@hparams.learning_rate` in other parts of the config)             |
 
 
-Config sample
+### Config sample
 
-```yaml
-# Configure model
-model:
-  _attr_: foo.Model  # Full import string to the class to instantiate
-  _args_: ["@hparams.dim"]  # Positional arguments
-  _singleton_: "model_${hparams.dim}_${hparams.learning_rate}"  # All @model references will instantiate the same object with that name
-  _eval_: "call"  # Optional ("call" is the default behavior)
-  learning_rate: "@hparams.learning_rate"  # Other key value parameter
+As an example, let's consider a `foo.py` module
 
-# Configure hyper parameters, use references @hparams.key to use them
-hparams:
-  learning_rate: [0.1, 0.001]
-  dim: [10, 100]
+[foo.py](foo.py ':include :type=code python')
 
-# Configure logging level (set to logging.INFO)
-logging:
-  level: 20
+with the following config file
 
-# Configure parser (optional, using this parser is the default behavior)
-parser:
-  _attr_: "fromconfig.parser.DefaultParser"
+`config.yaml`
 
-# Configure launcher (optional, the following config creates the same launcher as the default behavior)
-launcher:
-  sweep: "hparams"
-  parse: "parser"
-  log: "logging"
-  run: "local"
+[config.yaml](config.yaml ':include :type=code yaml')
 
-```
-
-for module
-
-```python
-class Model:
-    def __init__(self, dim: int, learning_rate: float):
-        self.dim = dim
-        self.learning_rate = learning_rate
-
-    def train(self):
-        print(f"Training model({self.dim}) with learning_rate {self.learning_rate}")
-```
-
-Launch with
+In a terminal, run
 
 ```bash
 fromconfig config.yaml - model - train
 ```
-
-This example can be found in [`examples/cheat_sheet`](examples/cheat_sheet).

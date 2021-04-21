@@ -1,0 +1,85 @@
+### Parser <!-- {docsify-ignore} -->
+
+<a id="default"></a>
+#### Default
+
+`FromConfig` comes with a default parser which sequentially applies
+
+- `OmegaConfParser`: can be practical for interpolation ([learn more](#omegaconf))
+- `ReferenceParser`: resolves references ([learn more](#references))
+- `EvaluateParser`: syntactic sugar to configure `functool.partial` or simple imports ([learn more](#evaluate))
+- `SingletonParser`: syntactic sugar to define singletons ([learn more](#singleton))
+
+For example, let's see how to create singletons, use references and interpolation
+
+[default.py](default.py ':include :type=code python')
+
+<a id="omegaconf"></a>
+#### OmegaConf
+
+[OmegaConf](https://omegaconf.readthedocs.io) is a YAML based hierarchical configuration system with support for merging configurations from multiple sources. The `OmegaConfParser` wraps some of its functionality (for example, variable interpolation).
+
+For example
+
+[parser_omegaconf.py](parser_omegaconf.py ':include :type=code python')
+
+
+Learn more on the [OmegaConf documentation website](https://omegaconf.readthedocs.io).
+
+<a id="references"></a>
+#### References
+
+To make it easy to compose different configuration files and avoid deeply nested config dictionaries, you can use the `ReferenceParser`.
+
+For example,
+
+[parser_reference_simple.py](parser_reference_simple.py ':include :type=code python')
+
+The `ReferenceParser` looks for values starting with a `@`, then split by `.`, and navigate from the top-level dictionary.
+
+In practice, it makes configuration files more readable (flat) and avoids duplicates.
+
+It is also a convenient way to dynamically compose different configs.
+
+For example
+
+[parser_reference_full.py](parser_reference_full.py ':include :type=code python')
+
+<a id="evaluate"></a>
+#### Evaluate
+
+The `EvaluateParser` makes it possible to simply import a class / function, or configure a constructor via a `functools.partial` call.
+
+The parser uses a special key `_eval_` with possible values
+
+- `call`: standard behavior, results in `attr(kwargs)`.
+- `partial`: delays the call, results in a `functools.partial(attr, **kwargs)`
+- `import`: simply import the attribute, results in `attr`
+
+__call__
+
+[parser_evaluate_call.py](parser_evaluate_call.py ':include :type=code python')
+
+__partial__
+
+[parser_evaluate_partial.py](parser_evaluate_partial.py ':include :type=code python')
+
+__import__
+
+[parser_evaluate_import.py](parser_evaluate_import.py ':include :type=code python')
+
+
+<a id="singleton"></a>
+#### Singleton
+
+To define singletons (typically an object used in multiple places), use the `SingletonParser`.
+
+For example,
+
+[parser_singleton.py](parser_singleton.py ':include :type=code python')
+
+Without the `_singleton_` entry, two different dictionaries would have been created.
+
+Note that using references is not a solution to create singletons, as the reference mechanism only copies missing parts of the configs.
+
+The parser uses the special key `_singleton_` whose value is the name associated with the instance to resolve singletons at instantiation time.

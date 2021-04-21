@@ -16,13 +16,7 @@ It uses two special keys
 
 For example
 
-```python
-import fromconfig
-
-config = {"_attr_": "str", "_args_": [1]}
-
-fromconfig.fromconfig(config)  # '1'
-```
+[example.py](example.py ':include :type=code python')
 
 `FromConfig` resolves the builtin type `str` from the `_attr_` key, and creates a new string with the positional arguments defined in `_args_`, in other words `str(1)` which return `'1'`.
 
@@ -32,22 +26,6 @@ If other keys are available in the dictionary, they are treated as key-value arg
 
 For example
 
-```python
-import fromconfig
-
-
-class Point:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-
-config = {
-    "_attr_": "Point",
-    "x": 0,
-    "y": 0
-}
-fromconfig.fromconfig(config)  # Point(0, 0)
-```
+[example_kwargs.py](example_kwargs.py ':include :type=code python')
 
 Note that during instantiation, the config object is not modified. Also, any mapping-like container is supported (there is no special "config" class in `fromconfig`).

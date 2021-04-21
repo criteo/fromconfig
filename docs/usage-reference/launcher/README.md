@@ -16,29 +16,24 @@ Let's see for example how to configure the logging level and perform an hyper-pa
 
 Given the following module and config files (similar to the quickstart, we only changed `params` into `hparams`)
 
-```python
-class Model:
-    def __init__(self, learning_rate: float):
-        self.learning_rate = learning_rate
+`foo.py`
 
-    def train(self):
-        print(f"Training model with learning_rate {self.learning_rate}")
-```
+[foo.py](foo.py ':include :type=code python')
 
-```yaml
-# config.yaml
-model:
-  _attr_: foo.Model
-  learning_rate: "@hparams.learning_rate"
 
-# params.yaml
-hparams:
-  learning_rate: [0.01, 0.001]
+`config.yaml`
 
-# launcher.yaml
-logging:
-  level: 20
-```
+[config.yaml](config.yaml ':include :type=code yaml')
+
+`hparams.yaml`
+
+[hparams.yaml](hparams.yaml ':include :type=code yaml')
+
+
+`launcher.yaml`
+
+[launcher.yaml](launcher.yaml ':include :type=code yaml')
+
 
 run
 
