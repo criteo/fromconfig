@@ -11,6 +11,8 @@ class MyClass(fromconfig.FromConfig):
 
     @classmethod
     def fromconfig(cls, config):
+        # NOTE: config is not recursively instantiated yet
+        config = {key: fromconfig.fromconfig(value) for key, value in config.items()}
         if "x" not in config:
             return cls(0)
         else:

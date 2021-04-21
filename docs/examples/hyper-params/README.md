@@ -3,7 +3,7 @@
 
 ## Using the `HParamsLauncher`
 
-By default, the `DefaultLauncher` used by the CLI includes the `HParamsLauncher`, that launches multiple runs using the grid specified by the `hparams` entry.
+By default, the [`DefaultLauncher`](usage-reference/launcher/) used by the CLI includes the `HParamsLauncher`, that launches multiple runs using the grid specified by the `hparams` entry.
 
 Given the following module and config files (similar to the [quickstart](getting-started/quickstart/), we only changed `params` into `hparams`)
 

@@ -1,5 +1,4 @@
-# FromConfig HParams + Yarn + MlFlow <!-- {docsify-ignore} -->
-
+# HParams + Yarn + MlFlow <!-- {docsify-ignore} -->
 
 <a id="install"></a>
 ## Install

@@ -14,7 +14,7 @@ For example, given the following module and config file
 
 `model.py`
 
-[model.py](model.py ':include :type=code yaml')
+[model.py](model.py ':include :type=code python')
 
 `config.yaml`
 
@@ -71,6 +71,4 @@ fromconfig config.yaml launcher_logging.yaml - model - train
 
 ## Advanced
 
-It is also possible to use a custom launcher and / or customize how the different launchers are composed.
-
-See [usage-reference](usage-reference/launcher/)
+It is also possible to use a [custom launcher](development/custom-launcher/) and / or [customize how the different launchers are composed](usage-reference/launcher/).

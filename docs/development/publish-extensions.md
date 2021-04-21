@@ -24,4 +24,6 @@ def __init__(self, launcher: Launcher = None):
     super().__init__(launcher=launcher)  # type: ignore
 ```
 
-Once your extension is available, update `fromconfig` documentation and add an example in [extensions](extensions).
+Once your extension is available, update `fromconfig` documentation and add an example in [extensions](extensions/).
+
+Good examples of extensions

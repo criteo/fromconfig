@@ -6,6 +6,7 @@ hparams:
 # Configure logging level (set to logging.INFO)
 logging:
   level: 20
+  log_config: false
 
 # Configure parser (optional, using this parser is the default behavior)
 parser:
@@ -13,7 +14,7 @@ parser:
 
 # Configure launcher (optional, the following config creates the same launcher as the default behavior)
 launcher:
-  sweep: "hparams"
-  parse: "parser"
-  log: "logging"
-  run: "local"
+  sweep: hparams
+  parse: parser
+  log: logging
+  run: local

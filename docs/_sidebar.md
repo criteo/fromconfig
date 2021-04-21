@@ -19,7 +19,7 @@
 
     * [MlFlow](extensions/mlflow/)
     * [Yarn](extensions/yarn/)
-    * [HParams Yarn MlFlow](extensions/hparams-yarn-mlflow/)
+    * [HParams + Yarn + MlFlow](extensions/hparams-yarn-mlflow/)
 
 * Usage Reference
 

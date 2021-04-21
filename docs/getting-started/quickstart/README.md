@@ -32,7 +32,7 @@ Training model with learning_rate 0.1
 
 The `fromconfig` command loads the config files, parse them, instantiate the result with `fromconfig.fromconfig` and then launch the `fire.Fire` command `- model - train` which roughly translate into "get the `model` key from the instantiated dictionary and execute the `train` method".
 
-## Python
+## Manual
 
 You can also manipulate the configs manually.
 

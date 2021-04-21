@@ -2,7 +2,7 @@
 
 ## Syntax and default options
 
-`fromconfig.fromconfig` special keys
+[`fromconfig.fromconfig`](usage-reference/fromconfig/) special keys
 
 
 | Key        | Value Example       | Use                                               |
@@ -10,7 +10,7 @@
 | `"_attr_"` | `"foo.bar.MyClass"` | Full import string of a class, function or method |
 | `"_args_"` | `[1, 2]`            | Positional arguments                              |
 
-`fromconfig.parser.DefaultParser` supported syntax
+[`fromconfig.parser.DefaultParser`](usage-reference/parser/) supported syntax
 
 | Key             | Value                             | Use                                    |
 |-----------------|-----------------------------------|----------------------------------------|
@@ -19,7 +19,7 @@
 |                 | `"@params.model"`                 | Reference                              |
 |                 | `"${params.url}:${params.port}"`  | Interpolation via OmegaConf            |
 
-`fromconfig.parser.DefaultLauncher` options (keys at config's toplevel)
+[`fromconfig.parser.DefaultLauncher`](usage-reference/launcher/) options (keys at config's toplevel)
 
 
 | Key         | Value Example                                      | Use                                         |
