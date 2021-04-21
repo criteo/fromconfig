@@ -6,7 +6,7 @@ import fromconfig
 def test_launcher_hparams():
     """Test HParamsLauncher."""
     got = []
-    expected = [({'hparams': {'dim': 10}}, 'command'), ({'hparams': {'dim': 100}}, 'command')]
+    expected = [({"hparams": {"dim": 10}}, "command"), ({"hparams": {"dim": 100}}, "command")]
 
     def got_launcher(config, command):
         got.append((config, command))
