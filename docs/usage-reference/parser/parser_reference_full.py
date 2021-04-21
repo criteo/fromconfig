@@ -11,4 +11,4 @@ if __name__ == "__main__":
     parsed1 = parser({**config, **param1})
     assert parsed1["model"]["x"] == 1
     parsed2 = parser({**config, **param2})
-    assert parsed1["model"]["x"] == 2
+    assert parsed2["model"]["x"] == 2

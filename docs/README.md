@@ -1,17 +1,27 @@
-# FromConfig
+<p align="center">
 
-[![pypi](https://img.shields.io/pypi/v/fromconfig.svg)](https://pypi.python.org/pypi/fromconfig)
-[![ci](https://github.com/criteo/fromconfig/workflows/Continuous%20integration/badge.svg)](https://github.com/criteo/fromconfig/actions?query=workflow%3A%22Continuous+integration%22)
+<h1 align="center">FromConfig</h1>
 
-A library to instantiate any Python object from configuration files.
+<p align="center">
+    <a href="https://pypi.python.org/pypi/fromconfig">
+        <img src="https://img.shields.io/pypi/v/fromconfig.svg">
+    </a>
+    <a href="https://github.com/criteo/fromconfig/actions?query=workflow%3A%22Continuous+integration%22">
+        <img src="https://github.com/criteo/fromconfig/workflows/Continuous%20integration/badge.svg">
+    </a>
+    <a href="https://criteo.github.io/fromconfig">
+        <img src="https://img.shields.io/website?down_color=red&down_message=down&label=documentation&up_color=green&up_message=up&url=https%3A%2F%2Fcriteo.github.io%2Ffromconfig%2F">
+    </a>
+</p>
 
-Thanks to [Python Fire](https://github.com/google/python-fire), `fromconfig` acts as a generic command line interface from configuration files *with absolutely no change to the code*.
+<p align="center"><i>A library to instantiate any Python object from configuration files.</i></p>
 
-What are `fromconfig` strengths?
+<p align="center"><a href="https://criteo.github.io/fromconfig">Documentation</a> and <a href="https://github.com/criteo/fromconfig">Github</a></p>
 
-1. __No code change__ Install with `pip install fromconfig` and [get started](getting-started/quickstart).
-2. __Simplicity__ See the simple [config syntax](usage-reference/config-syntax) and [command line](usage-reference/command-line).
-3. __Extendability__ See how to write [a custom `Parser`](examples/custom-parser), [a custom `Launcher`](examples/custom-launcher), and [a custom `FromConfig` class](examples/custom-fromconfig).
+<p align="center">
+    <code>pip install fromconfig</code> and <a href="https://criteo.github.io/fromconfig/#/getting-started/quickstart/">Get Started</a>
+</p>
 
-
-![FromConfig](https://raw.githubusercontent.com/criteo/fromconfig/master/docs/images/fromconfig.svg)
+<p align="center">
+    <img src="https://raw.githubusercontent.com/criteo/fromconfig/master/docs/images/fromconfig.svg">
+</p>

@@ -20,19 +20,42 @@ test: ## [Local development] Run unit tests, doctest and notebooks
 	$(MAKE) examples
 
 examples:  ## [Doc] Run all examples
-	cd docs/examples/cheat_sheet && fromconfig config.yaml - model - train
-	cd docs/examples/custom_launcher && fromconfig config.yaml launcher.yaml - model - train
-	cd docs/examples/custom_parser && python lorem_ipsum.py
-	cd docs/examples/launcher && fromconfig config.yaml params.yaml launcher.yaml - model - train
-	cd docs/examples/manual && python manual.py
-	cd docs/examples/ml && fromconfig trainer.yaml model.yaml optimizer.yaml hparams.yaml - trainer - run
-	cd docs/examples/ml && fromconfig trainer.yaml model.yaml optimizer.yaml params/big.yaml - trainer - run
-	cd docs/examples/ml && fromconfig trainer.yaml model.yaml optimizer.yaml params/small.yaml - trainer - run
-	cd docs/examples/ml && python hp.py
-	cd docs/examples/mlflow && python -m pip install mlflow && python submit.py config.yaml params.yaml --use_mlflow=True - model - train
-	cd docs/examples/quickstart && fromconfig config.yaml params.yaml - model - train
-	cd docs/examples/quickstart && fromconfig config.yaml params.yaml --params.learning_rate=0.01 - model - train
-	cd docs/examples/launcher_yarn_mlflow && python -m pip install -r requirements.txt && python monkeypatch_fromconfig.py config.yaml launcher.yaml - model - train
+	cd docs/getting-started/quickstart && fromconfig config.yaml params.yaml - model - train
+	cd docs/getting-started/quickstart && python manual.py
+	cd docs/getting-started/cheat-sheet && fromconfig config.yaml launcher.yaml - model - train
+	cd docs/examples/manual-parsing  && python manual.py
+	cd docs/examples/hyper-params && fromconfig config.yaml hparams.yaml - model - train
+	cd docs/examples/hyper-params && python hp.py
+	cd docs/examples/change-parser && fromconfig config.yaml launcher.yaml - model - train
+	cd docs/examples/configure-launcher && fromconfig config.yaml --launcher.run=dry - model - train
+	cd docs/examples/configure-launcher && fromconfig config.yaml launcher_dry.yaml - model - train
+	cd docs/examples/configure-launcher && fromconfig config.yaml --logging.level=20 --logging.log_config=False - model - train
+	cd docs/examples/configure-launcher && fromconfig config.yaml launcher_logging.yaml - model - train
+	cd docs/examples/machine-learning && fromconfig trainer.yaml model.yaml optimizer.yaml params/small.yaml - trainer - run
+	cd docs/examples/machine-learning && fromconfig trainer.yaml model.yaml optimizer.yaml params/big.yaml - trainer - run
+	cd docs/usage-reference/fromconfig && python example.py
+	cd docs/usage-reference/fromconfig && python example_kwargs.py
+	cd docs/usage-reference/parser && python default.py
+	cd docs/usage-reference/parser && python parser_evaluate_call.py
+	cd docs/usage-reference/parser && python parser_evaluate_import.py
+	cd docs/usage-reference/parser && python parser_evaluate_partial.py
+	cd docs/usage-reference/parser && python parser_omegaconf.py
+	cd docs/usage-reference/parser && python parser_reference_full.py
+	cd docs/usage-reference/parser && python parser_reference_simple.py
+	cd docs/usage-reference/parser && python parser_singleton.py
+	cd docs/usage-reference/launcher && fromconfig config.yaml hparams.yaml launcher.yaml - model - train
+	cd docs/usage-reference/launcher && fromconfig --hparams.a=1,2 --hparams.b=3,4
+	cd docs/development/custom-fromconfig && python config.py
+	cd docs/development/custom-fromconfig && python custom.py
+	cd docs/development/custom-parser && python lorem_ipsum.py
+	cd docs/development/custom-launcher && fromconfig config.yaml launcher.yaml - model - train
+	cd docs/extensions && python -m pip install -r requirements.txt
+	cd docs/extensions/mlflow && fromconfig config.yaml params.yaml launcher.yaml - model - train
+	cd docs/extensions/mlflow && fromconfig config.yaml params.yaml --launcher.log=logging,mlflow --logging.level=20 - model - train
+	cd docs/extensions/mlflow && fromconfig config.yaml params.yaml launcher_advanced.yaml - model - train
+	cd docs/extensions/yarn && python monkeypatch_fromconfig.py config.yaml params.yaml launcher.yaml - model - train
+	cd docs/extensions/yarn && python monkeypatch_fromconfig.py config.yaml params.yaml --launcher.run=yarn - model - train
+	cd docs/extensions/hparams-yarn-mlflow && python monkeypatch_fromconfig.py config.yaml hparams.yaml launcher.yaml - model - train
 
 venv-lint-test: ## [Continuous integration] Install in venv and run lint and test
 	python3.6 -m venv .env && . .env/bin/activate && make install install-dev lint test && rm -rf .env

@@ -22,7 +22,7 @@ Given the following module and config files (similar to the [quickstart](getting
 run
 
 ```bash
-fromconfig config.yaml params.yaml launcher.yaml - model - train
+fromconfig config.yaml hparams.yaml - model - train
 ```
 
 You should see plenty of logs and two trainings
