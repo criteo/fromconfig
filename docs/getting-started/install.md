@@ -1,12 +1,12 @@
-## Install <!-- {docsify-ignore} -->
+# Install <!-- {docsify-ignore} -->
 
-### Install with pip
+## Install with pip
 
 ```bash
 pip install fromconfig
 ```
 
-### Install from source
+## Install from source
 
 To install the library from source in editable mode
 
@@ -16,26 +16,22 @@ cd fromconfig
 make install
 ```
 
-To install development tools
+## Optional dependencies
+
+If you want to support the [JSONNET](https://jsonnet.org) format, you need to install it explicitly (it is not included in `fromconfig`s requirements).
+
+First, make sure `JSONNET` is installed on your machine.
+
+With Homebrew
 
 ```bash
-make install-dev
+brew install jsonnet
 ```
 
-To lint the code (mypy, pylint and black)
+Install the python binding with
 
 ```bash
-make lint
+pip install jsonnet
 ```
 
-To format the code with black
-
-```bash
-make black
-```
-
-To run tests
-
-```bash
-make test
-```
+See [the official install instructions on GitHub](https://github.com/google/jsonnet).

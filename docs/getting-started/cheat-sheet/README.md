@@ -1,7 +1,6 @@
-## Cheat Sheet <!-- {docsify-ignore} -->
+# Cheat Sheet <!-- {docsify-ignore} -->
 
-
-### Syntax and default options
+## Syntax and default options
 
 `fromconfig.fromconfig` special keys
 
@@ -11,7 +10,7 @@
 | `"_attr_"` | `"foo.bar.MyClass"` | Full import string of a class, function or method |
 | `"_args_"` | `[1, 2]`            | Positional arguments                              |
 
-`fromconfig.parser.DefaultParser` syntax
+`fromconfig.parser.DefaultParser` supported syntax
 
 | Key             | Value                             | Use                                    |
 |-----------------|-----------------------------------|----------------------------------------|
@@ -30,20 +29,24 @@
 | `"hparams"` | `{"learning_rate": [0.1, 0.001]}`                  | Hyper-parameter search (use references like `@hparams.learning_rate` in other parts of the config)             |
 
 
-### Config sample
+## Config Example
 
-As an example, let's consider a `foo.py` module
+As an example, let's consider a `model.py` module
 
-[foo.py](foo.py ':include :type=code python')
+[model.py](model.py ':include :type=code python')
 
-with the following config file
+with the following config files
 
 `config.yaml`
 
 [config.yaml](config.yaml ':include :type=code yaml')
 
+`launcher.yaml`
+
+[launcher.yaml](launcher.yaml ':include :type=code yaml')
+
 In a terminal, run
 
 ```bash
-fromconfig config.yaml - model - train
+fromconfig config.yaml launcher.yaml - model - train
 ```

@@ -25,8 +25,8 @@ def launch(paths: Iterable[str], overrides: Mapping, command: str):
     command : str
         Rest of the python Fire command
     """
-    configs = [fromconfig.utils.expand(overrides.items())] + [fromconfig.load(path) for path in paths]
-    config = functools.reduce(fromconfig.utils.merge_dict, configs[::-1])
+    configs = [fromconfig.load(path) for path in paths] + [fromconfig.utils.expand(overrides.items())]
+    config = functools.reduce(fromconfig.utils.merge_dict, configs)
     launcher = fromconfig.launcher.DefaultLauncher.fromconfig(config.pop("launcher", {}))
     launcher(config=config, command=command)
 

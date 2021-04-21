@@ -1,3 +1,5 @@
+"""DefaultParser example."""
+
 import fromconfig
 
 
@@ -21,8 +23,12 @@ if __name__ == "__main__":
         "data": {"root": "/path/to/root", "model": "subdir/for/model"},
         "trainer": {"_attr_": "Trainer", "model": "@model"},  # reference
     }
+
+    # Parse and instantiate
     parser = fromconfig.parser.DefaultParser()
     parsed = parser(config)
     instance = fromconfig.fromconfig(parsed)
-    id(instance["model"]) == id(instance["trainer"].model)  # True
-    instance["model"].model_dir == "/path/to/root/subdir/for/model"  # True
+
+    # Check result
+    assert id(instance["model"]) == id(instance["trainer"].model)
+    assert instance["model"].model_dir == "/path/to/root/subdir/for/model"

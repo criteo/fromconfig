@@ -1,7 +1,0 @@
-params:
-    dim: "@hparams.dim"
-    learning_rate: "@hparams.learning_rate"
-
-hparams:
-  dim: [10, 100]
-  learning_rate: [0.1, 0.01]

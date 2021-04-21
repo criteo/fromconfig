@@ -1,0 +1,47 @@
+# Configure logging level (set to logging.INFO)
+logging:
+  level: 20
+  log_config: false
+
+# Configure mlflow
+mlflow:
+  # tracking_uri: "http://127.0.0.1:5000"
+  # experiment_name: "test-experiment"
+  # run_name: test
+  # artifact_location: "path/to/artifacts"
+  launches:
+    -
+      log_artifacts: true
+      log_parameters: false
+      path_config: "config.json"
+      path_command: "launch_config.txt"
+    -
+      log_artifacts: true
+      log_parameters: true
+      path_config: "parsed.json"
+      path_command: "launch_parsed.json"
+      include_keys:  # Only log some parameters
+        - model
+
+# Configure Yarn
+yarn:
+  name: test
+  # zip_file: "path/to/env.pex"  # Reuse existing pex
+  # package_path: "hdfs://root/user/..."  # Target path (where to upload the env.pex)
+  # num_cores: 8  # Number of executor's cores
+  # memory: "32 GiB" # Executor's memory
+  # jvm_memory_in_gb: 8  # JVM memory
+  # env_vars:  # Environment variables to forward to yarn
+    # - CUDA_VISIBLE_DEVICES
+
+# Configure launcher
+launcher:
+  parse:
+    - logging
+    - mlflow  # Log configs before parsing but not parameters (see mlflow.launches[0])
+    - parser
+  log: mlflow  # Log configs after parsing and parameters (see mlflow.launches[1])
+  run:
+    - yarn
+    - mlflow  # Reactivate MlFlow run on yarn (will not log anything because previous launches happened)
+    - local

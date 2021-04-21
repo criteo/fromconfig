@@ -87,6 +87,10 @@ class Launcher(FromConfig, ABC):
         """
 
         def _fromconfig(cfg, launcher: Launcher = None):
+            # None case
+            if cfg is None:
+                return launcher
+
             # Launcher class name
             if isinstance(cfg, str):
                 launcher_cls = _get_cls(cfg)
@@ -143,12 +147,14 @@ def _get_cls(name: str) -> Type:
         from fromconfig.launcher.parser import ParserLauncher
         from fromconfig.launcher.logger import LoggingLauncher
         from fromconfig.launcher.local import LocalLauncher
+        from fromconfig.launcher.dry import DryLauncher
 
         # Create references with default names
         _CLASSES["local"] = LocalLauncher
         _CLASSES["logging"] = LoggingLauncher
         _CLASSES["hparams"] = HParamsLauncher
         _CLASSES["parser"] = ParserLauncher
+        _CLASSES["dry"] = DryLauncher
 
         # Load external classes, use entry point's name for reference
         for entry_point in pkg_resources.iter_entry_points(f"fromconfig{MAJOR}"):

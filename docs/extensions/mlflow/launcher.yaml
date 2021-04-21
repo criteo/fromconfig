@@ -1,0 +1,14 @@
+mlflow:
+  # tracking_uri: "http://127.0.0.1:5000"
+  # experiment_name: "test-experiment"
+  # run_name: test
+  # artifact_location: "path/to/artifacts"
+
+logging:
+  level: 20
+  log_config: false
+
+launcher:
+  log:
+    - logging
+    - mlflow

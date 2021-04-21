@@ -1,14 +1,12 @@
-## Quickstart <!-- {docsify-ignore} -->
+# Quickstart <!-- {docsify-ignore} -->
 
 `fromconfig` can configure any Python object, without any change to the code.
 
-As an example, let's consider a `foo.py` module
+As an example, let's consider a `model.py` module
 
-[foo.py](foo.py ':include :type=code python')
-
+[model.py](model.py ':include :type=code python')
 
 with the following config files
-
 
 `config.yaml`
 
@@ -18,6 +16,8 @@ with the following config files
 
 [params.yaml](params.yaml ':include :type=code yaml')
 
+
+## Command Line
 
 In a terminal, run
 
@@ -30,14 +30,10 @@ which prints
 Training model with learning_rate 0.1
 ```
 
-Here is a step-by-step breakdown of what is happening
+The `fromconfig` command loads the config files, parse them, instantiate the result with `fromconfig.fromconfig` and then launch the `fire.Fire` command `- model - train` which roughly translate into "get the `model` key from the instantiated dictionary and execute the `train` method".
 
-1. Load the yaml files into dictionaries
-2. Merge the dictionaries into a dictionary (`config`)
-3. Instantiate the `DefaultLauncher` and call `launch(config, command)` where `command` is `model - train` ([Python Fire](https://github.com/google/python-fire) syntax).
-4. The `DefaultLauncher` applies the `DefaultParser` to the `config` (it resolves references as `@params.learning_rate`, etc.)
-5. Finally, the `DefaultLauncher` runs the `LocalLauncher`. It recursively instantiate sub-dictionaries, using the `_attr_` key to resolve the Python class / function as an import string. It then launches `fire.Fire(object, command)`, which translates into "get the `model` key from the instantiated dictionary and execute the `train` method".
+## Python
 
-This example can be found in [`examples/quickstart`](examples/quickstart).
+You can also manipulate the configs manually.
 
-To learn more about `FromConfig` features, see the [Usage Reference](usage-reference/config-syntax) and [Examples](examples/manual) sections.
+[manual.py](manual.py ':include :type=code python')

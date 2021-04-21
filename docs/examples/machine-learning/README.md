@@ -1,4 +1,4 @@
-### Machine Learning <!-- {docsify-ignore} -->
+# Machine Learning <!-- {docsify-ignore} -->
 
 `fromconfig` is particularly well suited for Machine Learning as it is common to have a lot of different parameters, sometimes far down the call stack, and different configurations of these hyper-parameters.
 
@@ -43,50 +43,4 @@ Training Model(dim=10) with Optimizer(learning_rate=0.01)
 Training Model(dim=100) with Optimizer(learning_rate=0.001)
 ```
 
-This example can be found in [`examples/ml`](examples/ml).
-
 Note that it is encouraged to save these config files with the experiment's files to get full reproducibility. [MlFlow](https://mlflow.org) is an open-source platform that tracks your experiments by logging metrics and artifacts.
-
-
-### Hyper-Parameter
-
-You can use the `hparams` entry, that the `HParamsLauncher` uses to generate configs (see [launcher](usage-reference/launcher)).
-
-Reusing the [ML example](examples/machine-learning), simply add a `hparams.yaml` file
-
-
-[hparams.yaml](hparams.yaml ':include :type=code yaml')
-
-
-And launch a hyper-parameter sweep with
-
-```bash
-fromconfig trainer.yaml model.yaml optimizer.yaml hparams.yaml - trainer - run
-```
-
-which should print
-
-```
-Training Model(dim=10) with Optimizer(learning_rate=0.1)
-Training Model(dim=10) with Optimizer(learning_rate=0.01)
-Training Model(dim=100) with Optimizer(learning_rate=0.1)
-Training Model(dim=100) with Optimizer(learning_rate=0.01)
-```
-
-You can also write your custom config generator (and even make it a `Launcher`, see [how to implement a custom Launcher](examples/custom-launcher)).
-
-For example, something that is equivalent to what we just did is
-
-[hp.py](hp.py ':include :type=code python')
-
-which prints
-
-```
-Training Model(dim=10) with Optimizer(learning_rate=0.01)
-Training Model(dim=10) with Optimizer(learning_rate=0.1)
-Training Model(dim=100) with Optimizer(learning_rate=0.01)
-Training Model(dim=100) with Optimizer(learning_rate=0.1)
-```
-
-This example can be found in [`examples/ml`](examples/ml) (run `python hp.py`).
-
