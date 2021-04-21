@@ -9,6 +9,7 @@ from fromconfig.launcher import HParamsLauncher
 from fromconfig.launcher import ParserLauncher
 from fromconfig.launcher import LoggingLauncher
 from fromconfig.launcher import LocalLauncher
+from fromconfig.launcher import DryLauncher
 
 
 def assert_equal_launcher(a, b):
@@ -45,6 +46,7 @@ def test_get_cls(name, expected):
     "config, expected",
     [
         pytest.param("local", LocalLauncher(), id="local"),
+        pytest.param("dry", DryLauncher(), id="dry"),
         pytest.param(
             ["hparams", "parser", "logging", "local"],
             HParamsLauncher(ParserLauncher(LoggingLauncher(LocalLauncher()))),

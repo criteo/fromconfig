@@ -1,0 +1,6 @@
+model:
+  _attr_: model.Model
+  learning_rate: "@params.learning_rate"
+
+params:
+  learning_rate: 0.1

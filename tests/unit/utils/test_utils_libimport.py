@@ -35,6 +35,7 @@ def function():
         pytest.param(".", ImportError, id="no-parts"),
         pytest.param("dict", dict, id="dict"),
         pytest.param("list", list, id="list"),
+        pytest.param("function", function, id="local"),
         pytest.param("tests.unit.utils.test_utils_libimport.Class", Class, id="Class"),
         pytest.param("tests.unit.utils.test_utils_libimport.Class.method", Class.method, id="method"),
         pytest.param("tests.unit.utils.test_utils_libimport.Class.VARIABLE", Class.VARIABLE, id="VARIABLE"),

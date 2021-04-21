@@ -1,0 +1,20 @@
+# Configure hyper parameters, use references @hparams.key to use them
+hparams:
+  learning_rate: [0.1, 0.001]
+  dim: [10, 100]
+
+# Configure logging level (set to logging.INFO)
+logging:
+  level: 20
+  log_config: false
+
+# Configure parser (optional, using this parser is the default behavior)
+parser:
+  _attr_: "fromconfig.parser.DefaultParser"
+
+# Configure launcher (optional, the following config creates the same launcher as the default behavior)
+launcher:
+  sweep: hparams
+  parse: parser
+  log: logging
+  run: local

@@ -1,0 +1,2 @@
+parser:
+  _attr_: fromconfig.parser.SingletonParser
