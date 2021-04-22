@@ -1,0 +1,3 @@
+model:
+    _attr_: "ml.Model"
+    dim: "@params.dim"

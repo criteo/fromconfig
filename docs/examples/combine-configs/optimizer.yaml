@@ -1,0 +1,3 @@
+optimizer:
+    _attr_: "ml.Optimizer"
+    learning_rate: "@params.learning_rate"
