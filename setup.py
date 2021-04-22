@@ -25,7 +25,7 @@ if __name__ == "__main__":
             "Programming Language :: Python :: 3.6",
             "Intended Audience :: Developers",
         ],
-        data_files=[(".", ["requirements.txt", "README.md"])],
+        data_files=[(".", ["requirements.txt", "docs/README.md"])],
         dependency_links=[],
         description="A library to instantiate any Python object from configuration files",
         entry_points={"console_scripts": ["fromconfig = fromconfig.cli.main:main"]},
