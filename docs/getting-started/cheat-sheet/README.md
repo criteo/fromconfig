@@ -19,7 +19,7 @@
 |                 | `"@params.model"`                 | Reference                              |
 |                 | `"${params.url}:${params.port}"`  | Interpolation via OmegaConf            |
 
-[`fromconfig.parser.DefaultLauncher`](usage-reference/launcher/) options (keys at config's toplevel)
+[`fromconfig.launcher.DefaultLauncher`](usage-reference/launcher/) options (keys at config's toplevel)
 
 
 | Key         | Value Example                                      | Use                                         |

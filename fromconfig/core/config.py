@@ -56,7 +56,9 @@ def load(path: Union[str, Path]):
             return json.load(file)
     if suffix == ".jsonnet":
         if _jsonnet is None:
-            raise ImportError("Unable to import _jsonnet.")
+            msg = f"jsonnet is not installed but the resolved path extension is {suffix}. "
+            msg += "Visit https://jsonnet.org for installation instructions."
+            raise ImportError(msg)
         return json.loads(_jsonnet.evaluate_file(str(path)))
     raise ValueError(f"Unable to resolve method for path {path}")
 

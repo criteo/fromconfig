@@ -14,8 +14,7 @@ def try_import(name, package=None):
     """Try import package name in package."""
     try:
         return importlib.import_module(name, package=package)
-    except ImportError as e:
-        LOGGER.error(f"Unable to import {name}, {e}")
+    except ImportError:
         return None
 
 
