@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org).
 
 
+## [0.3.3] - 2021-04-22
+
+### Added
+- Improved error message when trying to reload a `.jsonnet` file but `jsonnet` is not installed.
+
+### Changed
+- `jsonnet` import does not log an error if jsonnet is not available.
+
+### Deprecated
+### Removed
+### Fixed
+### Security
+
+
 ## [0.3.2] - 2021-04-22
 
 ### Added
@@ -15,6 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 - docs/README.md must be in data files in setup.py
 
 ### Security
+
 
 ## [0.3.1] - 2021-04-21
 
