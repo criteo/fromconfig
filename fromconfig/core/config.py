@@ -1,15 +1,18 @@
 """Config serialization utilities."""
 
 from pathlib import Path
-from typing import Union, Mapping, Any, IO
+from typing import Union, Mapping, Any, IO, Dict
 import json
 import logging
 import os
+from operator import itemgetter
+import re
+import io
 
 import yaml
 
 from fromconfig.core import base
-from fromconfig.utils import try_import
+from fromconfig.utils import try_import, merge_dict, is_pure_iterable, is_mapping
 
 
 _jsonnet = try_import("_jsonnet")
@@ -40,33 +43,94 @@ class Config(base.FromConfig, dict):
         return cls(config.get("_config_", config))
 
 
-class Loader(yaml.SafeLoader):
-    """YAML Loader with `!include` constructor."""
+_YAML_MERGE = "<<:"
+
+_YAML_INCLUDE = "!include"
+
+
+class IncludeLoader(yaml.SafeLoader):
+    """YAML Loader with `!include` constructor to load files."""
 
     def __init__(self, stream: IO) -> None:
         """Initialize Loader."""
         try:
-            self._root = os.path.split(stream.name)[0]
+            self.root = os.path.split(stream.name)[0]
         except AttributeError:
-            self._root = os.path.curdir
+            self.root = os.path.curdir
         super().__init__(stream)
 
 
-def construct_include(loader: Loader, node: yaml.Node) -> Any:
+def include(loader, node: yaml.Node) -> Any:
     """Include file referenced at node."""
-    # pylint: disable=protected-access
-    filename = os.path.abspath(os.path.join(loader._root, loader.construct_scalar(node)))
-    extension = os.path.splitext(filename)[1].lstrip(".")
-    with open(filename, "r") as f:
-        if extension in ("yaml", "yml"):
-            return yaml.load(f, Loader)
-        elif extension in ("json",):
-            return json.load(f)
-        else:
-            return "".join(f.readlines())
+    path = os.path.join(loader.root, loader.construct_scalar(node))
+    return load(path)
 
 
-yaml.add_constructor("!include", construct_include, Loader)
+IncludeLoader.add_constructor(_YAML_INCLUDE, include)
+
+
+def yaml_load(stream, Loader):  # pylint: disable=invalid-name
+    """Custom yaml load to handle !include and merges."""
+
+    def _expand_includes(s: IO) -> IO:
+        """Expand includes before merging.
+
+        The IncludeLoader does not work with the YAML merge key.
+
+        The trick here is to force the include to be loaded into a new
+        key, generated from the line number ('{idx}!include<<')
+
+        Parameters
+        ----------
+        s : io.BaseStream
+            A data stream (typically an opened file)
+
+        Returns
+        -------
+        str
+        """
+        content = ""
+        for idx, line in enumerate(s.readlines()):
+            if re.match(f"{_YAML_MERGE} *{_YAML_INCLUDE} *.*", line):
+                line = re.sub(f"{_YAML_MERGE} ", line, f"{idx}{_YAML_INCLUDE}{_YAML_MERGE} ")
+            content += line
+        result = io.StringIO(content)
+        setattr(result, "name", stream.name)  # Forward name for Loader
+        return result
+
+    def _merge_includes(item: Any) -> Any:
+        """Merge includes.
+
+        After expand and YAML parsing, some of the keys are idx<<: which
+        were originally intended to be merged to the top level.
+
+        Parameters
+        ----------
+        item : Any
+            Any node of the parsed YAML stream.
+
+        Returns
+        -------
+        Any
+        """
+        if is_mapping(item):
+            result = {}  # type: Dict[Any, Any]
+            for key, value in sorted(item.items(), key=itemgetter(0)):
+                if key.endswith(f"{_YAML_INCLUDE}<<"):
+                    if not is_mapping(value):
+                        raise TypeError(f"Expected Mapping-like object but got {value} ({type(value)}")
+                    for subkey, subvalue in value.items():
+                        # Since YAML provides no guarantee of ordering
+                        # a merge with overrides would be ill-defined
+                        result = merge_dict(result, {subkey: _merge_includes(subvalue)}, allow_override=False)
+                else:
+                    result[key] = _merge_includes(value)
+            return result
+        if is_pure_iterable(item):
+            return [_merge_includes(it) for it in item]
+        return item
+
+    return _merge_includes(yaml.load(_expand_includes(stream), Loader))
 
 
 def load(path: Union[str, Path]):
@@ -80,7 +144,11 @@ def load(path: Union[str, Path]):
     suffix = Path(path).suffix
     if suffix in (".yaml", ".yml"):
         with Path(path).open() as file:
-            return yaml.load(file, Loader)
+            try:
+                return yaml_load(file, IncludeLoader)
+            except Exception as e:  # pylint: disable=broad-except
+                LOGGER.error(f"Unable to use custom yaml_load ({e}), using yaml.safe_load instead.")
+                return yaml.safe_load(file)
     if suffix == ".json":
         with Path(path).open() as file:
             return json.load(file)
@@ -107,6 +175,6 @@ def dump(config, path: Union[str, Path]):
             yaml.dump(config, file)
     elif suffix in (".json", ".jsonnet"):
         with Path(path).open("w") as file:
-            json.dump(config, file)
+            json.dump(config, file, indent=4)
     else:
         raise ValueError(f"Suffix {suffix} not recognized for path {path}")

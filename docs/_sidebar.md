@@ -14,6 +14,7 @@
     * [Change Parser](examples/change-parser/)
     * [Configure Launcher](examples/configure-launcher/)
     * [Machine Learning](examples/machine-learning/)
+    * [Combine Configs](examples/combine-configs/)
 
 * Extensions
 

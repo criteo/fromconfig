@@ -44,7 +44,7 @@ def depth_map(map_fn: Callable[[Any], Any], item: Any) -> Any:
     return map_fn(item)
 
 
-def merge_dict(item1: Mapping, item2: Mapping, allow_override: bool = True) -> Mapping:
+def merge_dict(item1: Mapping, item2: Mapping, allow_override: bool = True) -> Dict:
     """Merge item2 into item1.
 
     Examples

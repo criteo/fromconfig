@@ -3,6 +3,9 @@ install: ## [Local development] Upgrade pip, install requirements, install packa
 	python -m pip install -r requirements.txt
 	python -m pip install -e .
 
+serve-doc: ## [Documentation] Serve documentation on http://localhost:3000
+	cd docs && python -m http.server 3000
+
 install-dev: ## [Local development] Install test requirements
 	python -m pip install -r requirements-test.txt
 
@@ -33,6 +36,9 @@ examples:  ## [Doc] Run all examples
 	cd docs/examples/configure-launcher && fromconfig config.yaml launcher_logging.yaml - model - train
 	cd docs/examples/machine-learning && fromconfig trainer.yaml model.yaml optimizer.yaml params/small.yaml - trainer - run
 	cd docs/examples/machine-learning && fromconfig trainer.yaml model.yaml optimizer.yaml params/big.yaml - trainer - run
+	cd docs/examples/combine-configs && fromconfig config.yaml params/small.yaml - trainer - run
+	cd docs/examples/combine-configs && fromconfig config.yaml params/big.yaml - trainer - run
+	cd docs/examples/combine-configs && python convert.py trainer.yaml trainer.json
 	cd docs/usage-reference/fromconfig && python example.py
 	cd docs/usage-reference/fromconfig && python example_kwargs.py
 	cd docs/usage-reference/parser && python default.py

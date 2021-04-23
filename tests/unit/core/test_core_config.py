@@ -71,7 +71,10 @@ def test_core_config_load_dump(path, serializer, tmpdir):
     else:
         # Dump config to file
         with Path(path).open("w") as file:
-            serializer.dump(config, file)
+            if serializer is json:
+                serializer.dump(config, file, indent=4)
+            else:
+                serializer.dump(config, file)
 
         # Read content of the dump
         with Path(path).open() as file:
@@ -87,55 +90,54 @@ def test_core_config_load_dump(path, serializer, tmpdir):
             assert file.read() == content
 
 
-def test_core_config_load_include(tmpdir):
-    """Test include functionality."""
-    path_foo = str(tmpdir.join("foo.yaml"))
-    with Path(path_foo).open("w") as file:
-        file.write("foo: 1\nbar: !include bar.yaml")
-
-    path_bar = str(tmpdir.join("bar.yaml"))
-    with Path(path_bar).open("w") as file:
-        file.write("2")
-
-    reloaded = fromconfig.load(path_foo)
-    expected = {"foo": 1, "bar": 2}
-    assert reloaded == expected
-
-
-def test_core_config_load_include_nested(tmpdir):
-    """Test include functionality with one include."""
-    path_foo = str(tmpdir.join("foo.yaml"))
-    with Path(path_foo).open("w") as file:
-        file.write("foo: 1\nbar: !include bar/bar.yaml")
-
-    path_bar = str(tmpdir.join("bar/bar.yaml"))
-    Path(path_bar).parent.mkdir()
-    with Path(path_bar).open("w") as file:
-        file.write("2")
-
-    reloaded = fromconfig.load(path_foo)
-    expected = {"foo": 1, "bar": 2}
-    assert reloaded == expected
-
-
-def test_core_config_load_include_nested_twice(tmpdir):
-    """Test include functionality with two includes."""
-    path_foo = str(tmpdir.join("foo.yaml"))
-    with Path(path_foo).open("w") as file:
-        file.write("foo: 1\nbar: !include bar/bar.yaml")
-
-    path_bar = str(tmpdir.join("bar/bar.yaml"))
-    Path(path_bar).parent.mkdir()
-    with Path(path_bar).open("w") as file:
-        file.write("!include baz.yaml")
-
-    path_baz = str(tmpdir.join("bar/baz.yaml"))
-    with Path(path_baz).open("w") as file:
-        file.write("2")
-
-    reloaded = fromconfig.load(path_foo)
-    expected = {"foo": 1, "bar": 2}
-    assert reloaded == expected
+@pytest.mark.parametrize(
+    "files, expected",
+    [
+        pytest.param(
+            {"config.yaml": "foo: 1\nbar: !include bar.yaml", "bar.yaml": "2"}, {"foo": 1, "bar": 2}, id="simple"
+        ),
+        pytest.param(
+            {"config.yaml": "foo: 1\n<<: !include bar.yaml", "bar.yaml": "bar: 2"},
+            {"foo": 1, "bar": 2},
+            id="simple-merge",
+        ),
+        pytest.param(
+            {"config.yaml": "foo: 1\nbar: !include bar/bar.yaml", "bar/bar.yaml": "2"},
+            {"foo": 1, "bar": 2},
+            id="nested",
+        ),
+        pytest.param(
+            {"config.yaml": "foo: 1\n<<: !include bar/bar.yaml", "bar/bar.yaml": "bar: 2"},
+            {"foo": 1, "bar": 2},
+            id="nested-merge",
+        ),
+        pytest.param(
+            {
+                "config.yaml": "foo: 1\nbar: !include bar/bar.yaml",
+                "bar/bar.yaml": "!include baz.yaml",
+                "bar/baz.yaml": "2",
+            },
+            {"foo": 1, "bar": 2},
+            id="nested-twice",
+        ),
+        pytest.param(
+            {
+                "config.yaml": "foo: 1\n<<: !include bar/bar.yaml",
+                "bar/bar.yaml": "<<: !include baz.yaml",
+                "bar/baz.yaml": "bar: 2",
+            },
+            {"foo": 1, "bar": 2},
+            id="nested-twice-merge",
+        ),
+    ],
+)
+def test_core_config_load_include_merge(files, expected, tmpdir):
+    """Test include and merge functionality."""
+    for p, content in files.items():
+        Path(tmpdir, p).parent.mkdir(parents=True, exist_ok=True)
+        with Path(tmpdir, p).open("w") as file:
+            file.write(content)
+    assert fromconfig.load(Path(tmpdir, "config.yaml")) == expected
 
 
 @pytest.mark.parametrize(
