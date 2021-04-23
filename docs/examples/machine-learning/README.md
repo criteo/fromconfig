@@ -40,7 +40,11 @@ which should print
 
 ```
 Training Model(dim=10) with Optimizer(learning_rate=0.01)
+Saving Model(dim=10) to models/2021-04-23-12-05-47
 Training Model(dim=100) with Optimizer(learning_rate=0.001)
+Saving Model(dim=100) to models/2021-04-23-12-05-48
 ```
+
+We used the custom resolver `now` with the `OmegaConfParser` to generate a path for the model (see `"models/${now:}"`). Read more about the interpolation mechanism (you can register your own resolvers) in the [Usage Reference](usage-reference/parser/).
 
 Note that it is encouraged to save these config files with the experiment's files to get full reproducibility. [MlFlow](https://mlflow.org) is an open-source platform that tracks your experiments by logging metrics and artifacts.

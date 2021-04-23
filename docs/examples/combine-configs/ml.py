@@ -25,11 +25,9 @@ class Optimizer:
 class Trainer:
     """Dummy Trainer class."""
 
-    def __init__(self, model, optimizer, path):
+    def __init__(self, model, optimizer):
         self.model = model
         self.optimizer = optimizer
-        self.path = path
 
     def run(self):
         print(f"Training {self.model} with {self.optimizer}")
-        print(f"Saving {self.model} to {self.path}")

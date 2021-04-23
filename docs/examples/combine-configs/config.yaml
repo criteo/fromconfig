@@ -1,0 +1,5 @@
+# Include files (!include path) and merge into top level dictionary (<<:)
+# WARNING: Key Conflicts are not authorized
+<<: !include trainer.yaml
+<<: !include model.yaml
+<<: !include optimizer.yaml

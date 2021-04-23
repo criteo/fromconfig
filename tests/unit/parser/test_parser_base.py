@@ -1,7 +1,5 @@
 """Test for parser.base."""
 
-from typing import Mapping
-
 import pytest
 
 import fromconfig

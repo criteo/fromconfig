@@ -25,6 +25,17 @@ For example
 
 [parser_omegaconf.py](parser_omegaconf.py ':include :type=code python')
 
+This examples uses
+
+- interpolation, with `${host}` (it is more powerful than references, since it can be included in strings to format the result as in `"${host}:${port}"`)
+- custom interpolation with resolvers `now` and `random_hex`. You can register your own resolvers using the `resolvers` key of the config. The `resolvers` should be a mapping from resolver name to a function, import string or any config dictionary defining a function. Using a resolver is as simple as doing `${resolver_name:arg1,arg2,...}`.
+
+
+The following resolvers are available by default
+
+- `env`: retrieves the value of environment variables. For example `${env:USER}` evaluates to the `$USER` environment variable
+- `now`: generates the current date with `datetime.now().strftime(fmt)` where `fmt` can be provided as an argument, and defaults to `%Y-%m-%d-%H-%M-%S`.
+
 Learn more on the [OmegaConf documentation website](https://omegaconf.readthedocs.io).
 
 
