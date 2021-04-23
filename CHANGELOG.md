@@ -5,10 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org).
 
 
-## [0.3.3] - 2021-04-22
+## [0.3.3] - 2021-04-23
 
 ### Added
 - Improved error message when trying to reload a `.jsonnet` file but `jsonnet` is not installed.
+- include `!include` and merge `<<:` support for YAML files
+- Custom resolvers easy registration for `OmegaConfParser`
+- Default resolver `now` for `OmegaConf`
 
 ### Changed
 - `jsonnet` import does not log an error if jsonnet is not available.
