@@ -1,6 +1,6 @@
 """Evaluate parser."""
 
-from typing import Mapping
+from typing import Any
 import functools
 import logging
 
@@ -55,7 +55,7 @@ class EvaluateParser(base.Parser):
 
     KEY = "_eval_"
 
-    def __call__(self, config: Mapping):
+    def __call__(self, config: Any):
         """Parses configs with _eval_ key into valid config."""
 
         def _map_fn(item):

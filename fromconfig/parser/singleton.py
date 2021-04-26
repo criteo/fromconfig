@@ -2,7 +2,7 @@
 
 from collections import UserDict
 from functools import partial
-from typing import Any, Callable, Mapping
+from typing import Any, Callable
 
 from fromconfig.core import Keys
 from fromconfig.parser import base
@@ -67,7 +67,7 @@ class SingletonParser(base.Parser):
 
     KEY = "_singleton_"
 
-    def __call__(self, config: Mapping):
+    def __call__(self, config: Any):
         """Parses config with _singleton_ key into valid config."""
 
         def _map_fn(item):

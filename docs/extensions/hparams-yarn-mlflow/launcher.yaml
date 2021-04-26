@@ -1,7 +1,6 @@
-# Configure logging level (set to logging.INFO)
+# Configure logging
 logging:
   level: 20
-  log_config: false
 
 # Configure mlflow
 mlflow:
@@ -9,19 +8,6 @@ mlflow:
   # experiment_name: "test-experiment"
   # run_name: test
   # artifact_location: "path/to/artifacts"
-  launches:
-    -
-      log_artifacts: true
-      log_parameters: false
-      path_config: "config.json"
-      path_command: "launch_config.txt"
-    -
-      log_artifacts: true
-      log_parameters: true
-      path_config: "parsed.json"
-      path_command: "launch_parsed.json"
-      include_keys:  # Only log some parameters
-        - model
 
 # Configure Yarn
 yarn:
@@ -37,11 +23,28 @@ yarn:
 # Configure launcher
 launcher:
   parse:
-    - logging
-    - mlflow  # Log configs before parsing but not parameters (see mlflow.launches[0])
+    # Log non-parsed config
+    - _attr_: mlflow
+      log_artifacts: true
+      log_params: false
+      path_config: "config.yaml"
+      path_command: "launch_config.txt"
+    # Parse config
     - parser
-  log: mlflow  # Log configs after parsing and parameters (see mlflow.launches[1])
+    # Log parsed config and log flattened config as parameters
+    - _attr_: mlflow
+      log_artifacts: true
+      log_params: true
+      path_config: "parsed.yaml"
+      path_command: "launch_parsed.txt"
+      include_keys:
+        - model
   run:
+    # Forward the launch to a distant machine with yarn
     - yarn
-    - mlflow  # Reactivate MlFlow run on yarn (will not log anything because previous launches happened)
+    # Reactivate the MlFlow run on the distant machine, don't log anything
+    - _attr_: mlflow
+      log_artifacts: false
+      log_params: false
+    # Run locally on the distant machine
     - local

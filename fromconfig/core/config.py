@@ -1,7 +1,7 @@
 """Config serialization utilities."""
 
 from pathlib import Path
-from typing import Union, Mapping, Any, IO, Dict
+from typing import Union, Any, IO, Dict
 import json
 import logging
 import os
@@ -39,8 +39,10 @@ class Config(base.FromConfig, dict):
     """
 
     @classmethod
-    def fromconfig(cls, config: Mapping):
-        return cls(config.get("_config_", config))
+    def fromconfig(cls, config: Any):
+        if is_mapping(config):
+            return cls(config.get("_config_", config))
+        return cls(config)
 
 
 _YAML_MERGE = "<<:"

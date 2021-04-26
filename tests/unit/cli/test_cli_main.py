@@ -12,6 +12,14 @@ def capture(command):
     return out, err, proc.returncode
 
 
+def test_cli_main_nothing():
+    """Test that fromconfig with no argument does not error."""
+    out, err, exitcode = capture(["fromconfig"])
+    assert exitcode == 0, (out, err)
+    assert all(word in out for word in [b"fromconfig", b"flags"])
+    assert err == b""
+
+
 def test_cli_main(tmpdir):
     """Test cli.main."""
     # Write parameters
