@@ -21,7 +21,7 @@ if __name__ == "__main__":
             "model_dir": "${data.root}/${data.model}",  # interpolation
         },
         "data": {"root": "/path/to/root", "model": "subdir/for/model"},
-        "trainer": {"_attr_": "Trainer", "model": "@model"},  # reference
+        "trainer": {"_attr_": "Trainer", "model": "${model}"},  # interpolation
     }
 
     # Parse and instantiate

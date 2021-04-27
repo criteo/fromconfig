@@ -1,7 +1,7 @@
 # Configure model
 model:
   _attr_: model.Model  # Full import string to the class to instantiate
-  _args_: ["@hparams.dim"]  # Positional arguments
-  _singleton_: "model_${hparams.dim}_${hparams.learning_rate}"  # All @model references will instantiate the same object with that name
+  _args_: ["${hparams.dim}"]  # Positional arguments
+  _singleton_: "model_${hparams.dim}_${hparams.learning_rate}"  # All ${model} interpolation will instantiate the same object with that name
   _eval_: "call"  # Optional ("call" is the default behavior)
-  learning_rate: "@hparams.learning_rate"  # Other key value parameter
+  learning_rate: "${hparams.learning_rate}"  # Other key value parameter

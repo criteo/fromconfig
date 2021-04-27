@@ -13,7 +13,7 @@ if __name__ == "__main__":
     configs = [fromconfig.load(path) for path in paths]
     config = functools.reduce(fromconfig.utils.merge_dict, configs)
 
-    # Parse the config (resolve references)
+    # Parse the config (resolve interpolation)
     parser = fromconfig.parser.DefaultParser()
     parsed = parser(config)
 

@@ -149,7 +149,7 @@ def _get_cls(name: str) -> Type:
         from fromconfig.launcher.local import LocalLauncher
         from fromconfig.launcher.dry import DryLauncher
 
-        # Create references with default names
+        # Set default names and add to _CLASSES
         _CLASSES["local"] = LocalLauncher
         _CLASSES["logging"] = LoggingLauncher
         _CLASSES["hparams"] = HParamsLauncher

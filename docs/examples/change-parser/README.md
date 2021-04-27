@@ -32,10 +32,10 @@ fromconfig config.yaml launcher.yaml - model - train
 You should see
 
 ```
-Training model with learning_rate @params.learning_rate
+Training model with learning_rate ${params.learning_rate}
 ```
 
-As expected, the `ReferenceParser` (part of the `DefaultParser` and responsible for resolving the `@params.learning_rate` reference) is not applied, and instead, only the `SingletonParser` is applied.
+As expected, the `OmegaConfParser` (part of the `DefaultParser` and responsible for resolving the `${params.learning_rate}` interpolation) is not applied, and instead, only the `SingletonParser` is applied.
 
 
 ## Custom Launcher
