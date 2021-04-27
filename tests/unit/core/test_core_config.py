@@ -102,6 +102,9 @@ def test_core_config_load_dump(path, serializer, tmpdir):
             id="simple-merge",
         ),
         pytest.param(
+            {"config.yaml": "foo: 1\n<<: !include bar.yaml", "bar.yaml": "2"}, None, id="simple-merge-invalid"
+        ),
+        pytest.param(
             {"config.yaml": "foo: 1\nbar: !include bar/bar.yaml", "bar/bar.yaml": "2"},
             {"foo": 1, "bar": 2},
             id="nested",
