@@ -1,5 +1,5 @@
 trainer:
   _attr_: "ml.Trainer"
-  model: "@model"
-  optimizer: "@optimizer"
+  model: "${model}"
+  optimizer: "${optimizer}"
   path: "models/${now:}"

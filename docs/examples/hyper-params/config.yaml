@@ -1,3 +1,3 @@
 model:
   _attr_: model.Model
-  learning_rate: "@hparams.learning_rate"
+  learning_rate: "${hparams.learning_rate}"

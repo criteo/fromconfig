@@ -12,7 +12,7 @@ Supported formats : YAML, JSON, and [JSONNET](https://jsonnet.org).
 
 The command line loads the different config files into Python dictionaries and merge them (if there is any key conflict, the config on the right overrides the ones from the left).
 
-It then instantiate the [`launcher`](usage-reference/launcher/) (using the `launcher` key if present in the config) and launches the config with the rest of the fire command. The `launcher` is responsible for parsing (resolving references, etc.), and uses a [`Parser`](usage-reference/parser/).
+It then instantiate the [`launcher`](usage-reference/launcher/) (using the `launcher` key if present in the config) and launches the config with the rest of the fire command. The `launcher` is responsible for parsing (resolving interpolation, etc.), and uses a [`Parser`](usage-reference/parser/).
 
 With [Python Fire](https://github.com/google/python-fire), you can manipulate the resulting instantiated dictionary via the command line by using the fire syntax.
 

@@ -1,6 +1,6 @@
 # FromConfig MlFlow <!-- {docsify-ignore} -->
 [![pypi](https://img.shields.io/pypi/v/fromconfig-mlflow.svg)](https://pypi.python.org/pypi/fromconfig-mlflow)
-[![ci](https://github.com/guillaumegenthial/fromconfig-mlflow/workflows/Continuous%20integration/badge.svg)](https://github.com/guillaumegenthial/fromconfig-mlflow/actions?query=workflow%3A%22Continuous+integration%22)
+[![ci](https://github.com/criteo/fromconfig-mlflow/workflows/Continuous%20integration/badge.svg)](https://github.com/criteo/fromconfig-mlflow/actions?query=workflow%3A%22Continuous+integration%22)
 
 A [fromconfig](https://github.com/criteo/fromconfig) `Launcher` for [MlFlow](https://www.mlflow.org) support.
 

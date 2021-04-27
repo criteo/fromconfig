@@ -46,8 +46,6 @@ examples:  ## [Doc] Run all examples
 	cd docs/usage-reference/parser && python parser_evaluate_import.py
 	cd docs/usage-reference/parser && python parser_evaluate_partial.py
 	cd docs/usage-reference/parser && python parser_omegaconf.py
-	cd docs/usage-reference/parser && python parser_reference_full.py
-	cd docs/usage-reference/parser && python parser_reference_simple.py
 	cd docs/usage-reference/parser && python parser_singleton.py
 	cd docs/usage-reference/launcher && fromconfig config.yaml hparams.yaml launcher.yaml - model - train
 	cd docs/usage-reference/launcher && fromconfig --hparams.a=1,2 --hparams.b=3,4

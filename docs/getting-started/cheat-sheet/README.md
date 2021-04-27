@@ -16,7 +16,6 @@
 |-----------------|-----------------------------------|----------------------------------------|
 | `"_singleton_"` | `"my_singleton_name"`             | Creates a singleton identified by name |
 | `"_eval_"`      | `"call"`, `"import"`, `"partial"` | Evaluation modes                       |
-|                 | `"@params.model"`                 | Reference                              |
 |                 | `"${params.url}:${params.port}"`  | Interpolation via OmegaConf            |
 
 [`fromconfig.launcher.DefaultLauncher`](usage-reference/launcher/) options (keys at config's toplevel)
@@ -26,7 +25,7 @@
 |-------------|----------------------------------------------------|---------------------------------------------|
 | `"logging"` | `{"level": 20}`                                    | Change logging level to 20 (`logging.INFO`) |
 | `"parser"`  | `{"_attr_": "fromconfig.parser.DefaultParser"}`    | Configure which parser is used              |
-| `"hparams"` | `{"learning_rate": [0.1, 0.001]}`                  | Hyper-parameter search (use references like `@hparams.learning_rate` in other parts of the config)             |
+| `"hparams"` | `{"learning_rate": [0.1, 0.001]}`                  | Hyper-parameter search (use references like `${hparams.learning_rate}` in other parts of the config)             |
 
 
 ## Config Example

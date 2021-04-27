@@ -8,7 +8,7 @@ When a `fromconfig` command is executed (example `fromconfig config.yaml params.
 By default, 4 launchers are executed in the following order
 
 - [`fromconfig.launcher.HParamsLauncher`](#hparams): uses the `hparams` key of the config (if present) to launch multiple sub-configs from a grid of hyper-parameters.
-- [`fromconfig.launcher.Parser`](#parser): applies a parser (by default, `DefaultParser`) to the config to replace references etc.
+- [`fromconfig.launcher.Parser`](#parser): applies a parser (by default, `DefaultParser`) to the config to resolve interpolation, singletons, etc.
 - [`fromconfig.launcher.LoggingLauncher`](#logging): uses `logging.info` to log a flattened view of the config.
 - [`fromconfig.launcher.LocalLauncher`](#local): runs `fire.Fire(fromconfig.fromconfig(config), command)` to instantiate and execute the config with the fire arguments (`command`, for example `model - train`).
 

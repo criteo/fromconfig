@@ -1,4 +1,4 @@
-# Configure hyper parameters, use references @hparams.key to use them
+# Configure hyper parameters, use interpolation ${hparams.key} to use them
 hparams:
   learning_rate: [0.1, 0.001]
   dim: [10, 100]

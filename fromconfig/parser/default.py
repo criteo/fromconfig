@@ -2,7 +2,6 @@
 
 from fromconfig.parser import base
 from fromconfig.parser.omega import OmegaConfParser
-from fromconfig.parser.reference import ReferenceParser
 from fromconfig.parser.evaluate import EvaluateParser
 from fromconfig.parser.singleton import SingletonParser
 
@@ -31,7 +30,7 @@ class DefaultParser(base.ChainParser):
     ...     },
     ...     "trainer": {
     ...         "_attr_": "Trainer",
-    ...         "model": "@model",
+    ...         "model": "${model}",
     ...     }
     ... }
     >>> parser = fromconfig.parser.DefaultParser()
@@ -44,4 +43,4 @@ class DefaultParser(base.ChainParser):
     """
 
     def __init__(self):
-        super().__init__(OmegaConfParser(), ReferenceParser(), EvaluateParser(), SingletonParser())
+        super().__init__(OmegaConfParser(), EvaluateParser(), SingletonParser())

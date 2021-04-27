@@ -22,7 +22,7 @@ def test_cli_main(tmpdir):
 
     # Write config
     path_config = tmpdir.join("config.yaml")
-    config = {"run": {"_attr_": "print", "_args_": ["@value"]}}
+    config = {"run": {"_attr_": "print", "_args_": ["${value}"]}}
     fromconfig.dump(config, path_config)
 
     # Execute command and check result
