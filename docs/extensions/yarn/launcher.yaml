@@ -1,5 +1,5 @@
 yarn:
-  name: test-fromconfig  # Application's name on Yarn
+  # name: test-fromconfig  # Application's name on Yarn
   # zip_file: "path/to/env.pex"  # Reuse existing pex
   # package_path: "hdfs://root/user/..."  # Target path (where to upload the env.pex)
   # num_cores: 8  # Number of executor's cores

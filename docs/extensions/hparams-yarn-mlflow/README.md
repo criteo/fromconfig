@@ -9,6 +9,10 @@ pip install fromconfig_yarn fromconfig_mlflow
 
 ## Quickstart
 
+To activate both yarn and MlFlow, we cannot simply add `--launcher.log=mlflow --launcher.run=yarn` to the command because we need to "reactivate" the run once the execution starts on the distant machine.
+
+Instead, we need to carefully configure our launcher as follows
+
 Given the following module
 
 [model.py](model.py ':include :type=code python')
@@ -22,6 +26,8 @@ and config files
 `hparams.yaml`
 
 [hparams.yaml](hparams.yaml ':include :type=code yaml')
+
+Define the following launcher configuration (notice how the `mlflow` launcher is called 3 times in total, each time with different parameters)
 
 `launcher.yaml`
 

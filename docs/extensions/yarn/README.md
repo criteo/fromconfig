@@ -4,7 +4,6 @@
 
 A [fromconfig](https://github.com/criteo/fromconfig) `Launcher` for yarn execution.
 
-
 <a id="install"></a>
 ## Install
 
@@ -15,7 +14,13 @@ pip install fromconfig_yarn
 <a id="quickstart"></a>
 ## Quickstart
 
-Once installed, the launcher is available with the name `yarn`.
+To run on yarn, simply add `--launcher.run=yarn` to your command
+
+```bash
+fromconfig config.yaml params.yaml --launcher.run=yarn - model - train
+```
+
+### Configs
 
 Given the following module
 
@@ -31,17 +36,13 @@ and config files
 
 [params.yaml](params.yaml ':include :type=code yaml')
 
-`launcher.yaml`
-
-[launcher.yaml](launcher.yaml ':include :type=code yaml')
-
-Run (assuming you are in a Hadoop environment)
+Run
 
 ```bash
-fromconfig config.yaml params.yaml launcher.yaml - model - train
+fromconfig config.yaml params.yaml --launcher.run=yarn - model - train
 ```
 
-Which prints
+which prints
 
 ```
 INFO skein.Driver: Driver started, listening on 12345
@@ -57,13 +58,21 @@ INFO:fromconfig_yarn.launcher:TRACKING_URL: http://12.34.56/application_12345
 You can also monkeypatch the relevant functions to "fake" the Hadoop environment with
 
 ```bash
-python monkeypatch_fromconfig.py config.yaml params.yaml launcher.yaml - model - train
+python monkeypatch_fromconfig.py config.yaml params.yaml --launcher.run=yarn - model - train
 ```
 
-Of course, it also works with the command line overrides, for example
+### Using a `launcher.yaml` file
+
+
+You can also use a `launcher.yaml` file to specify the launcher and more advanced parameters
+
+
+[launcher.yaml](launcher.yaml ':include :type=code yaml')
+
+And launch with
 
 ```bash
-python monkeypatch_fromconfig.py config.yaml params.yaml --launcher.run=yarn - model - train
+python monkeypatch_fromconfig.py config.yaml params.yaml launcher.yaml - model - train
 ```
 
 <a id="options"></a>
