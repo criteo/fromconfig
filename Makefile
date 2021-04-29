@@ -54,12 +54,17 @@ examples:  ## [Doc] Run all examples
 	cd docs/development/custom-parser && python lorem_ipsum.py
 	cd docs/development/custom-launcher && fromconfig config.yaml launcher.yaml - model - train
 	cd docs/extensions && python -m pip install -r requirements.txt
+	cd docs/extensions/mlflow && fromconfig config.yaml params.yaml --launcher.log=mlflow - model - train
 	cd docs/extensions/mlflow && fromconfig config.yaml params.yaml launcher.yaml - model - train
-	cd docs/extensions/mlflow && fromconfig config.yaml params.yaml --launcher.log=logging,mlflow --logging.level=20 - model - train
-	cd docs/extensions/mlflow && fromconfig config.yaml params.yaml launcher_advanced.yaml - model - train
-	cd docs/extensions/yarn && python monkeypatch_fromconfig.py config.yaml params.yaml launcher.yaml - model - train
+	cd docs/extensions/mlflow && fromconfig config.yaml params.yaml launcher_start.yaml - model - train
+	cd docs/extensions/mlflow && fromconfig config.yaml params.yaml launcher_artifacts.yaml - model - train
+	cd docs/extensions/mlflow && fromconfig config.yaml params.yaml launcher_params.yaml - model - train
+	cd docs/extensions/mlflow && fromconfig config.yaml params.yaml launcher_artifacts_params.yaml - model - train
 	cd docs/extensions/yarn && python monkeypatch_fromconfig.py config.yaml params.yaml --launcher.run=yarn - model - train
+	cd docs/extensions/yarn && python monkeypatch_fromconfig.py config.yaml params.yaml launcher.yaml - model - train
+	cd docs/extensions/hparams-yarn-mlflow && python monkeypatch_fromconfig.py config.yaml hparams.yaml --launcher.log=mlflow --launcher.run=yarn,mlflow,local - model - train
 	cd docs/extensions/hparams-yarn-mlflow && python monkeypatch_fromconfig.py config.yaml hparams.yaml launcher.yaml - model - train
+	cd docs/extensions/hparams-yarn-mlflow && python monkeypatch_fromconfig.py config.yaml hparams.yaml launcher_advanced.yaml - model - train
 
 venv-lint-test: ## [Continuous integration] Install in venv and run lint and test
 	python3.6 -m venv .env && . .env/bin/activate && make install install-dev lint test && rm -rf .env

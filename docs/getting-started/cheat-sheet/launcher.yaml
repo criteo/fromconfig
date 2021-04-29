@@ -14,6 +14,6 @@ parser:
 # Configure launcher (optional, the following config creates the same launcher as the default behavior)
 launcher:
   sweep: hparams
-  parse: parser
   log: logging
+  parse: parser
   run: local

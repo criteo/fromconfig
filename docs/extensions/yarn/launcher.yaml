@@ -1,15 +1,20 @@
+# Configure logging
+logging:
+  level: 20
+
+# Configure yarn
 yarn:
-  name: test-fromconfig  # Application's name on Yarn
+  # name: test-fromconfig  # Application's name on Yarn
   # zip_file: "path/to/env.pex"  # Reuse existing pex
   # package_path: "hdfs://root/user/..."  # Target path (where to upload the env.pex)
   # num_cores: 8  # Number of executor's cores
   # memory: "32 GiB" # Executor's memory
   # jvm_memory_in_gb: 8  # JVM memory
   # env_vars:  # Environment variables to forward to yarn
-    # - CUDA_VISIBLE_DEVICES
+  #   - CUDA_VISIBLE_DEVICES
+  #   - MLFLOW_RUN_ID
+  #   - MLFLOW_TRACKING_URI
 
-logging:
-  level: 20
-
+# Configure launcher
 launcher:
   run: yarn

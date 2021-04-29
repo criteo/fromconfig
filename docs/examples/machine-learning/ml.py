@@ -1,10 +1,5 @@
-"""Machine Learning Example code.
+"""Machine Learning Example code."""
 
-Example
--------
-    fromconfig trainer.yaml model.yaml optimizer.yaml params/small.yaml - trainer - run
-    fromconfig trainer.yaml model.yaml optimizer.yaml params/big.yaml - trainer - run
-"""
 from dataclasses import dataclass
 
 

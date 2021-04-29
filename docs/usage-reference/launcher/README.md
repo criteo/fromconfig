@@ -8,8 +8,8 @@ When a `fromconfig` command is executed (example `fromconfig config.yaml params.
 By default, 4 launchers are executed in the following order
 
 - [`fromconfig.launcher.HParamsLauncher`](#hparams): uses the `hparams` key of the config (if present) to launch multiple sub-configs from a grid of hyper-parameters.
+- [`fromconfig.launcher.LoggingLauncher`](#logging): setup the basic config of the `logging` module.
 - [`fromconfig.launcher.Parser`](#parser): applies a parser (by default, `DefaultParser`) to the config to resolve interpolation, singletons, etc.
-- [`fromconfig.launcher.LoggingLauncher`](#logging): uses `logging.info` to log a flattened view of the config.
 - [`fromconfig.launcher.LocalLauncher`](#local): runs `fire.Fire(fromconfig.fromconfig(config), command)` to instantiate and execute the config with the fire arguments (`command`, for example `model - train`).
 
 Let's see for example how to configure the logging level and perform an hyper-parameter search.
@@ -39,17 +39,13 @@ run
 fromconfig config.yaml hparams.yaml launcher.yaml - model - train
 ```
 
-You should see plenty of logs and two trainings
+which should print
 
 ```
-INFO:fromconfig.launcher.logger:- model._attr_: model.Model
-INFO:fromconfig.launcher.logger:- model.learning_rate: 0.01
-....
+========================[learning_rate=0.1]====================================
+Training model with learning_rate 0.1
+========================[learning_rate=0.01]===================================
 Training model with learning_rate 0.01
-INFO:fromconfig.launcher.logger:- model._attr_: model.Model
-INFO:fromconfig.launcher.logger:- model.learning_rate: 0.001
-...
-Training model with learning_rate 0.001
 ```
 
 
@@ -79,9 +75,10 @@ The `launcher` entry can be a `str`, corresponding to a name that maps to a `Lau
 | Name    | Class                                 |
 |---------|---------------------------------------|
 | hparams | `fromconfig.launcher.HParamsLauncher` |
-| parser  | `fromconfig.launcher.ParserLauncher`  |
 | logging | `fromconfig.launcher.LoggingLauncher` |
+| parser  | `fromconfig.launcher.ParserLauncher`  |
 | local   | `fromconfig.launcher.LocalLauncher`   |
+| dry     | `fromconfig.launcher.DryLauncher`     |
 
 It is possible via extensions to add new `Launcher` classes to the list of available launchers (learn more in the examples section).
 
@@ -104,8 +101,8 @@ will result in `HParamsLauncher(LocalLauncher())`.
 The `launcher` entry can also be a dictionary with 4 special keys for which the value can be any of config dict, name or list.
 
 - `sweep`: if not specified, will use [`hparams`](#hparams)
-- `parse`: if not specified, will use [`parser`](#parser)
 - `log`: if not specified, will use [`logging`](#logging)
+- `parse`: if not specified, will use [`parser`](#parser)
 - `run`: if not specified, will use [`local`](#logging)
 
 Setting either all or a subset of these keys allows you to modify one of the 4 steps while still using the defaults for the rest of the steps.
@@ -117,8 +114,8 @@ For example
 ```yaml
 launcher:
   sweep: hparams
-  parse: parser
   log: logging
+  parse: parser
   run: local
 ```
 

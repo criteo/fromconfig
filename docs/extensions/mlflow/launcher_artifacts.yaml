@@ -1,3 +1,7 @@
+# Configure logging
+logging:
+  level: 20
+
 # Configure mlflow
 mlflow:
   # tracking_uri: "http://127.0.0.1:5000"  # Or set env variable MLFLOW_TRACKING_URI
@@ -8,4 +12,14 @@ mlflow:
 
 # Configure launcher
 launcher:
-  log: mlflow
+  log:
+    - logging
+    - mlflow
+  parse:
+    - _attr_: mlflow.log_artifacts
+      path_command: launch.sh
+      path_config: config.yaml
+    - parser
+    - _attr_: mlflow.log_artifacts
+      path_command: null
+      path_config: parsed.yaml
