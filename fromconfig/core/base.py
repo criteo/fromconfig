@@ -1,7 +1,7 @@
 """Base functionality."""
 
 from abc import ABC
-from typing import Any, Mapping
+from typing import Any
 import inspect
 import logging
 
@@ -50,14 +50,16 @@ class FromConfig(ABC):
     """
 
     @classmethod
-    def fromconfig(cls, config: Mapping):
+    def fromconfig(cls, config: Any):
         """Subclasses must override.
 
         Parameters
         ----------
-        config : Mapping
+        config : Any
             Config dictionary, non-instantiated.
         """
+        if not is_mapping(config):
+            raise TypeError(f"Expected Mapping but got {type(config)}")
         args = fromconfig(config.get(Keys.ARGS, []))
         kwargs = {key: fromconfig(value) for key, value in config.items() if key not in Keys}
         return cls(*args, **kwargs)  # type: ignore

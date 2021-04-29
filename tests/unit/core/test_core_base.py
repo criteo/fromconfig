@@ -1,6 +1,7 @@
 """Tests for core.base."""
 
-from typing import Dict
+import inspect
+from typing import Any
 
 import pytest
 
@@ -21,7 +22,7 @@ class CustomOverriden(Custom):
     """Custom FromConfig class with fromconfig implementation."""
 
     @classmethod
-    def fromconfig(cls, config: Dict):
+    def fromconfig(cls, config: Any):
         return cls(config["_x"])
 
 
@@ -29,6 +30,7 @@ class CustomOverriden(Custom):
     "config, expected",
     [
         pytest.param({"x": 1}, Custom(1), id="simple"),
+        pytest.param(None, TypeError, id="simple"),
         pytest.param(
             {"x": {"_attr_": "tests.unit.core.test_core_base.Custom", "x": 2}}, Custom(Custom(2)), id="nested"
         ),
@@ -36,7 +38,11 @@ class CustomOverriden(Custom):
 )
 def test_default_custom_fromconfig(config, expected):
     """Test default custom fromconfig."""
-    assert Custom.fromconfig(config) == expected
+    if inspect.isclass(expected) and issubclass(expected, Exception):
+        with pytest.raises(expected):
+            Custom.fromconfig(config)
+    else:
+        assert Custom.fromconfig(config) == expected
 
 
 @pytest.mark.parametrize(

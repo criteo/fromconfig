@@ -8,6 +8,7 @@ import fromconfig
 @pytest.mark.parametrize(
     "config, expected",
     [
+        pytest.param(None, None, id="none"),
         pytest.param({"_attr_": "str", "_eval_": "import"}, str, id="import"),
         pytest.param({"_attr_": "str", "_args_": ["hello"], "_eval_": "call"}, "hello", id="call"),
         pytest.param({"_attr_": "str", "_args_": ["hello"], "_eval_": "partial"}, lambda: "hello", id="partial"),

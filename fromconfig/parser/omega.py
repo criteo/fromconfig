@@ -1,6 +1,6 @@
 """Simple OmegaConf parser."""
 
-from typing import Mapping
+from typing import Any
 from datetime import datetime
 
 from omegaconf import OmegaConf
@@ -8,7 +8,7 @@ from omegaconf import OmegaConf
 from fromconfig.core.base import fromconfig
 from fromconfig.parser import base
 from fromconfig.utils.libimport import from_import_string
-from fromconfig.utils.types import is_mapping
+from fromconfig.utils.types import is_mapping, is_pure_iterable
 from fromconfig.utils.nest import merge_dict
 
 
@@ -52,9 +52,15 @@ class OmegaConfParser(base.Parser):
     >>> assert "$" not in parsed["date"]  # Make sure now was resolved
     """
 
-    def __call__(self, config: Mapping) -> Mapping:
-        # Register resolvers (default + config defined)
-        resolvers = merge_dict(_RESOLVERS, config.get("resolvers") or {})
+    def __call__(self, config: Any) -> Any:
+        # Extract resolvers to register
+        if is_mapping(config):
+            resolvers = merge_dict(_RESOLVERS, config.get("resolvers") or {})
+            config = {key: value for key, value in config.items() if key != "resolvers"}
+        else:
+            resolvers = _RESOLVERS
+
+        # Register resolvers
         for name, resolver in resolvers.items():
             if isinstance(resolver, str):
                 resolver = from_import_string(resolver)
@@ -66,10 +72,15 @@ class OmegaConfParser(base.Parser):
                 raise TypeError(f"Unable to resolve {resolver}")
             OmegaConf.register_resolver(name, resolver)
 
-        # Parse config and resolve
-        conf = OmegaConf.create({key: value for key, value in config.items() if key != "resolvers"})  # type: ignore
-        parsed = OmegaConf.to_container(conf, resolve=True)  # type: ignore
+        # Create config and parse
+        if is_mapping(config) or is_pure_iterable(config):
+            conf = OmegaConf.create(config)  # type: ignore
+            parsed = OmegaConf.to_container(conf, resolve=True)  # type: ignore
+        else:
+            # Try to parse by wrapping in a list
+            conf = OmegaConf.create([config])  # type: ignore
+            parsed = OmegaConf.to_container(conf, resolve=True)[0]  # type: ignore
 
         # Clear resolvers (avoid leaking module-level changes), return
         OmegaConf.clear_resolvers()
-        return parsed  # type: ignore
+        return parsed

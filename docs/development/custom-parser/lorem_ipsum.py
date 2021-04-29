@@ -1,6 +1,6 @@
 """Custom Parser that replaces empty string by a default string."""
 
-from typing import Mapping
+from typing import Any
 
 import fromconfig
 
@@ -11,7 +11,7 @@ class LoremIpsumParser(fromconfig.parser.Parser):
     def __init__(self, default: str = "lorem ipsum"):
         self.default = default
 
-    def __call__(self, config: Mapping):
+    def __call__(self, config: Any):
         def _map_fn(value):
             if isinstance(value, str) and not value:
                 return self.default

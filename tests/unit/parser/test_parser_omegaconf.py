@@ -5,6 +5,20 @@ import pytest
 import fromconfig
 
 
+@pytest.mark.parametrize(
+    "config, expected",
+    [
+        pytest.param(None, None, id="none"),
+        pytest.param({"foo": "bar"}, {"foo": "bar"}, id="none"),
+        pytest.param({"foo": "bar", "baz": "${foo}"}, {"foo": "bar", "baz": "bar"}, id="vanilla"),
+    ],
+)
+def test_parser_omega(config, expected):
+    """Test that OmegaConfParser accepts different types."""
+    parser = fromconfig.parser.OmegaConfParser()
+    assert parser(config) == expected
+
+
 def hello(s):
     return f"hello {s}"
 
@@ -17,7 +31,7 @@ def hello(s):
         pytest.param({"hello": ["hello"]}, True),
     ],
 )
-def test_parser_omega(resolvers, error):
+def test_parser_omega_resolvers(resolvers, error):
     """Test OmegaConfParser."""
     config = {"hello_world": "${hello:world}", "date": "${now:}", "resolvers": resolvers}
     parser = fromconfig.parser.OmegaConfParser()

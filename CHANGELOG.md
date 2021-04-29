@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](https://semver.org).
 
 
+## [0.4.1] - 2021-04-28
+
+### Added
+- The `_attr_` key can be used with an extension name in `Launcher.fromconfig`.
+
+### Changed
+- The `fromconfig` method of the `FromConfig` base class signature is now generic (`config` does not have to be a Mapping).
+- The `Parser` `__call__` signature is also more generic (accepts `Any` instead of `Mapping`)
+
+### Deprecated
+### Removed
+- The steps syntax in `Launcher.fromconfig` is now in `DefaultLauncher`
+
+### Fixed
+- Better type handling for the `OmegaConfParser` (only attempts to find resolvers if `config` is a mapping)
+
+### Security
+
+
+
 ## [0.4.0] - 2021-04-27
 
 ### Added

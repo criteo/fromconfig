@@ -44,3 +44,6 @@ class DefaultParser(base.ChainParser):
 
     def __init__(self):
         super().__init__(OmegaConfParser(), EvaluateParser(), SingletonParser())
+
+    def __repr__(self):
+        return self.__class__.__name__

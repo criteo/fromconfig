@@ -90,6 +90,12 @@ def test_core_config_load_dump(path, serializer, tmpdir):
             assert file.read() == content
 
 
+@pytest.mark.parametrize("config, expected", [pytest.param("foo: bar", {"foo": "bar"})])
+def test_core_config_include_loader_on_string(config, expected):
+    """Test IncludeLoader."""
+    assert expected == yaml.load(config, fromconfig.core.config.IncludeLoader)
+
+
 @pytest.mark.parametrize(
     "files, expected",
     [
@@ -153,6 +159,9 @@ def test_core_config_load_include_merge(files, expected, tmpdir):
             {"_config_": {"_attr_": "str", "_args_": "hello"}},
             fromconfig.Config(_attr_="str", _args_="hello"),
             id="config",
+        ),
+        pytest.param(
+            [("_attr_", "str"), ("_args_", "hello")], fromconfig.Config(_attr_="str", _args_="hello"), id="list",
         ),
     ],
 )
