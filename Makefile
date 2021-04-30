@@ -32,7 +32,7 @@ examples:  ## [Doc] Run all examples
 	cd docs/examples/change-parser && fromconfig config.yaml launcher.yaml - model - train
 	cd docs/examples/configure-launcher && fromconfig config.yaml --launcher.run=dry - model - train
 	cd docs/examples/configure-launcher && fromconfig config.yaml launcher_dry.yaml - model - train
-	cd docs/examples/configure-launcher && fromconfig config.yaml --logging.level=20 --logging.log_config=False - model - train
+	cd docs/examples/configure-launcher && fromconfig config.yaml --logging.level=20 - model - train
 	cd docs/examples/configure-launcher && fromconfig config.yaml launcher_logging.yaml - model - train
 	cd docs/examples/machine-learning && fromconfig trainer.yaml model.yaml optimizer.yaml params/small.yaml - trainer - run
 	cd docs/examples/machine-learning && fromconfig trainer.yaml model.yaml optimizer.yaml params/big.yaml - trainer - run

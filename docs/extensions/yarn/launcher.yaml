@@ -10,7 +10,6 @@ yarn:
 
 logging:
   level: 20
-  log_config: false
 
 launcher:
   run: yarn

@@ -45,12 +45,12 @@ fromconfig config.yaml launcher_dry.yaml - model - train
 
 ## Configure Logging
 
-The logging launcher (responsible for basic logging, configured by `log: logging`) can be configured with the `logging.level` and `logging.log_config` parameters.
+The logging launcher (responsible for basic logging, configured by `log: logging`) can be configured with the `logging.level` parameter.
 
 For example,
 
 ```bash
-fromconfig config.yaml --logging.level=20 --logging.log_config=False - model - train
+fromconfig config.yaml --logging.level=20 - model - train
 ```
 
 prints

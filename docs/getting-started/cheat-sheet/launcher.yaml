@@ -6,7 +6,6 @@ hparams:
 # Configure logging level (set to logging.INFO)
 logging:
   level: 20
-  log_config: false
 
 # Configure parser (optional, using this parser is the default behavior)
 parser:

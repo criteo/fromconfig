@@ -140,7 +140,7 @@ def _load():
     for entry_point in pkg_resources.iter_entry_points(f"fromconfig{__major__}"):
         module = entry_point.load()
         for _, cls in inspect.getmembers(module, lambda m: inspect.isclass(m) and issubclass(m, Launcher)):
-            name = cls.NAME if hasattr(cls, "NAME") else entry_point.name
+            name = f"{entry_point.name}.{cls.NAME}" if hasattr(cls, "NAME") else entry_point.name
             if name in _CLASSES:
                 raise ValueError(f"Duplicate launcher name found {name} ({_CLASSES})")
             _CLASSES[name] = cls
