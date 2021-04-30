@@ -1,5 +1,5 @@
 launcher:
   sweep: hparams  # Use HParamsLauncher for the sweep step
-  parse: parser  # Use ParserLauncher for the parse step
   log: logging  # Use LoggingLauncher for the log step
+  parse: parser  # Use ParserLauncher for the parse step
   run: local  # Use LocalLauncher for the run step

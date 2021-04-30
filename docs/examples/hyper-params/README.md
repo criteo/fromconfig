@@ -28,7 +28,9 @@ fromconfig config.yaml hparams.yaml - model - train
 You should see plenty of logs and two trainings
 
 ```
+========================[learning_rate=0.01]============================
 Training model with learning_rate 0.01
+========================[learning_rate=0.001]===========================
 Training model with learning_rate 0.001
 ```
 

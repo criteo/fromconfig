@@ -1,2 +1,2 @@
-fromconfig-mlflow
+fromconfig-mlflow>=0.3.0
 fromconfig-yarn

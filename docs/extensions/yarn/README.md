@@ -4,7 +4,6 @@
 
 A [fromconfig](https://github.com/criteo/fromconfig) `Launcher` for yarn execution.
 
-
 <a id="install"></a>
 ## Install
 
@@ -15,13 +14,17 @@ pip install fromconfig_yarn
 <a id="quickstart"></a>
 ## Quickstart
 
-Once installed, the launcher is available with the name `yarn`.
+To run on yarn, simply add `--launcher.run=yarn` to your command
 
-Given the following module
+```bash
+fromconfig config.yaml params.yaml --launcher.run=yarn - model - train
+```
+
+With
+
+`model.py`
 
 [model.py](model.py ':include :type=code python')
-
-and config files
 
 `config.yaml`
 
@@ -31,17 +34,7 @@ and config files
 
 [params.yaml](params.yaml ':include :type=code yaml')
 
-`launcher.yaml`
-
-[launcher.yaml](launcher.yaml ':include :type=code yaml')
-
-Run (assuming you are in a Hadoop environment)
-
-```bash
-fromconfig config.yaml params.yaml launcher.yaml - model - train
-```
-
-Which prints
+It should print
 
 ```
 INFO skein.Driver: Driver started, listening on 12345
@@ -57,17 +50,10 @@ INFO:fromconfig_yarn.launcher:TRACKING_URL: http://12.34.56/application_12345
 You can also monkeypatch the relevant functions to "fake" the Hadoop environment with
 
 ```bash
-python monkeypatch_fromconfig.py config.yaml params.yaml launcher.yaml - model - train
-```
-
-Of course, it also works with the command line overrides, for example
-
-```bash
 python monkeypatch_fromconfig.py config.yaml params.yaml --launcher.run=yarn - model - train
 ```
 
-<a id="options"></a>
-## Options
+## Usage Reference
 
 To configure Yarn, add a `yarn` entry to your config.
 
@@ -82,3 +68,13 @@ You can set the following parameters.
 - `package_path`: The HDFS location where to save the environment
 - `zip_file`: The path to an existing `pex` file, either local or on HDFS
 - `name`: The application name
+
+Using a `launcher.yaml` file to specify the launcher and more advanced parameters
+
+[launcher.yaml](launcher.yaml ':include :type=code yaml')
+
+launch with
+
+```bash
+fromconfig config.yaml params.yaml launcher.yaml - model - train
+```

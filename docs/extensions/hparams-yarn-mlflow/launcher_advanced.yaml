@@ -29,12 +29,20 @@ yarn:
 launcher:
   log:
     - logging
-    - mlflow
+    # Start MlFlow Run and set environment variables
+    - _attr_: mlflow
+      set_env_vars: true
+      set_run_id: false
   parse:
-    - mlflow.log_artifacts
+    # Log both the command and the config before parsing
+    - _attr_: mlflow.log_artifacts
+      path_command: launch.sh
+      path_config: config.yaml
     - parser
+    # Only log the parsed config
+    - _attr_: mlflow.log_artifacts
+      path_command: null
+      path_config: parsed.yaml
+    # Log the flattened config as run parameters
     - mlflow.log_params
-  run:
-    - yarn
-    - mlflow
-    - local
+

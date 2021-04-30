@@ -1,3 +1,7 @@
+# Configure logging
+logging:
+  level: 20
+
 # Configure mlflow
 mlflow:
   # tracking_uri: "http://127.0.0.1:5000"  # Or set env variable MLFLOW_TRACKING_URI
@@ -5,7 +9,14 @@ mlflow:
   # run_id: 12345  # To restore a previous run
   # run_name: test  # To give a name to your new run
   # artifact_location: "path/to/artifacts"  # Used only when creating a new experiment
+  include_keys:  # Only log params that match *model*
+    - model
 
 # Configure launcher
 launcher:
-  log: mlflow
+  log:
+    - logging
+    - mlflow
+  parse:
+    - parser
+    - mlflow.log_params

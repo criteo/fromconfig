@@ -1,2 +1,2 @@
 hparams:
-  learning_rate: [0.01, 0.001]
+  learning_rate: [0.1, 0.01]
