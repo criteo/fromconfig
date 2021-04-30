@@ -67,10 +67,10 @@ examples:  ## [Doc] Run all examples
 	cd docs/extensions/hparams-yarn-mlflow && python monkeypatch_fromconfig.py config.yaml hparams.yaml launcher_advanced.yaml - model - train
 
 venv-lint-test: ## [Continuous integration] Install in venv and run lint and test
-	python3.6 -m venv .env && . .env/bin/activate && make install install-dev lint test && rm -rf .env
+	python -m venv .env && . .env/bin/activate && make install install-dev lint test && rm -rf .env
 
 build-dist: ## [Continuous integration] Build package for pypi
-	python3.6 -m venv .env
+	python -m venv .env
 	. .env/bin/activate && pip install -U pip setuptools wheel
 	. .env/bin/activate && python setup.py sdist
 	rm -rf .env
