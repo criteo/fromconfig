@@ -13,7 +13,6 @@ import fromconfig
         pytest.param({"foo": "bar"}, ({}, []), id="default"),
         pytest.param(None, ({}, []), id="none"),
         pytest.param({"foo": "bar", "logging": {"level": 20}}, ({"level": 20}, []), id="set-level"),
-        pytest.param({"foo": "bar", "logging": {"log_config": True}}, ({}, ["- foo: bar"]), id="log-config"),
     ],
 )
 def test_launcher_logger(config, expected, monkeypatch):
