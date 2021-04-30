@@ -45,4 +45,7 @@ launcher:
       path_config: parsed.yaml
     # Log the flattened config as run parameters
     - mlflow.log_params
-
+  run:
+    - yarn
+    - mlflow
+    - local
