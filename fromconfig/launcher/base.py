@@ -10,7 +10,7 @@ from fromconfig.core.base import fromconfig, FromConfig, Keys
 from fromconfig.utils.libimport import from_import_string
 from fromconfig.utils.nest import merge_dict
 from fromconfig.utils.types import is_pure_iterable, is_mapping
-from fromconfig.version import MAJOR
+from fromconfig.version import __major__
 
 
 LOGGER = logging.getLogger(__name__)
@@ -137,12 +137,13 @@ def _load():
     _CLASSES["dry"] = DryLauncher
 
     # Load external classes, use entry point's name for reference
-    for entry_point in pkg_resources.iter_entry_points(f"fromconfig{MAJOR}"):
+    for entry_point in pkg_resources.iter_entry_points(f"fromconfig{__major__}"):
         module = entry_point.load()
         for _, cls in inspect.getmembers(module, lambda m: inspect.isclass(m) and issubclass(m, Launcher)):
-            if entry_point.name in _CLASSES:
-                raise ValueError(f"Duplicate launcher name found {entry_point.name} ({_CLASSES})")
-            _CLASSES[entry_point.name] = cls
+            name = cls.NAME if hasattr(cls, "NAME") else entry_point.name
+            if name in _CLASSES:
+                raise ValueError(f"Duplicate launcher name found {name} ({_CLASSES})")
+            _CLASSES[name] = cls
 
     # Log loaded classes
     LOGGER.info(f"Loaded Launcher classes {_CLASSES}")

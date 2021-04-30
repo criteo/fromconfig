@@ -22,7 +22,7 @@ class ParserLauncher(base.Launcher):
             parser = fromconfig(config.pop("parser")) if "parser" in config else DefaultParser()
         else:
             parser = DefaultParser()
-        LOGGER.info(f"Resolved parser {parser}")
+        LOGGER.debug(f"Resolved parser {parser}")
 
         # Launch
         self.launcher(config=parser(config) if callable(parser) else config, command=command)  # type: ignore

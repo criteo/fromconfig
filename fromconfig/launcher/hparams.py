@@ -3,6 +3,7 @@
 from typing import Any
 import itertools
 import logging
+import shutil
 
 from fromconfig.core.base import fromconfig
 from fromconfig.launcher import base
@@ -40,7 +41,24 @@ class HParamsLauncher(base.Launcher):
                 names = hparams.keys()
                 for values in itertools.product(*[hparams[name] for name in names]):
                     overrides = dict(zip(names, values))
-                    LOGGER.info("Launching with params")
-                    for key, value in overrides.items():
-                        LOGGER.info(f"- {key}: {value}")
+                    print(header(overrides))
                     self.launcher(config=merge_dict(config, {"hparams": overrides}), command=command)
+
+
+def header(overrides) -> str:
+    """Create header for experiment."""
+    # Get terminal number of columns
+    try:
+        columns, _ = shutil.get_terminal_size((80, 20))
+    except Exception:  # pylint: disable=broad-except
+        columns = 80
+
+    # Join key-values and truncate if needed
+    content = ", ".join(f"{key}={value}" for key, value in overrides.items())
+    if len(content) >= columns - 2:
+        content = content[: columns - 2 - 3] + "." * 3
+    content = f"[{content}]"
+
+    # Add padding
+    padding = "=" * max((columns - len(content)) // 2, 0)
+    return f"{padding}{content}{padding}"

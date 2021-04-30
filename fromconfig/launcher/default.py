@@ -12,7 +12,14 @@ from fromconfig.utils.types import is_mapping
 
 
 # Special keys for a Launcher config split by steps with defaults
-_STEPS = OrderedDict([("sweep", "hparams"), ("parse", "parser"), ("log", "logging"), ("run", "local")])
+_STEPS = OrderedDict(
+    [
+        ("sweep", "hparams"),  # Hyper Parameter Sweep
+        ("log", "logging"),  # Configure Logging
+        ("parse", "parser"),  # Parse config
+        ("run", "local"),  # Actually run the config
+    ]
+)
 
 
 class DefaultLauncher(base.Launcher):
