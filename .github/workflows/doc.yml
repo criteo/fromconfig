@@ -1,0 +1,21 @@
+name: Deploy Documentation to fromconfig.github.io
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Copy docs to fromconfig.github.io
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.FROMCONFIG_TOKEN }}
+        with:
+          source-directory: 'docs'
+          destination-github-username: 'fromconfig'
+          destination-repository-name: 'fromconfig.github.io'
+          user-email: action@github.com
