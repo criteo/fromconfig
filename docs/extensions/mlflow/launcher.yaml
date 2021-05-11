@@ -1,3 +1,8 @@
+# ==================== FromConfig Launcher Config ======================
+# These parameters are used by FromConfig to instantiate a launcher.
+# The launcher is responsible for parsing, logging, instantiating and
+# executing the config and Fire command.
+# ======================================================================
 # Configure mlflow
 mlflow:
   # tracking_uri: "http://127.0.0.1:5000"  # Or set env variable MLFLOW_TRACKING_URI

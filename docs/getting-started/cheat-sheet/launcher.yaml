@@ -1,3 +1,8 @@
+# ==================== FromConfig Launcher Config ======================
+# These parameters are used by FromConfig to instantiate a launcher.
+# The launcher is responsible for parsing, logging, instantiating and
+# executing the config and Fire command.
+# ======================================================================
 # Configure hyper parameters, use interpolation ${hparams.key} to use them
 hparams:
   learning_rate: [0.1, 0.001]

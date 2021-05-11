@@ -32,7 +32,7 @@ class DefaultLauncher(base.Launcher):
     """
 
     def __init__(self, launcher: base.Launcher = None):
-        super().__init__(launcher or HParamsLauncher(ParserLauncher(LoggingLauncher(LocalLauncher()))))
+        super().__init__(launcher or HParamsLauncher(LoggingLauncher(ParserLauncher(LocalLauncher()))))
 
     def __call__(self, config: Any, command: str = ""):
         self.launcher(config=config, command=command)
