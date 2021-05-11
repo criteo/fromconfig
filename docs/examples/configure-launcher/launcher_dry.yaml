@@ -1,2 +1,8 @@
+# ==================== FromConfig Launcher Config ======================
+# These parameters are used by FromConfig to instantiate a launcher.
+# The launcher is responsible for parsing, logging, instantiating and
+# executing the config and Fire command.
+# ======================================================================
+# The other steps (sweep, log, parse) will use defaults.
 launcher:
-  run: dry
+  run: dry  # Use DryLauncher for the run step
