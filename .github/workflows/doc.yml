@@ -1,0 +1,16 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Push to fromconfig.github.io
+        run: |
+          git remote add doc https://fromconfig:${{ secrets.FROMCONFIG_TOKEN }}@github.com/fromconfig/fromconfig.github.io.git
+          git push doc main --force
