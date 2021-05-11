@@ -9,7 +9,7 @@
     <a href="https://github.com/criteo/fromconfig/actions?query=workflow%3A%22Continuous+integration%22">
         <img src="https://github.com/criteo/fromconfig/workflows/Continuous%20integration/badge.svg">
     </a>
-    <a href="https://criteo.github.io/fromconfig">
+    <a href="https://fromconfig.github.io">
         <img src="https://img.shields.io/website?down_color=red&down_message=down&label=documentation&up_color=green&up_message=up&url=https%3A%2F%2Ffromconfig.github.io">
     </a>
 </p>
