@@ -70,7 +70,7 @@ class OmegaConfParser(base.Parser):
                 pass
             else:
                 raise TypeError(f"Unable to resolve {resolver}")
-            OmegaConf.register_resolver(name, resolver)
+            OmegaConf.register_new_resolver(name, resolver)
 
         # Create config and parse
         if is_mapping(config) or is_pure_iterable(config):
