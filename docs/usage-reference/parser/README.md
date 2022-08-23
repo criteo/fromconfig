@@ -52,14 +52,6 @@ For example,
 
 [parser_evaluate_call.py](parser_evaluate_call.py ':include :type=code python')
 
-__partial__
-
-Delays the call, results in a `functools.partial(attr, **kwargs)`.
-
-For example,
-
-[parser_evaluate_partial.py](parser_evaluate_partial.py ':include :type=code python')
-
 __import__
 
 Simply import the attribute, results in `attr`.
@@ -68,6 +60,18 @@ For example,
 
 [parser_evaluate_import.py](parser_evaluate_import.py ':include :type=code python')
 
+__partial__
+
+Delays the call, results in a `functools.partial(attr, *args, **kwargs)`.
+
+For example,
+
+[parser_evaluate_partial.py](parser_evaluate_partial.py ':include :type=code python')
+
+It is also possible to delay the call to the function argument if you want them to be evaluated at run time rather
+than when the configuration is parsed.
+
+[parser_evaluate_lazy.py](parser_evaluate_lazy.py ':include :type=code python')
 
 <a id="singleton"></a>
 ## Singleton
