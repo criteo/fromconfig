@@ -161,7 +161,9 @@ def test_core_config_load_include_merge(files, expected, tmpdir):
             id="config",
         ),
         pytest.param(
-            [("_attr_", "str"), ("_args_", "hello")], fromconfig.Config(_attr_="str", _args_="hello"), id="list",
+            [("_attr_", "str"), ("_args_", "hello")],
+            fromconfig.Config(_attr_="str", _args_="hello"),
+            id="list",
         ),
     ],
 )

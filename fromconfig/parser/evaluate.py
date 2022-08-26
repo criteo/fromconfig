@@ -27,12 +27,13 @@ _lazy_arg_singleton = _Singletons()
 class _LazyArg:
     """A class used to represent a lazy argument.
 
-    ...
+    It wraps the constructor of this lazy arg such that this arg can be instantiated later.
+    Optionally, it provides memoization to cache the result of the constructor.
 
     Attributes
     ----------
     constructor: Callable
-        The constructor to call.
+        The constructor of the lazy argument.
     memoization_key: str
         The key to use for memoization. If None, there is no memoization.
     args: List[Any]
@@ -64,12 +65,24 @@ def _fn_with_lazy_instantiations_constructor(
     then _fn_with_lazy_instantiations_constructor returns a callable
     with a semantic similar to fn but its arguments have types T'1, T'2, ...
     where T'i is
-     - Ti is the argument is not lazy (unchanged)
+     - Ti if the argument is not lazy (unchanged)
      - Callable[[], Ti] if the argument is lazy
-     Lazy arguments are evaluated when the new callable is called and then fn is called with all evaluated arguments
+     Lazy arguments are evaluated when the callable with lazy arguments
+     is called and then fn is called with all evaluated arguments.
+
+    This mimics the following behavior.
+    If we have the following `g` function
+    >>> def g(arg1, arg2):     # doctest: +SKIP
+    ...     return arg1 * arg2 # doctest: +SKIP
+    and `arg2` is a lazy argument with a given `lazy_arg2_fn` constructor,
+    then `_fn_with_lazy_instantiations_constructor` returns the following function
+    >>> def g_with_lazy_instantiations(arg1, lazy_arg2_fn): # doctest: +SKIP
+    ...     arg2 = lazy_arg2_fn()                           # doctest: +SKIP
+    ...     g(arg1, arg2)                                   # doctest: +SKIP
     """
 
     def _fn_with_lazy_instantiations(*args, **kwargs):
+        # We need to pad the args in case some new args are provided when the partial function is called
         padded_lazy_args_mask = lazy_args_mask + [False] * (len(args) - len(lazy_args_mask))
         evaluated_args = [arg() if is_lazy else arg for arg, is_lazy in zip(args, padded_lazy_args_mask)]
         evaluated_kwargs = {key: value() if lazy_kwargs_map.get(key) else value for key, value in kwargs.items()}
@@ -168,6 +181,7 @@ class EvaluateParser(base.Parser):
                 if evaluate == EvaluateMode.PARTIAL:
 
                     def is_lazy(arg):
+                        # Argument will be parsed before the function itself and hence lazy arguments would have been wrapped into a _LazyArg
                         return bool(is_mapping(arg) and arg[Keys.ATTR.value] == to_import_string(_LazyArg))
 
                     lazy_args_mask = [is_lazy(arg) for arg in args]

@@ -60,6 +60,17 @@ For example,
 
 [parser_evaluate_import.py](parser_evaluate_import.py ':include :type=code python')
 
+__partial__
+
+Delays the call, results in a `functools.partial(attr, *args, **kwargs)`.
+
+For example,
+
+[parser_evaluate_partial.py](parser_evaluate_partial.py ':include :type=code python')
+
+It is also possible to delay the call to the function argument if you want them to be evaluated at run time rather
+than when the configuration is parsed.
+
 __lazy__
 
 Delays the evaluation when used as an argument of another function with __partial__ evaluation. Can be paired with memoization.
@@ -71,17 +82,6 @@ For example,
 and
 
 [parser_evaluate_lazy_with_memoization.py](parser_evaluate_lazy_with_memoization.py ':include :type=code python')
-
-__partial__
-
-Delays the call, results in a `functools.partial(attr, *args, **kwargs)`.
-
-For example,
-
-[parser_evaluate_partial.py](parser_evaluate_partial.py ':include :type=code python')
-
-It is also possible to delay the call to the function argument if you want them to be evaluated at run time rather
-than when the configuration is parsed.
 
 <a id="singleton"></a>
 ## Singleton
