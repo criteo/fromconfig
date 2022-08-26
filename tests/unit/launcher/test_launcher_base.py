@@ -97,7 +97,9 @@ def test_launcher_classes_extension(monkeypatch):
             id="fromconfig+nested-duplicate",
         ),
         pytest.param(
-            [HParamsLauncher(None), "local"], ValueError, id="fromconfig+nested+already-instantiated-cannot-wrap",
+            [HParamsLauncher(None), "local"],
+            ValueError,
+            id="fromconfig+nested+already-instantiated-cannot-wrap",
         ),
         pytest.param(1, TypeError, id="incorrect-type"),
     ],
