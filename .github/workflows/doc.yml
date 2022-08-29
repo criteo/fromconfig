@@ -19,3 +19,4 @@ jobs:
           destination-github-username: 'fromconfig'
           destination-repository-name: 'fromconfig.github.io'
           user-email: action@github.com
+          target-branch: 'master'
