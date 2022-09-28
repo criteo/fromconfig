@@ -52,8 +52,8 @@ def parse_args():
 
     argv = sys.argv[1:]
     fire.Fire(_parse_args, argv)
-    num_args_used = len(_paths) + len(_overrides) + 1  # +1 for the fire separator
-    command = " ".join(argv[num_args_used:])
+    idx_of_fire_separator = len(argv) if "-" not in argv else argv.index("-")
+    command = " ".join(argv[idx_of_fire_separator + 1 :])
     return _paths, _overrides, command
 
 
