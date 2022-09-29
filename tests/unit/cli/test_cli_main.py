@@ -17,6 +17,16 @@ def capture(command):
 
 def test_cli_parse_args():
     """Test cli.parse_args."""
+    argv = ["fromconfig", "config.yaml", "params.yaml", "-", "model", "-", "train"]
+    with patch.object(sys, "argv", argv):
+        paths, overrides, command = parse_args()
+        expected_paths = ["config.yaml", "params.yaml"]
+        expected_overrides = {}
+        expected_command = "model - train"
+        assert paths == expected_paths
+        assert overrides == expected_overrides
+        assert command == expected_command
+
     argv = ["fromconfig", "config.yaml", "--output", "/tmp", "-", "run"]
     with patch.object(sys, "argv", argv):
         paths, overrides, command = parse_args()
