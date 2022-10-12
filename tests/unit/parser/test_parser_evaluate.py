@@ -10,9 +10,15 @@ import fromconfig
     "config, expected",
     [
         pytest.param(None, None, id="none"),
+        pytest.param({"a": 1, "b": 2}, {"a": 1, "b": 2}, id="dummy_mapping"),
         pytest.param({"_attr_": "str", "_eval_": "import"}, str, id="import"),
         pytest.param({"_attr_": "str", "_args_": ["hello"], "_eval_": "call"}, "hello", id="call"),
         pytest.param({"_attr_": "str", "_args_": ["hello"], "_eval_": "partial"}, lambda: "hello", id="partial"),
+        pytest.param(
+            {"_attr_": "str", "_args_": [{"hello": "world"}], "_eval_": "partial"},
+            lambda: "{'hello': 'world'}",
+            id="partial_with_dummy_mapping",
+        ),
     ],
 )
 def test_parser_evaluate(config, expected):

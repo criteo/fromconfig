@@ -181,8 +181,13 @@ class EvaluateParser(base.Parser):
                 if evaluate == EvaluateMode.PARTIAL:
 
                     def is_lazy(arg):
-                        # Argument will be parsed before the function itself and hence lazy arguments would have been wrapped into a _LazyArg
-                        return bool(is_mapping(arg) and arg[Keys.ATTR.value] == to_import_string(_LazyArg))
+                        # Argument will be parsed before the function itself and hence lazy arguments would have been
+                        # wrapped into a _LazyArg
+                        return bool(
+                            is_mapping(arg)
+                            and Keys.ATTR.value in arg
+                            and arg[Keys.ATTR.value] == to_import_string(_LazyArg)
+                        )
 
                     lazy_args_mask = [is_lazy(arg) for arg in args]
                     lazy_kwargs_map = {key: is_lazy(value) for key, value in kwargs.items()}
